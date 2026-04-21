@@ -15,15 +15,22 @@ module, not in the UI.
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
-import pandas as pd
-import streamlit as st
+# Streamlit's `streamlit run` entrypoint doesn't add the repo root to sys.path
+# the way `python -m` does. Add it explicitly so `from src....` resolves.
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
 
-from src.config import get_settings
-from src.models import Borough
-from src.pipeline import run_all_verticals
-from src.storage import SQLiteStore
+import pandas as pd  # noqa: E402 — sys.path fix must precede these imports
+import streamlit as st  # noqa: E402
+
+from src.config import get_settings  # noqa: E402
+from src.models import Borough  # noqa: E402
+from src.pipeline import run_all_verticals  # noqa: E402
+from src.storage import SQLiteStore  # noqa: E402
 
 st.set_page_config(
     page_title="Lead Response Intelligence",
