@@ -142,6 +142,9 @@ Places + Claude + Twilio + Gmail + Airtable.
 - **[Pydantic v2](https://docs.pydantic.dev/)** + **pydantic-settings** —
   data models and config. Validation happens at module boundaries, not
   three layers deep into a `KeyError`.
+- **[Streamlit](https://streamlit.io/)** + **Altair** — operator
+  dashboard for the internal user: pipeline metrics, outreach table,
+  vertical stats bar chart, and a one-click "run pipeline now" trigger.
 - **[Tenacity](https://tenacity.readthedocs.io/)** / **Loguru** / **Typer**
   / **Rich** — the usual production-Python quartet for retries, logs,
   CLI, and pretty terminal output.
@@ -166,7 +169,34 @@ python -m src.cli run-weekly --all-verticals --borough manhattan
 # 4. Or classify a single live URL end-to-end (needs ANTHROPIC_API_KEY if you
 #    want the real Claude classifier; otherwise uses the heuristic fallback)
 python -m src.cli classify-url https://example-business.com
+
+# 5. Open the operator dashboard in a browser
+streamlit run src/dashboard/app.py
 ```
+
+## Operator dashboard
+
+The pipeline is designed to run headless on a cron schedule, but the
+operator also gets a Streamlit dashboard at `http://localhost:8501` to
+monitor each weekly run and trigger ad-hoc runs between Mondays.
+
+Dashboard panes:
+
+- **Summary metrics** — prospects tracked, submissions queued, responses
+  captured, match rate.
+- **Run pipeline now** — borough + limit selector and a one-click
+  trigger that invokes `run_all_verticals` and refreshes the view.
+- **Outreach priority** — the weekly priority list with per-vertical
+  filters and a CSV export button for the sales team.
+- **Vertical stats** — bar chart of avg response time per vertical + the
+  raw stats table.
+- **Competitor distribution** — stacked bar chart of detected
+  chat/booking tools per vertical.
+- **Raw data** — direct SQLite views of submissions and responses for
+  debugging the matcher on a specific prospect.
+
+The dashboard is strictly for the internal operator — the Phase 1 spec
+explicitly excludes any client-facing UI.
 
 ## Configuration
 
