@@ -1,0 +1,101 @@
+[
+  {
+    "place_id": "place_law_001",
+    "business_name": "Sutter & Associates Law",
+    "vertical": "law_firm",
+    "borough": "manhattan",
+    "website": "https://sutter-law.example.com",
+    "phone": "+12125550101",
+    "email": "intake@sutter-law.example.com"
+  },
+  {
+    "place_id": "place_law_002",
+    "business_name": "Ramirez Immigration Attorneys",
+    "vertical": "law_firm",
+    "borough": "manhattan",
+    "website": "https://ramirez-immigration.example.com",
+    "phone": "+12125550102",
+    "email": "intake@ramirez-immigration.example.com"
+  },
+  {
+    "place_id": "place_law_003",
+    "business_name": "Hoch & Park Family Law",
+    "vertical": "law_firm",
+    "borough": "manhattan",
+    "website": "https://hochpark.example.com",
+    "phone": "+12125550103",
+    "email": "contact@hochpark.example.com"
+  },
+  {
+    "place_id": "place_law_004",
+    "business_name": "Brooklyn Heights Personal Injury",
+    "vertical": "law_firm",
+    "borough": "brooklyn",
+    "website": "https://bkheightslaw.example.com",
+    "phone": "+17185550104",
+    "email": null
+  },
+  {
+    "place_id": "place_law_005",
+    "business_name": "Queens Criminal Defense Group",
+    "vertical": "law_firm",
+    "borough": "queens",
+    "website": "https://queenscrimlaw.example.com",
+    "phone": "+17185550105",
+    "email": null
+  },
+  {
+    "place_id": "place_home_001",
+    "business_name": "Uptown HVAC & Heating",
+    "vertical": "home_services",
+    "borough": "manhattan",
+    "website": "https://uptownhvac.example.com",
+    "phone": "+12125550201",
+    "email": "dispatch@uptownhvac.example.com"
+  },
+  {
+    "place_id": "place_home_002",
+    "business_name": "Empire Roofing Contractors",
+    "vertical": "home_services",
+    "borough": "manhattan",
+    "website": "https://empireroofing.example.com",
+    "phone": "+12125550202",
+    "email": null
+  },
+  {
+    "place_id": "place_home_003",
+    "business_name": "BK Plumbing Specialists",
+    "vertical": "home_services",
+    "borough": "brooklyn",
+    "website": "https://bkplumbing.example.com",
+    "phone": "+17185550203",
+    "email": null
+  },
+  {
+    "place_id": "place_spa_001",
+    "business_name": "Aurora Med Spa",
+    "vertical": "med_spa",
+    "borough": "manhattan",
+    "website": "https://auroramedspa.example.com",
+    "phone": "+12125550301",
+    "email": "hello@auroramedspa.example.com"
+  },
+  {
+    "place_id": "place_spa_002",
+    "business_name": "Skin & Glow Aesthetics",
+    "vertical": "med_spa",
+    "borough": "manhattan",
+    "website": "https://skinglow.example.com",
+    "phone": "+12125550302",
+    "email": null
+  },
+  {
+    "place_id": "place_spa_003",
+    "business_name": "Brooklyn Contour Clinic",
+    "vertical": "med_spa",
+    "borough": "brooklyn",
+    "website": "https://bkcontour.example.com",
+    "phone": "+17185550303",
+    "email": null
+  }
+]

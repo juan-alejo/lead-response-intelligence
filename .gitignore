@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.installed.cfg
+
+# Virtual envs
+.venv/
+venv/
+env/
+ENV/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Output artifacts
+out/
+*.sqlite
+*.db
+logs/
+*.log
+!examples/*.sqlite
+
+# Reports (generated)
+reports/*.csv
+!reports/.gitkeep
+!examples/reports/*.csv
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

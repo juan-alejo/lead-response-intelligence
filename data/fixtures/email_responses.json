@@ -1,0 +1,14 @@
+[
+  {
+    "response_id": "email_001",
+    "received_at": "2026-04-21T14:30:00",
+    "sender_email": "intake@ramirez-immigration.example.com",
+    "content_snippet": "Thank you for your inquiry. We typically respond within one business day."
+  },
+  {
+    "response_id": "email_002",
+    "received_at": "2026-04-24T11:05:00",
+    "sender_email": "hello@auroramedspa.example.com",
+    "content_snippet": "Hi! We'd love to schedule a consultation. Here is a booking link..."
+  }
+]

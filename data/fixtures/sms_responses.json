@@ -1,0 +1,30 @@
+[
+  {
+    "response_id": "sms_001",
+    "channel": "sms",
+    "received_at": "2026-04-21T15:12:00",
+    "sender_phone": "+12125550101",
+    "content_snippet": "Hi, thanks for reaching out. One of our intake specialists will call you back shortly."
+  },
+  {
+    "response_id": "sms_002",
+    "channel": "sms",
+    "received_at": "2026-04-21T18:45:00",
+    "sender_phone": "+12125550201",
+    "content_snippet": "Got your inquiry — we can send a tech out tomorrow between 10 and 2."
+  },
+  {
+    "response_id": "phone_001",
+    "channel": "phone",
+    "received_at": "2026-04-22T10:03:00",
+    "sender_phone": "+17185550105",
+    "content_snippet": "[voicemail transcript] Hi, this is the Queens Criminal Defense Group returning your call."
+  },
+  {
+    "response_id": "sms_003",
+    "channel": "sms",
+    "received_at": "2026-04-23T09:15:00",
+    "sender_phone": "+15558675309",
+    "content_snippet": "Wrong number"
+  }
+]

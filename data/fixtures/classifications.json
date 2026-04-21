@@ -1,0 +1,46 @@
+{
+  "place_law_001": {
+    "form_type": "contact_form",
+    "competitor_tools": ["intercom"]
+  },
+  "place_law_002": {
+    "form_type": "chat_widget",
+    "competitor_tools": ["intercom", "juvo_leads"]
+  },
+  "place_law_003": {
+    "form_type": "chat_widget",
+    "competitor_tools": ["intaker"]
+  },
+  "place_law_004": {
+    "form_type": "contact_form",
+    "competitor_tools": ["juvo_leads"]
+  },
+  "place_law_005": {
+    "form_type": "contact_form",
+    "competitor_tools": []
+  },
+  "place_home_001": {
+    "form_type": "contact_form",
+    "competitor_tools": []
+  },
+  "place_home_002": {
+    "form_type": "contact_form",
+    "competitor_tools": ["calendly"]
+  },
+  "place_home_003": {
+    "form_type": "booking_widget",
+    "competitor_tools": ["calendly"]
+  },
+  "place_spa_001": {
+    "form_type": "booking_widget",
+    "competitor_tools": ["calendly"]
+  },
+  "place_spa_002": {
+    "form_type": "booking_widget",
+    "competitor_tools": ["acuity"]
+  },
+  "place_spa_003": {
+    "form_type": "chat_widget",
+    "competitor_tools": ["drift", "calendly"]
+  }
+}
