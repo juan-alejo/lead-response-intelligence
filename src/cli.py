@@ -12,8 +12,9 @@ from rich.console import Console
 from rich.table import Table
 
 from .config import get_settings
-from .models import Borough, Vertical
+from .models import Borough
 from .pipeline import run_all_verticals, run_full_pipeline
+from .verticals import get_registry
 
 app = typer.Typer(
     add_completion=False,
@@ -24,7 +25,10 @@ console = Console()
 
 @app.command()
 def run_weekly(
-    vertical: Vertical = typer.Option(Vertical.LAW_FIRM, help="Vertical to target"),
+    vertical: str = typer.Option(
+        "law_firm",
+        help="Vertical to target (must match a name in config/verticals.yaml)",
+    ),
     borough: Borough = typer.Option(Borough.MANHATTAN, help="NYC borough"),
     limit: int = typer.Option(50, help="Max prospects to fetch from the source"),
     fetch_pages: bool = typer.Option(
@@ -38,6 +42,14 @@ def run_weekly(
 ) -> None:
     """Run the full weekly pipeline end-to-end."""
     settings = get_settings()
+
+    if not all_verticals and not get_registry().contains(vertical):
+        known = ", ".join(get_registry().names())
+        raise typer.BadParameter(
+            f"unknown vertical {vertical!r}. Known: {known}. "
+            "Edit config/verticals.yaml or use the Settings tab in the dashboard."
+        )
+
     if all_verticals:
         result = run_all_verticals(
             settings, borough=borough, limit=limit, fetch_pages=fetch_pages

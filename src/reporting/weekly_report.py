@@ -94,7 +94,7 @@ class WeeklyReporter:
                 writer.writerow(
                     [
                         s.business_name,
-                        s.vertical.value,
+                        s.vertical,
                         s.submission_method.value,
                         elapsed if elapsed is not None else "",
                         _humanize(elapsed) if elapsed is not None else "never responded",
@@ -112,7 +112,7 @@ class WeeklyReporter:
     ) -> Path:
         by_vertical: dict[str, list[Submission]] = defaultdict(list)
         for s in submissions:
-            by_vertical[s.vertical.value].append(s)
+            by_vertical[s.vertical].append(s)
 
         elapsed_by_sub: dict[str, int] = {}
         for r in responses:
@@ -161,7 +161,7 @@ class WeeklyReporter:
         self, submissions: list[Submission], classifications: list[Classification]
     ) -> Path:
         vertical_by_place: dict[str, str] = {
-            s.prospect_place_id: s.vertical.value for s in submissions
+            s.prospect_place_id: s.vertical for s in submissions
         }
         counts: dict[tuple[str, str], int] = defaultdict(int)
         for c in classifications:

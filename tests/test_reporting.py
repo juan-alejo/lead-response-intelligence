@@ -14,17 +14,16 @@ from src.models import (
     ResponseChannel,
     Submission,
     SubmissionMethod,
-    Vertical,
 )
 from src.reporting import WeeklyReporter
 
 
-def _sub(sid: str, vertical: Vertical, *, pid: str | None = None) -> Submission:
+def _sub(sid: str, vertical: str, *, pid: str | None = None) -> Submission:
     return Submission(
         submission_id=sid,
         prospect_place_id=pid or f"p_{sid}",
         business_name=f"Biz {sid}",
-        vertical=vertical,
+        vertical=vertical,  # free-form per the new registry-backed model
         submission_method=SubmissionMethod.CONTACT_FORM,
         expected_sender_phone="+15555550100",
         expected_sender_email="response@test.example.com",
@@ -43,7 +42,7 @@ def _resp(rid: str, sid: str, elapsed: int) -> Response:
 
 
 def test_outreach_priority_filters_fast_responders(tmp_path: Path) -> None:
-    subs = [_sub("s1", Vertical.LAW_FIRM), _sub("s2", Vertical.LAW_FIRM)]
+    subs = [_sub("s1", "law_firm"), _sub("s2", "law_firm")]
     # s1 responds in 30 seconds → "fast responder", should be filtered out.
     # s2 responds in 3 hours → should appear on the list.
     responses = [_resp("r1", "s1", 30), _resp("r2", "s2", 3 * 3600)]
@@ -58,7 +57,7 @@ def test_outreach_priority_filters_fast_responders(tmp_path: Path) -> None:
 
 
 def test_outreach_priority_puts_never_responded_first(tmp_path: Path) -> None:
-    subs = [_sub("s1", Vertical.LAW_FIRM), _sub("s2", Vertical.LAW_FIRM)]
+    subs = [_sub("s1", "law_firm"), _sub("s2", "law_firm")]
     # s1 responds in 3 hours (slow but responded); s2 never responds.
     responses = [_resp("r1", "s1", 3 * 3600)]
 
@@ -73,10 +72,10 @@ def test_outreach_priority_puts_never_responded_first(tmp_path: Path) -> None:
 
 def test_vertical_stats_computes_percentages(tmp_path: Path) -> None:
     subs = [
-        _sub("s1", Vertical.LAW_FIRM),
-        _sub("s2", Vertical.LAW_FIRM),
-        _sub("s3", Vertical.LAW_FIRM),
-        _sub("s4", Vertical.LAW_FIRM),
+        _sub("s1", "law_firm"),
+        _sub("s2", "law_firm"),
+        _sub("s3", "law_firm"),
+        _sub("s4", "law_firm"),
     ]
     # 2 out of 4 responded within 24h.
     responses = [
@@ -98,9 +97,9 @@ def test_vertical_stats_computes_percentages(tmp_path: Path) -> None:
 
 def test_competitor_distribution_counts_per_vertical(tmp_path: Path) -> None:
     subs = [
-        _sub("s1", Vertical.LAW_FIRM, pid="p1"),
-        _sub("s2", Vertical.LAW_FIRM, pid="p2"),
-        _sub("s3", Vertical.MED_SPA, pid="p3"),
+        _sub("s1", "law_firm", pid="p1"),
+        _sub("s2", "law_firm", pid="p2"),
+        _sub("s3", "med_spa", pid="p3"),
     ]
     classifications = [
         Classification(

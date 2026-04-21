@@ -32,11 +32,11 @@ from .models import (
     Prospect,
     Submission,
     SubmissionMethod,
-    Vertical,
 )
 from .monitoring import GmailMockAdapter, ResponseMatcher, TwilioMockAdapter
 from .reporting import WeeklyReporter
 from .storage import SQLiteStore, Storage
+from .verticals import get_registry
 
 _METHOD_BY_FORM_TYPE = {
     "contact_form": SubmissionMethod.CONTACT_FORM,
@@ -67,7 +67,7 @@ class Pipeline:
 
     async def run_ingestion_and_classification(
         self,
-        vertical: Vertical,
+        vertical: str,
         borough: Borough,
         *,
         limit: int = 50,
@@ -247,7 +247,7 @@ def _infer_form_type_from_prospect(prospect: Prospect) -> FormType:
 def run_full_pipeline(
     settings: Settings,
     *,
-    vertical: Vertical = Vertical.LAW_FIRM,
+    vertical: str = "law_firm",
     borough: Borough = Borough.MANHATTAN,
     limit: int = 50,
     fetch_pages: bool = False,
@@ -288,9 +288,11 @@ def run_all_verticals(
     totals = PipelineResult()
 
     # Ingest + classify every vertical against the same storage, accumulating
-    # classifications in the pipeline cache across calls.
+    # classifications in the pipeline cache across calls. `run_all_verticals`
+    # runs every vertical currently defined in the registry — add a dentist in
+    # the dashboard Settings tab and it automatically flows through here.
     all_classifications: list[Classification] = []
-    for vertical in [Vertical.LAW_FIRM, Vertical.HOME_SERVICES, Vertical.MED_SPA]:
+    for vertical in get_registry().names():
         part = asyncio.run(
             pipeline.run_ingestion_and_classification(
                 vertical, borough, limit=limit, fetch_pages=fetch_pages

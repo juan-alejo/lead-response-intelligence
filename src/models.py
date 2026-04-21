@@ -21,13 +21,6 @@ def _utc_now() -> datetime:
     return datetime.now(UTC).replace(tzinfo=None)
 
 
-class Vertical(StrEnum):
-    LAW_FIRM = "law_firm"
-    HOME_SERVICES = "home_services"
-    MED_SPA = "med_spa"
-    GENERAL = "general"
-
-
 class Borough(StrEnum):
     MANHATTAN = "manhattan"
     BROOKLYN = "brooklyn"
@@ -71,7 +64,7 @@ class Prospect(BaseModel):
 
     place_id: str  # Stable external id — our natural key for deduplication.
     business_name: str
-    vertical: Vertical
+    vertical: str  # free-form; validated against VerticalRegistry at CLI level
     borough: Borough
     website: str | None = None
     phone: str | None = None
@@ -103,7 +96,7 @@ class Submission(BaseModel):
     submission_id: str  # uuid
     prospect_place_id: str
     business_name: str
-    vertical: Vertical
+    vertical: str  # free-form; validated against VerticalRegistry at CLI level
     submission_method: SubmissionMethod
     expected_sender_phone: str | None = None
     expected_sender_email: EmailStr | None = None

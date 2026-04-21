@@ -5,7 +5,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 
-from ..models import Borough, Prospect, Vertical
+from ..models import Borough, Prospect
 
 
 class ProspectSource(ABC):
@@ -13,6 +13,6 @@ class ProspectSource(ABC):
 
     @abstractmethod
     def fetch(
-        self, vertical: Vertical, borough: Borough, limit: int = 100
+        self, vertical: str, borough: Borough, limit: int = 100
     ) -> Iterable[Prospect]:
         """Yield prospects matching the vertical + borough."""

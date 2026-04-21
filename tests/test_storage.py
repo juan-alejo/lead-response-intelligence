@@ -12,7 +12,6 @@ from src.models import (
     ResponseChannel,
     Submission,
     SubmissionMethod,
-    Vertical,
 )
 from src.storage import SQLiteStore
 
@@ -21,7 +20,7 @@ def _make_prospect(pid: str = "p1") -> Prospect:
     return Prospect(
         place_id=pid,
         business_name=f"Biz {pid}",
-        vertical=Vertical.LAW_FIRM,
+        vertical="law_firm",
         borough=Borough.MANHATTAN,
         website="https://biz.example.com",
     )
@@ -32,7 +31,7 @@ def _make_submission(sid: str = "s1", pid: str = "p1") -> Submission:
         submission_id=sid,
         prospect_place_id=pid,
         business_name="Biz p1",
-        vertical=Vertical.LAW_FIRM,
+        vertical="law_firm",
         submission_method=SubmissionMethod.CONTACT_FORM,
         expected_sender_phone="+15555550100",
         expected_sender_email="inbox@test.example.com",

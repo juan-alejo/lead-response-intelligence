@@ -28,6 +28,7 @@ import pandas as pd  # noqa: E402 — sys.path fix must precede these imports
 import streamlit as st  # noqa: E402
 
 from src.config import get_settings  # noqa: E402
+from src.dashboard.settings_tab import render_settings_tab  # noqa: E402
 from src.models import Borough  # noqa: E402
 from src.pipeline import run_all_verticals  # noqa: E402
 from src.storage import SQLiteStore  # noqa: E402
@@ -122,12 +123,13 @@ with st.expander("▶ Run weekly pipeline now", expanded=False):
 
 # ------------------------------------------------------------------- Tabs
 
-tab_outreach, tab_stats, tab_competitors, tab_data = st.tabs(
+tab_outreach, tab_stats, tab_competitors, tab_data, tab_settings = st.tabs(
     [
         "🎯 Outreach priority",
         "📊 Vertical stats",
         "🕵 Competitor distribution",
         "🗂 Raw data",
+        "⚙ Settings",
     ]
 )
 
@@ -240,7 +242,7 @@ with tab_data:
             {
                 "submission_id": s.submission_id[:8] + "…",
                 "business_name": s.business_name,
-                "vertical": s.vertical.value,
+                "vertical": s.vertical,
                 "submission_method": s.submission_method.value,
                 "expected_sender_phone": s.expected_sender_phone,
                 "expected_sender_email": s.expected_sender_email,
@@ -277,8 +279,13 @@ with tab_data:
         else:
             st.info("No responses yet.")
 
+# ---------- Tab 5: Settings ----------
+
+with tab_settings:
+    render_settings_tab(env_path=_REPO_ROOT / ".env")
+
 st.divider()
 st.caption(
     "Pipeline source: github.com/juan-alejo/lead-response-intelligence  •  "
-    "Storage: SQLite (swap to Airtable via STORAGE_BACKEND env var)"
+    "Storage: SQLite (swap to Airtable via Settings tab)"
 )

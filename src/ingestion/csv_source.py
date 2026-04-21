@@ -8,7 +8,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from ..models import Borough, Prospect, Vertical
+from ..models import Borough, Prospect
 from .base import ProspectSource
 
 
@@ -23,7 +23,7 @@ class CSVSource(ProspectSource):
         self.path = path
 
     def fetch(
-        self, vertical: Vertical, borough: Borough, limit: int = 100
+        self, vertical: str, borough: Borough, limit: int = 100
     ) -> Iterable[Prospect]:
         if not self.path.exists():
             logger.error(f"CSV source not found: {self.path}")
@@ -33,7 +33,7 @@ class CSVSource(ProspectSource):
         with self.path.open(encoding="utf-8-sig", newline="") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                if row.get("vertical") != vertical.value:
+                if row.get("vertical") != vertical:
                     continue
                 if row.get("borough") != borough.value:
                     continue
@@ -41,7 +41,7 @@ class CSVSource(ProspectSource):
                     Prospect(
                         place_id=row["place_id"],
                         business_name=row["business_name"],
-                        vertical=Vertical(row["vertical"]),
+                        vertical=row["vertical"],
                         borough=Borough(row["borough"]),
                         website=row.get("website") or None,
                         phone=row.get("phone") or None,

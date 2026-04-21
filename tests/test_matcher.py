@@ -9,7 +9,6 @@ from src.models import (
     ResponseChannel,
     Submission,
     SubmissionMethod,
-    Vertical,
 )
 from src.monitoring import ResponseMatcher
 
@@ -19,7 +18,7 @@ def _sub(sid: str, phone: str, email: str, submitted_at: datetime) -> Submission
         submission_id=sid,
         prospect_place_id=f"p_{sid}",
         business_name=f"Biz {sid}",
-        vertical=Vertical.LAW_FIRM,
+        vertical="law_firm",
         submission_method=SubmissionMethod.CONTACT_FORM,
         expected_sender_phone=phone,
         expected_sender_email=email,

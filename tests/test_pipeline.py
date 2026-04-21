@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from src.config import Settings
-from src.models import Borough, Vertical
+from src.models import Borough
 from src.pipeline import run_full_pipeline
 
 
@@ -33,7 +33,7 @@ def test_full_pipeline_law_firm_manhattan(tmp_path: Path) -> None:
 
     result = run_full_pipeline(
         settings,
-        vertical=Vertical.LAW_FIRM,
+        vertical="law_firm",
         borough=Borough.MANHATTAN,
         limit=50,
         fetch_pages=False,

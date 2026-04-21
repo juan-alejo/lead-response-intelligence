@@ -7,7 +7,7 @@ from datetime import timedelta
 from pathlib import Path
 
 from src.ingestion import CSVSource, Deduplicator, GooglePlacesSource
-from src.models import Borough, Prospect, Vertical
+from src.models import Borough, Prospect
 
 _FIXTURE = [
     {
@@ -34,9 +34,9 @@ def test_mock_places_filters_by_vertical_and_borough(tmp_path: Path) -> None:
 
     src = GooglePlacesSource(mode="mock", mock_fixture=f)
 
-    manhattan_law = list(src.fetch(Vertical.LAW_FIRM, Borough.MANHATTAN))
-    brooklyn_home = list(src.fetch(Vertical.HOME_SERVICES, Borough.BROOKLYN))
-    queens_law = list(src.fetch(Vertical.LAW_FIRM, Borough.QUEENS))
+    manhattan_law = list(src.fetch("law_firm", Borough.MANHATTAN))
+    brooklyn_home = list(src.fetch("home_services", Borough.BROOKLYN))
+    queens_law = list(src.fetch("law_firm", Borough.QUEENS))
 
     assert [p.place_id for p in manhattan_law] == ["p1"]
     assert [p.place_id for p in brooklyn_home] == ["p2"]
@@ -57,7 +57,7 @@ def test_mock_places_respects_limit(tmp_path: Path) -> None:
     f.write_text(json.dumps(big))
 
     src = GooglePlacesSource(mode="mock", mock_fixture=f)
-    result = list(src.fetch(Vertical.LAW_FIRM, Borough.MANHATTAN, limit=3))
+    result = list(src.fetch("law_firm", Borough.MANHATTAN, limit=3))
 
     assert len(result) == 3
 
@@ -71,7 +71,7 @@ def test_csv_source_loads_rows(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    rows = list(CSVSource(csv_path).fetch(Vertical.LAW_FIRM, Borough.MANHATTAN))
+    rows = list(CSVSource(csv_path).fetch("law_firm", Borough.MANHATTAN))
     assert len(rows) == 1
     assert rows[0].business_name == "Acme Law"
 
@@ -89,19 +89,19 @@ def test_dedup_filters_recent_place_ids() -> None:
             Prospect(
                 place_id="p1",
                 business_name="X",
-                vertical=Vertical.LAW_FIRM,
+                vertical="law_firm",
                 borough=Borough.MANHATTAN,
             ),
             Prospect(
                 place_id="p2",
                 business_name="Y",
-                vertical=Vertical.LAW_FIRM,
+                vertical="law_firm",
                 borough=Borough.MANHATTAN,
             ),
             Prospect(
                 place_id="p3",
                 business_name="Z",
-                vertical=Vertical.LAW_FIRM,
+                vertical="law_firm",
                 borough=Borough.MANHATTAN,
             ),
         ]

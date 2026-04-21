@@ -93,7 +93,7 @@ class SQLiteStore(Storage):
                     (
                         p.place_id,
                         p.business_name,
-                        p.vertical.value,
+                        p.vertical,
                         p.borough.value,
                         p.website,
                         p.phone,
@@ -135,7 +135,7 @@ class SQLiteStore(Storage):
                         s.submission_id,
                         s.prospect_place_id,
                         s.business_name,
-                        s.vertical.value,
+                        s.vertical,
                         s.submission_method.value,
                         s.expected_sender_phone,
                         s.expected_sender_email,
