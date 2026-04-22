@@ -180,6 +180,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "settings.save_integrations": "💾 Guardar configuración",
         "settings.saved_to_env": "✅ Guardado en `{path}`. La próxima búsqueda usa los nuevos valores.",
+        "settings.autosave_hint": "Los cambios se guardan automáticamente — no hace falta apretar ningún botón.",
 
         # --- Settings: mode dropdown labels ---
         "settings.mode_mock": "🧪 Prueba (datos de ejemplo)",
@@ -376,6 +377,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "settings.save_integrations": "💾 Save integrations",
         "settings.saved_to_env": "✅ Saved to `{path}`. Next search uses the new values.",
+        "settings.autosave_hint": "Changes save automatically — no button needed.",
 
         # --- Settings: mode dropdown labels ---
         "settings.mode_mock": "🧪 Demo (example data)",

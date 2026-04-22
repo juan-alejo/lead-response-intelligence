@@ -9,6 +9,8 @@ Design goals:
   about WhatsApp, US clients about SMS, and so on.
 - Help text is geographically aware — the tool explains what Twilio /
   WhatsApp / Gmail mean in the contexts where the buyer actually lives.
+- Everything auto-saves. No explicit Save button — changes persist as
+  you type and the next pipeline run picks them up.
 
 Persistence:
 - API keys → `.env` (gitignored, treated as secrets).
@@ -18,17 +20,15 @@ Persistence:
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from pathlib import Path
 
 import streamlit as st
 
 from ..verticals import Vertical, get_registry
-from .i18n import tr
+from .i18n import get_lang, tr
 
 # --------------------------------------------------------------- Help blurbs
-#
-# Kept as bilingual dicts so the help expanders flip with the language
-# selector. Keys match `get_lang()` output.
 
 _HELP_ANTHROPIC = {
     "es": """\
@@ -306,6 +306,13 @@ def _write_env(path: Path, values: dict[str, str]) -> None:
     path.write_text("\n".join(existing_lines) + "\n", encoding="utf-8")
 
 
+def _save_single(env_path: Path, env_key: str, value: str) -> None:
+    """Persist a single env var. Used by every on_change callback."""
+    current = _read_env(env_path)
+    current[env_key] = value
+    _write_env(env_path, current)
+
+
 # --------------------------------------------------------------- UI helpers
 
 _MODE_OPTIONS = ["mock", "real", "disabled"]
@@ -315,26 +322,294 @@ def _mode_label(mode: str) -> str:
     return tr(f"settings.mode_{mode}")
 
 
-def _mode_selector(
-    label: str, current: str, *, disabled: bool = False, key: str
-) -> str:
-    """Uniform dropdown so every channel's state is readable at a glance."""
-    idx = _MODE_OPTIONS.index(current) if current in _MODE_OPTIONS else 0
-    return st.selectbox(
-        label,
-        options=_MODE_OPTIONS,
-        index=idx,
-        format_func=_mode_label,
-        disabled=disabled,
-        key=key,
-    )
-
-
 def _lang_help(mapping: dict[str, str]) -> str:
-    """Pick the right language variant of a help blurb."""
-    from .i18n import get_lang
-
     return mapping.get(get_lang()) or next(iter(mapping.values()))
+
+
+def _on_change_factory(env_path: Path, env_key: str, widget_key: str) -> Callable:
+    """Build an on_change callback that writes widget value to `env_key`.
+
+    Kept as a factory because Streamlit calls callbacks without args — we
+    need to capture the env_key and widget_key in a closure.
+    """
+
+    def _cb() -> None:
+        value = st.session_state.get(widget_key, "")
+        _save_single(env_path, env_key, str(value))
+
+    return _cb
+
+
+def _service_state(env: dict[str, str], mode_key: str, cred_key: str) -> str:
+    """Compute the state of an integration for status chips + expansion logic."""
+    mode = env.get(mode_key, "mock")
+    if mode == "disabled":
+        return "disabled"
+    if mode == "real" and env.get(cred_key, ""):
+        return "ready"
+    if mode == "real":
+        return "needs_creds"
+    return "mock"
+
+
+_STATE_ICONS = {
+    "ready": "✅",
+    "mock": "🧪",
+    "disabled": "⏸",
+    "needs_creds": "⚠",
+}
+
+
+def _section_title(name: str, state: str) -> str:
+    return f"{_STATE_ICONS[state]}  {name}"
+
+
+# --------------------------------------------------------------- Integration sections
+
+
+def _section_claude(env: dict[str, str], env_path: Path) -> None:
+    state = _service_state(env, "CLAUDE_MODE", "ANTHROPIC_API_KEY")
+    with st.expander(
+        _section_title(tr("settings.claude_title").replace("#### 🤖 ", ""), state),
+        expanded=(state == "needs_creds"),
+    ):
+        col1, col2 = st.columns([3, 1])
+        col1.text_input(
+            "Anthropic API key",
+            value=env.get("ANTHROPIC_API_KEY", ""),
+            type="password",
+            placeholder="sk-ant-...",
+            key="anthropic_key_input",
+            on_change=_on_change_factory(env_path, "ANTHROPIC_API_KEY", "anthropic_key_input"),
+        )
+        col2.selectbox(
+            "Modo",
+            options=_MODE_OPTIONS,
+            index=_MODE_OPTIONS.index(env.get("CLAUDE_MODE", "mock")),
+            format_func=_mode_label,
+            key="claude_mode_sel",
+            on_change=_on_change_factory(env_path, "CLAUDE_MODE", "claude_mode_sel"),
+        )
+        with st.expander(tr("settings.help_expander"), expanded=False):
+            st.markdown(_lang_help(_HELP_ANTHROPIC))
+
+
+def _section_places(env: dict[str, str], env_path: Path) -> None:
+    state = _service_state(env, "PLACES_MODE", "GOOGLE_PLACES_API_KEY")
+    with st.expander(
+        _section_title(tr("settings.places_title").replace("#### 🗺 ", ""), state),
+        expanded=(state == "needs_creds"),
+    ):
+        col1, col2 = st.columns([3, 1])
+        col1.text_input(
+            "Google Places API key",
+            value=env.get("GOOGLE_PLACES_API_KEY", ""),
+            type="password",
+            placeholder="AIza...",
+            key="places_key_input",
+            on_change=_on_change_factory(env_path, "GOOGLE_PLACES_API_KEY", "places_key_input"),
+        )
+        col2.selectbox(
+            "Modo",
+            options=_MODE_OPTIONS,
+            index=_MODE_OPTIONS.index(env.get("PLACES_MODE", "mock")),
+            format_func=_mode_label,
+            key="places_mode_sel",
+            on_change=_on_change_factory(env_path, "PLACES_MODE", "places_mode_sel"),
+        )
+        with st.expander(tr("settings.help_expander"), expanded=False):
+            st.markdown(_lang_help(_HELP_GOOGLE_PLACES))
+
+
+def _section_twilio(env: dict[str, str], env_path: Path) -> None:
+    state = _service_state(env, "TWILIO_MODE", "TWILIO_ACCOUNT_SID")
+    with st.expander(
+        _section_title(tr("settings.twilio_title").replace("#### 📱 ", ""), state),
+        expanded=(state == "needs_creds"),
+    ):
+        st.caption(tr("settings.twilio_caption"))
+        col1, col2 = st.columns([3, 1])
+        col1.text_input(
+            "Twilio Account SID",
+            value=env.get("TWILIO_ACCOUNT_SID", ""),
+            type="password",
+            placeholder="AC...",
+            key="twilio_sid_input",
+            on_change=_on_change_factory(env_path, "TWILIO_ACCOUNT_SID", "twilio_sid_input"),
+        )
+        col2.selectbox(
+            "Modo",
+            options=_MODE_OPTIONS,
+            index=_MODE_OPTIONS.index(env.get("TWILIO_MODE", "mock")),
+            format_func=_mode_label,
+            key="twilio_mode_sel",
+            on_change=_on_change_factory(env_path, "TWILIO_MODE", "twilio_mode_sel"),
+        )
+        st.text_input(
+            "Twilio Auth Token",
+            value=env.get("TWILIO_AUTH_TOKEN", ""),
+            type="password",
+            key="twilio_token_input",
+            on_change=_on_change_factory(env_path, "TWILIO_AUTH_TOKEN", "twilio_token_input"),
+        )
+        st.text_input(
+            "Teléfono SMS (formato E.164)",
+            value=env.get("TWILIO_PHONE_NUMBER", ""),
+            placeholder="+15551234567",
+            key="twilio_phone_input",
+            on_change=_on_change_factory(env_path, "TWILIO_PHONE_NUMBER", "twilio_phone_input"),
+        )
+        with st.expander(tr("settings.help_expander"), expanded=False):
+            st.markdown(_lang_help(_HELP_TWILIO_SMS))
+
+
+def _section_whatsapp(env: dict[str, str], env_path: Path) -> None:
+    state = _service_state(env, "WHATSAPP_MODE", "TWILIO_ACCOUNT_SID")
+    with st.expander(
+        _section_title(tr("settings.whatsapp_title").replace("#### 💬 ", ""), state),
+        expanded=(state == "needs_creds"),
+    ):
+        st.caption(tr("settings.whatsapp_caption"))
+        col1, col2 = st.columns([3, 1])
+        col1.text_input(
+            "Número de WhatsApp (E.164)",
+            value=env.get("TWILIO_WHATSAPP_NUMBER", ""),
+            placeholder="whatsapp:+14155238886 (sandbox) o +54...",
+            key="whatsapp_number_input",
+            on_change=_on_change_factory(
+                env_path, "TWILIO_WHATSAPP_NUMBER", "whatsapp_number_input"
+            ),
+        )
+        col2.selectbox(
+            "Modo",
+            options=_MODE_OPTIONS,
+            index=_MODE_OPTIONS.index(env.get("WHATSAPP_MODE", "mock")),
+            format_func=_mode_label,
+            key="whatsapp_mode_sel",
+            on_change=_on_change_factory(env_path, "WHATSAPP_MODE", "whatsapp_mode_sel"),
+        )
+        with st.expander(tr("settings.help_expander"), expanded=False):
+            st.markdown(_lang_help(_HELP_WHATSAPP))
+
+
+def _section_gmail(env: dict[str, str], env_path: Path) -> None:
+    state = _service_state(env, "GMAIL_MODE", "GMAIL_CREDENTIALS_PATH")
+    with st.expander(
+        _section_title(tr("settings.gmail_title").replace("#### 📧 ", ""), state),
+        expanded=(state == "needs_creds"),
+    ):
+        col1, col2 = st.columns([3, 1])
+        col1.text_input(
+            "Path a credentials.json",
+            value=env.get("GMAIL_CREDENTIALS_PATH", ""),
+            placeholder="C:/path/to/credentials.json",
+            key="gmail_creds_input",
+            on_change=_on_change_factory(
+                env_path, "GMAIL_CREDENTIALS_PATH", "gmail_creds_input"
+            ),
+        )
+        col2.selectbox(
+            "Modo",
+            options=_MODE_OPTIONS,
+            index=_MODE_OPTIONS.index(env.get("GMAIL_MODE", "mock")),
+            format_func=_mode_label,
+            key="gmail_mode_sel",
+            on_change=_on_change_factory(env_path, "GMAIL_MODE", "gmail_mode_sel"),
+        )
+        st.text_input(
+            "Path a token.json (se crea solo la primera vez)",
+            value=env.get("GMAIL_TOKEN_PATH", ""),
+            placeholder="C:/path/to/token.json",
+            key="gmail_token_input",
+            on_change=_on_change_factory(env_path, "GMAIL_TOKEN_PATH", "gmail_token_input"),
+        )
+        with st.expander(tr("settings.help_expander"), expanded=False):
+            st.markdown(_lang_help(_HELP_GMAIL))
+
+
+def _section_storage(env: dict[str, str], env_path: Path) -> None:
+    backend = env.get("STORAGE_BACKEND", "sqlite")
+    has_airtable_creds = bool(env.get("AIRTABLE_API_KEY") and env.get("AIRTABLE_BASE_ID"))
+    if backend == "airtable" and not has_airtable_creds:
+        state = "needs_creds"
+    elif backend == "airtable":
+        state = "ready"
+    else:
+        state = "mock"  # sqlite is always "ready" but we treat it as neutral demo
+
+    with st.expander(
+        _section_title(tr("settings.storage_title").replace("#### 🗃 ", ""), state),
+        expanded=(state == "needs_creds"),
+    ):
+        col1, col2 = st.columns([3, 1])
+        col1.text_input(
+            "Airtable Personal Access Token",
+            value=env.get("AIRTABLE_API_KEY", ""),
+            type="password",
+            placeholder="pat...",
+            key="airtable_key_input",
+            on_change=_on_change_factory(env_path, "AIRTABLE_API_KEY", "airtable_key_input"),
+        )
+        col2.selectbox(
+            "Backend",
+            options=["sqlite", "airtable"],
+            index=0 if backend == "sqlite" else 1,
+            format_func=lambda v: "🗂 SQLite (local)" if v == "sqlite" else "☁ Airtable",
+            key="storage_backend_sel",
+            on_change=_on_change_factory(env_path, "STORAGE_BACKEND", "storage_backend_sel"),
+        )
+        st.text_input(
+            "Airtable Base ID",
+            value=env.get("AIRTABLE_BASE_ID", ""),
+            placeholder="app...",
+            key="airtable_base_input",
+            on_change=_on_change_factory(env_path, "AIRTABLE_BASE_ID", "airtable_base_input"),
+        )
+        with st.expander(tr("settings.help_expander"), expanded=False):
+            st.markdown(_lang_help(_HELP_AIRTABLE))
+
+
+# --------------------------------------------------------------- Demo mode callback
+
+
+def _toggle_demo_mode(env_path: Path) -> None:
+    """Callback for the master demo toggle — fans out to all *_MODE keys."""
+    target = "mock" if st.session_state.get("demo_mode_toggle") else "real"
+    env = _read_env(env_path)
+    for key in ("CLAUDE_MODE", "PLACES_MODE", "TWILIO_MODE", "WHATSAPP_MODE", "GMAIL_MODE"):
+        env[key] = target
+    _write_env(env_path, env)
+
+
+# --------------------------------------------------------------- Verticals auto-save
+
+
+def _save_verticals(new_rows: list[dict]) -> tuple[int, list[str]]:
+    """Validate + persist the edited verticals table. Returns (count, errors)."""
+    errors: list[str] = []
+    seen: set[str] = set()
+    cleaned: list[Vertical] = []
+    for row in new_rows:
+        name = (row.get("name") or "").strip()
+        display = (row.get("display_name") or "").strip()
+        query = (row.get("query") or "").strip()
+        if not (name and display and query):
+            # Skip empty rows silently (data_editor creates them on "add row")
+            if name or display or query:
+                errors.append(tr("settings.verticals_error_required"))
+            continue
+        if not re.match(r"^[a-z][a-z0-9_]*$", name):
+            errors.append(tr("settings.verticals_error_name", name=repr(name)))
+            continue
+        if name in seen:
+            errors.append(tr("settings.verticals_error_dup", name=repr(name)))
+            continue
+        seen.add(name)
+        cleaned.append(Vertical(name=name, display_name=display, query=query))
+
+    if cleaned and not errors:
+        get_registry().save(cleaned)
+    return len(cleaned), errors
 
 
 # --------------------------------------------------------------- Main render
@@ -343,32 +618,17 @@ def _lang_help(mapping: dict[str, str]) -> str:
 def render_settings_tab(env_path: Path) -> None:
     env = _read_env(env_path)
 
-    # ---------------------------- Top status panel + progress bar
+    # ---------------------------- Setup status panel
 
     services = [
         ("Claude AI", "CLAUDE_MODE", "ANTHROPIC_API_KEY"),
         ("Google Places", "PLACES_MODE", "GOOGLE_PLACES_API_KEY"),
         ("Twilio SMS", "TWILIO_MODE", "TWILIO_ACCOUNT_SID"),
-        ("WhatsApp", "WHATSAPP_MODE", "TWILIO_ACCOUNT_SID"),  # shares creds
+        ("WhatsApp", "WHATSAPP_MODE", "TWILIO_ACCOUNT_SID"),
         ("Gmail", "GMAIL_MODE", "GMAIL_CREDENTIALS_PATH"),
     ]
-
-    def _service_state(mode_key: str, cred_key: str) -> str:
-        mode = env.get(mode_key, "mock")
-        if mode == "disabled":
-            return "disabled"
-        if mode == "real" and env.get(cred_key, ""):
-            return "ready"
-        if mode == "real":
-            return "needs_creds"
-        return "mock"
-
-    states = {
-        name: _service_state(mode_key, cred_key)
-        for name, mode_key, cred_key in services
-    }
-
-    ready = sum(1 for s in states.values() if s in ("ready", "mock", "disabled"))
+    states = {name: _service_state(env, m, c) for name, m, c in services}
+    ready_count = sum(1 for s in states.values() if s in ("ready", "mock", "disabled"))
     total = len(states)
 
     col_status, col_progress = st.columns([3, 2])
@@ -396,9 +656,12 @@ def render_settings_tab(env_path: Path) -> None:
     with col_progress:
         st.markdown("### ")
         st.progress(
-            ready / total,
-            text=tr("settings.status_progress", ready=ready, total=total),
+            ready_count / total,
+            text=tr("settings.status_progress", ready=ready_count, total=total),
         )
+
+    # Save confirmation banner (subtle, at the top)
+    st.caption("💾 " + tr("settings.autosave_hint"))
 
     st.divider()
 
@@ -406,13 +669,7 @@ def render_settings_tab(env_path: Path) -> None:
 
     current_demo = all(
         env.get(k, "mock") == "mock"
-        for k in (
-            "CLAUDE_MODE",
-            "PLACES_MODE",
-            "TWILIO_MODE",
-            "WHATSAPP_MODE",
-            "GMAIL_MODE",
-        )
+        for k in ("CLAUDE_MODE", "PLACES_MODE", "TWILIO_MODE", "WHATSAPP_MODE", "GMAIL_MODE")
     )
 
     demo_col1, demo_col2 = st.columns([3, 1])
@@ -421,196 +678,33 @@ def render_settings_tab(env_path: Path) -> None:
         st.caption(tr("settings.demo_caption"))
     with demo_col2:
         st.write("")
-        demo = st.toggle(
+        # Seed session_state once so the widget reflects env state on first render.
+        if "demo_mode_toggle" not in st.session_state:
+            st.session_state["demo_mode_toggle"] = current_demo
+        st.toggle(
             tr("settings.demo_toggle"),
-            value=current_demo,
             help=tr("settings.demo_toggle_help"),
             key="demo_mode_toggle",
-            label_visibility="visible",
+            on_change=_toggle_demo_mode,
+            args=(env_path,),
         )
 
-    if demo != current_demo and st.button(
-        tr("settings.demo_apply", mode="mock" if demo else "real"),
-        key="apply_demo",
-        type="primary",
-    ):
-        target = "mock" if demo else "real"
-        updates = {
-            "CLAUDE_MODE": target,
-            "PLACES_MODE": target,
-            "TWILIO_MODE": target,
-            "WHATSAPP_MODE": target,
-            "GMAIL_MODE": target,
-        }
-        _write_env(env_path, updates)
-        st.success(tr("settings.demo_success", mode=target))
-        st.rerun()
-
-    if demo:
+    if current_demo:
         st.info(tr("settings.demo_on_warning"))
 
     st.divider()
 
-    # ---------------------------- API keys & per-channel configuration
+    # ---------------------------- Integrations
 
     st.markdown(tr("settings.integrations_title"))
     st.caption(tr("settings.integrations_caption"))
 
-    with st.form("integrations_form"):
-        # ── Claude (AI classification) ─────────────────────────────────
-        st.markdown(tr("settings.claude_title"))
-        col1, col2 = st.columns([3, 1])
-        anthropic_key = col1.text_input(
-            "Anthropic API key",
-            value=env.get("ANTHROPIC_API_KEY", ""),
-            type="password",
-            placeholder="sk-ant-...",
-            disabled=demo,
-        )
-        claude_mode = _mode_selector(
-            "Mode", env.get("CLAUDE_MODE", "mock"), disabled=demo, key="claude_mode_sel"
-        )
-        with st.expander(tr("settings.help_expander")):
-            st.markdown(_lang_help(_HELP_ANTHROPIC))
-
-        # ── Google Places (prospect discovery) ─────────────────────────
-        st.markdown(tr("settings.places_title"))
-        col1, col2 = st.columns([3, 1])
-        places_key = col1.text_input(
-            "Google Places API key",
-            value=env.get("GOOGLE_PLACES_API_KEY", ""),
-            type="password",
-            placeholder="AIza...",
-            disabled=demo,
-        )
-        places_mode = _mode_selector(
-            "Mode", env.get("PLACES_MODE", "mock"), disabled=demo, key="places_mode_sel"
-        )
-        with st.expander(tr("settings.help_expander")):
-            st.markdown(_lang_help(_HELP_GOOGLE_PLACES))
-
-        # ── Twilio SMS / Voice ─────────────────────────────────────────
-        st.markdown(tr("settings.twilio_title"))
-        st.caption(tr("settings.twilio_caption"))
-        col1, col2 = st.columns([3, 1])
-        twilio_sid = col1.text_input(
-            "Twilio Account SID",
-            value=env.get("TWILIO_ACCOUNT_SID", ""),
-            type="password",
-            placeholder="AC...",
-            disabled=demo,
-        )
-        twilio_mode = _mode_selector(
-            "Mode", env.get("TWILIO_MODE", "mock"), disabled=demo, key="twilio_mode_sel"
-        )
-        twilio_token = st.text_input(
-            "Twilio Auth Token",
-            value=env.get("TWILIO_AUTH_TOKEN", ""),
-            type="password",
-            disabled=demo,
-        )
-        twilio_number = st.text_input(
-            "Twilio SMS phone number (E.164)",
-            value=env.get("TWILIO_PHONE_NUMBER", ""),
-            placeholder="+15551234567",
-            disabled=demo,
-        )
-        with st.expander(tr("settings.help_expander")):
-            st.markdown(_lang_help(_HELP_TWILIO_SMS))
-
-        # ── WhatsApp (Twilio Business API) ─────────────────────────────
-        st.markdown(tr("settings.whatsapp_title"))
-        st.caption(tr("settings.whatsapp_caption"))
-        col1, col2 = st.columns([3, 1])
-        whatsapp_number = col1.text_input(
-            "Twilio WhatsApp sender number (E.164)",
-            value=env.get("TWILIO_WHATSAPP_NUMBER", ""),
-            placeholder="whatsapp:+14155238886 (Twilio sandbox) o +54...",
-            disabled=demo,
-        )
-        whatsapp_mode = _mode_selector(
-            "Mode",
-            env.get("WHATSAPP_MODE", "mock"),
-            disabled=demo,
-            key="whatsapp_mode_sel",
-        )
-        with st.expander(tr("settings.help_expander")):
-            st.markdown(_lang_help(_HELP_WHATSAPP))
-
-        # ── Gmail ──────────────────────────────────────────────────────
-        st.markdown(tr("settings.gmail_title"))
-        col1, col2 = st.columns([3, 1])
-        gmail_creds = col1.text_input(
-            "Gmail credentials.json path",
-            value=env.get("GMAIL_CREDENTIALS_PATH", ""),
-            placeholder="C:/path/to/credentials.json",
-            disabled=demo,
-        )
-        gmail_mode = _mode_selector(
-            "Mode", env.get("GMAIL_MODE", "mock"), disabled=demo, key="gmail_mode_sel"
-        )
-        gmail_token = st.text_input(
-            "Gmail token.json path (auto-created on first run)",
-            value=env.get("GMAIL_TOKEN_PATH", ""),
-            placeholder="C:/path/to/token.json",
-            disabled=demo,
-        )
-        with st.expander(tr("settings.help_expander")):
-            st.markdown(_lang_help(_HELP_GMAIL))
-
-        # ── Airtable ────────────────────────────────────────────────
-        st.markdown(tr("settings.storage_title"))
-        col1, col2 = st.columns([3, 1])
-        airtable_key = col1.text_input(
-            "Airtable Personal Access Token",
-            value=env.get("AIRTABLE_API_KEY", ""),
-            type="password",
-            placeholder="pat...",
-            disabled=demo,
-        )
-        storage_backend = col2.selectbox(
-            "Backend",
-            options=["sqlite", "airtable"],
-            index=0 if env.get("STORAGE_BACKEND", "sqlite") == "sqlite" else 1,
-            format_func=lambda v: "🗂 SQLite (local)" if v == "sqlite" else "☁ Airtable",
-            disabled=demo,
-            key="storage_backend_sel",
-        )
-        airtable_base = st.text_input(
-            "Airtable Base ID",
-            value=env.get("AIRTABLE_BASE_ID", ""),
-            placeholder="app...",
-            disabled=demo,
-        )
-        with st.expander(tr("settings.help_expander")):
-            st.markdown(_lang_help(_HELP_AIRTABLE))
-
-        # ── Save ───────────────────────────────────────────────────────
-        st.divider()
-        submitted = st.form_submit_button(
-            tr("settings.save_integrations"), type="primary", disabled=demo
-        )
-        if submitted:
-            updates = {
-                "ANTHROPIC_API_KEY": anthropic_key,
-                "CLAUDE_MODE": claude_mode,
-                "GOOGLE_PLACES_API_KEY": places_key,
-                "PLACES_MODE": places_mode,
-                "TWILIO_ACCOUNT_SID": twilio_sid,
-                "TWILIO_AUTH_TOKEN": twilio_token,
-                "TWILIO_PHONE_NUMBER": twilio_number,
-                "TWILIO_MODE": twilio_mode,
-                "TWILIO_WHATSAPP_NUMBER": whatsapp_number,
-                "WHATSAPP_MODE": whatsapp_mode,
-                "GMAIL_CREDENTIALS_PATH": gmail_creds,
-                "GMAIL_TOKEN_PATH": gmail_token,
-                "GMAIL_MODE": gmail_mode,
-                "AIRTABLE_API_KEY": airtable_key,
-                "AIRTABLE_BASE_ID": airtable_base,
-                "STORAGE_BACKEND": storage_backend,
-            }
-            _write_env(env_path, updates)
-            st.success(tr("settings.saved_to_env", path=env_path))
+    _section_claude(env, env_path)
+    _section_places(env, env_path)
+    _section_twilio(env, env_path)
+    _section_whatsapp(env, env_path)
+    _section_gmail(env, env_path)
+    _section_storage(env, env_path)
 
     # ---------------------------- Verticals section
 
@@ -642,28 +736,18 @@ def render_settings_tab(env_path: Path) -> None:
         key="verticals_editor",
     )
 
-    if st.button(tr("settings.verticals_save"), type="primary"):
-        seen: set[str] = set()
-        cleaned: list[Vertical] = []
-        for row in edited:
-            name = (row.get("name") or "").strip()
-            display = (row.get("display_name") or "").strip()
-            query = (row.get("query") or "").strip()
-            if not (name and display and query):
-                st.error(tr("settings.verticals_error_required"))
-                continue
-            if not re.match(r"^[a-z][a-z0-9_]*$", name):
-                st.error(tr("settings.verticals_error_name", name=repr(name)))
-                continue
-            if name in seen:
-                st.error(tr("settings.verticals_error_dup", name=repr(name)))
-                continue
-            seen.add(name)
-            cleaned.append(Vertical(name=name, display_name=display, query=query))
-
-        if cleaned:
-            registry.save(cleaned)
-            st.success(tr("settings.verticals_saved", count=len(cleaned)))
-            st.rerun()
-        else:
-            st.warning(tr("settings.verticals_warning"))
+    # Auto-save verticals on each rerun (data_editor returns current state).
+    # We compare against the last saved snapshot to avoid spurious writes.
+    last_saved = st.session_state.get("_verticals_last_saved")
+    current_signature = tuple(
+        (r.get("name", ""), r.get("display_name", ""), r.get("query", ""))
+        for r in edited
+    )
+    if last_saved != current_signature:
+        count, errors = _save_verticals(edited)
+        if not errors and count > 0:
+            st.session_state["_verticals_last_saved"] = current_signature
+            st.toast(tr("settings.verticals_saved", count=count), icon="✅")
+        elif errors:
+            for err in errors[:3]:  # cap at 3 to avoid spam
+                st.warning(err)
