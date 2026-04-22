@@ -33,7 +33,12 @@ from .models import (
     Submission,
     SubmissionMethod,
 )
-from .monitoring import GmailMockAdapter, ResponseMatcher, TwilioMockAdapter
+from .monitoring import (
+    GmailMockAdapter,
+    ResponseMatcher,
+    TwilioMockAdapter,
+    WhatsAppMockAdapter,
+)
 from .reporting import WeeklyReporter
 from .storage import SQLiteStore, Storage
 from .verticals import get_registry
@@ -76,7 +81,13 @@ class Pipeline:
         """Phase 1 steps 1 + 2: discover prospects, classify their forms."""
         result = PipelineResult()
 
-        # 1. Ingestion
+        # 1. Ingestion — skipped entirely when Places is disabled. The operator
+        # can still bring prospects in via the CSV loader in that case.
+        if self.settings.places_mode == "disabled":
+            logger.info("[pipeline] places ingestion disabled — skipping")
+            self._classifications_cache = []
+            return result
+
         source = GooglePlacesSource(
             mode=self.settings.places_mode,
             api_key=self.settings.google_places_api_key,
@@ -145,13 +156,27 @@ class Pipeline:
         return result
 
     def run_monitoring_and_reporting(self) -> PipelineResult:
-        """Phase 1 steps 3 + 5: pull responses, match them, generate reports."""
+        """Phase 1 steps 3 + 5: pull responses, match them, generate reports.
+
+        Each response channel is independent — a disabled channel contributes
+        zero responses but doesn't block the rest of the pipeline.
+        """
         result = PipelineResult()
 
-        twilio = TwilioMockAdapter(self.settings.mock_sms_fixture)
-        gmail = GmailMockAdapter(self.settings.mock_email_fixture)
+        raw_responses: list = []
+        if self.settings.twilio_mode != "disabled":
+            raw_responses.extend(
+                TwilioMockAdapter(self.settings.mock_sms_fixture).pull_new_responses()
+            )
+        if self.settings.whatsapp_mode != "disabled":
+            raw_responses.extend(
+                WhatsAppMockAdapter(self.settings.mock_whatsapp_fixture).pull_new_responses()
+            )
+        if self.settings.gmail_mode != "disabled":
+            raw_responses.extend(
+                GmailMockAdapter(self.settings.mock_email_fixture).pull_new_responses()
+            )
 
-        raw_responses = list(twilio.pull_new_responses()) + list(gmail.pull_new_responses())
         result.responses_pulled = len(raw_responses)
 
         submissions = self.storage.all_submissions()

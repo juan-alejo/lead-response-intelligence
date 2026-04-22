@@ -1,0 +1,16 @@
+[
+  {
+    "response_id": "wa_001",
+    "channel": "whatsapp",
+    "received_at": "2026-04-21T14:15:00",
+    "sender_phone": "+12125550101",
+    "content_snippet": "Hola, recibimos tu mensaje. Te contactamos en el día."
+  },
+  {
+    "response_id": "wa_002",
+    "channel": "whatsapp",
+    "received_at": "2026-04-21T16:45:00",
+    "sender_phone": "+12125550301",
+    "content_snippet": "Hi! Want to book a consultation? Here's our calendar."
+  }
+]

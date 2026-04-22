@@ -45,8 +45,8 @@ def test_full_pipeline_law_firm_manhattan(tmp_path: Path) -> None:
     # Each classified as contact_form (heuristic offline fallback).
     assert result.classified == 3
     assert result.submissions_queued == 3
-    # 4 SMS + 2 email = 6 responses pulled.
-    assert result.responses_pulled == 6
+    # 4 SMS + 2 email + 2 WhatsApp = 8 responses pulled.
+    assert result.responses_pulled == 8
     assert result.report_paths["outreach_priority"].exists()
     assert result.report_paths["vertical_stats"].exists()
     assert result.report_paths["competitor_distribution"].exists()

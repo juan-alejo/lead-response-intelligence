@@ -51,6 +51,7 @@ class ResponseChannel(StrEnum):
     SMS = "sms"
     EMAIL = "email"
     PHONE = "phone"
+    WHATSAPP = "whatsapp"
 
 
 class SubmissionMethod(StrEnum):
