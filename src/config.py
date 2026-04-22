@@ -67,6 +67,25 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     report_output_dir: Path = Field(default=Path("reports"))
 
+    # ----------------------------------------------------------------- Phase 2
+    # Automated form submission. Off by default so upgrading an existing Phase 1
+    # install never changes runtime behavior until the operator explicitly opts
+    # in from the Settings tab.
+    phase_2_enabled: bool = False
+    submitter_mode: Mode = "mock"
+    submitter_batch_limit: int = 50
+    # Test-lead identity — what the submitter types into every form. In demo
+    # mode a safe default is used; for real clients these MUST be overridden
+    # to the operator's owned inbox / number so reply attribution works.
+    lead_full_name: str = "Demo Tester"
+    lead_email: str = "demo+leadresponse@example.com"
+    lead_phone: str = "+15555550100"
+    lead_company: str = "Lead Response Intelligence Demo"
+    lead_message: str = (
+        "Hi — checking how quickly your team responds to inbound contact. "
+        "This is an automated deliverability test."
+    )
+
 
 def get_settings() -> Settings:
     return Settings()

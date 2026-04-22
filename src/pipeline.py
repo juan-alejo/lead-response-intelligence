@@ -42,6 +42,12 @@ from .monitoring import (
 )
 from .reporting import WeeklyReporter
 from .storage import SQLiteStore, Storage
+from .submitter import (
+    FormSubmitter,
+    LeadIdentity,
+    MockFormSubmitter,
+    SubmissionQueue,
+)
 from .verticals import get_vertical_registry
 
 _METHOD_BY_FORM_TYPE = {
@@ -61,6 +67,11 @@ class PipelineResult:
     responses_pulled: int = 0
     responses_matched: int = 0
     report_paths: dict = field(default_factory=dict)
+    # Phase 2 — zeros when the feature flag is off. Populated only when
+    # `run_all_verticals(..., phase_2_enabled=True)` is called.
+    auto_submitted: int = 0
+    auto_needs_manual: int = 0
+    auto_failed: int = 0
 
 
 class Pipeline:
@@ -195,6 +206,52 @@ class Pipeline:
         )
         return result
 
+    def run_form_submission(
+        self,
+        *,
+        limit: int | None = None,
+        vertical: str | None = None,
+    ) -> SubmissionQueueSummary:
+        """Phase 2 step: auto-fill forms for queued submissions.
+
+        No-op when `settings.phase_2_enabled=False` or `settings.submitter_mode
+        ="disabled"` — returns a zero summary so callers can always compute
+        aggregates without branching.
+
+        `limit` falls back to `settings.submitter_batch_limit`, which keeps a
+        production weekly run from spending an unbounded amount of time on
+        submissions in case the queue grew unexpectedly.
+        """
+        if not self.settings.phase_2_enabled:
+            logger.info("[pipeline] phase 2 disabled — skipping auto submission")
+            return SubmissionQueueSummary()
+        if self.settings.submitter_mode == "disabled":
+            logger.info("[pipeline] submitter_mode=disabled — skipping")
+            return SubmissionQueueSummary()
+
+        submitter = self._build_submitter()
+        queue = SubmissionQueue(
+            storage=self.storage,
+            submitter=submitter,
+            lead=LeadIdentity(
+                full_name=self.settings.lead_full_name,
+                email=self.settings.lead_email,
+                phone=self.settings.lead_phone,
+                company=self.settings.lead_company,
+                message=self.settings.lead_message,
+            ),
+        )
+        batch = queue.run_once(
+            limit=limit if limit is not None else self.settings.submitter_batch_limit,
+            vertical=vertical,
+        )
+        return SubmissionQueueSummary(
+            attempted=batch.attempted,
+            completed=batch.completed,
+            failed=batch.failed,
+            needs_manual=batch.needs_manual,
+        )
+
     # ---------- internals ----------
 
     def _build_classifier(self) -> FormClassifier:
@@ -223,6 +280,23 @@ class Pipeline:
             competitor_tools=tools,
         )
 
+    def _build_submitter(self) -> FormSubmitter:
+        """Pick the submitter implementation based on settings.
+
+        Only `mock` is shipped. `real` is a customization deliverable — see
+        docs/PHASE_2_SPEC.md for the Playwright implementation contract.
+        """
+        if self.settings.submitter_mode == "real":
+            # Intentional: Phase 2 "real" mode is sold as a custom engagement,
+            # not a shrink-wrapped default. Raise loud so a mis-configured env
+            # var can't silently fall back to mock in production.
+            raise NotImplementedError(
+                "submitter_mode=real requires the custom Playwright submitter "
+                "delivered as part of the Phase 2 implementation contract. "
+                "See docs/PHASE_2_SPEC.md."
+            )
+        return MockFormSubmitter()
+
     def _queue_submission(
         self, prospect: Prospect, classification: Classification
     ) -> Submission | None:
@@ -242,6 +316,21 @@ class Pipeline:
             expected_sender_email=prospect.email,
             submitted_at=_default_submitted_at(),
         )
+
+
+@dataclass
+class SubmissionQueueSummary:
+    """Zero-allocation-path return type from `run_form_submission`.
+
+    Kept separate from `PipelineResult` so callers that only care about Phase
+    2 (e.g. a standalone cron / the dashboard's 'run now' button) aren't
+    forced to materialize a full pipeline result with all the other zeros.
+    """
+
+    attempted: int = 0
+    completed: int = 0
+    failed: int = 0
+    needs_manual: int = 0
 
 
 def _load_classification_fixture(path):
@@ -342,6 +431,16 @@ def run_all_verticals(
         all_classifications.extend(pipeline._classifications_cache)
 
     pipeline._classifications_cache = all_classifications
+
+    # Phase 2: run the auto-submitter BEFORE monitoring so any responses the
+    # submitter triggers (confirmation emails, auto-responders) can be
+    # attributed in the same weekly run. When the flag is off this is a
+    # zero-cost no-op.
+    auto = pipeline.run_form_submission()
+    totals.auto_submitted = auto.completed
+    totals.auto_needs_manual = auto.needs_manual
+    totals.auto_failed = auto.failed
+
     reporting = pipeline.run_monitoring_and_reporting()
     totals.responses_pulled = reporting.responses_pulled
     totals.responses_matched = reporting.responses_matched
@@ -389,6 +488,9 @@ def _append_run_history(
             "submissions_queued": result.submissions_queued,
             "responses_pulled": result.responses_pulled,
             "responses_matched": result.responses_matched,
+            "auto_submitted": result.auto_submitted,
+            "auto_needs_manual": result.auto_needs_manual,
+            "auto_failed": result.auto_failed,
         },
     )
     history = history[:max_entries]
