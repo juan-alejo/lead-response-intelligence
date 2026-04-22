@@ -168,6 +168,20 @@ def _load_run_history(path: Path = Path("data/run_history.json")) -> list[dict]:
         return []
 
 
+def _humanize_seconds(total_seconds: float) -> str:
+    """Short human-readable duration — used in the aggregated-mode KPI row."""
+    total_seconds = float(total_seconds or 0)
+    if total_seconds <= 0:
+        return "—"
+    if total_seconds < 60:
+        return f"{int(total_seconds)}s"
+    if total_seconds < 3600:
+        return f"{int(total_seconds // 60)}m"
+    if total_seconds < 86400:
+        return f"{total_seconds / 3600:.1f}h"
+    return f"{total_seconds / 86400:.1f}d"
+
+
 def _humanize_ago(iso_timestamp: str) -> str:
     from datetime import datetime
 
@@ -497,25 +511,35 @@ with tab_outreach:
         never = int((df["elapsed_human"] == "never responded").sum())
         st.markdown(tr("outreach.summary", total=total, never=never))
 
-        filter_col1, filter_col2 = st.columns([3, 2])
-        with filter_col1:
-            vertical_options = sorted(df["vertical"].unique().tolist())
-            vertical_filter = st.multiselect(
-                tr("outreach.filter"),
-                options=vertical_options,
-                default=vertical_options,
-            )
-        with filter_col2:
-            st.write("")
-            st.write("")
+        # Aggregated mode: flatten the vertical filter away entirely — operators
+        # who applied a broad pack don't want 12 checkboxes they'll never uncheck.
+        if settings.aggregated_mode:
             only_never = st.toggle(tr("outreach.only_never"), value=False)
+            filtered = df
+            st.caption(tr("outreach.aggregated_hint"))
+        else:
+            filter_col1, filter_col2 = st.columns([3, 2])
+            with filter_col1:
+                vertical_options = sorted(df["vertical"].unique().tolist())
+                vertical_filter = st.multiselect(
+                    tr("outreach.filter"),
+                    options=vertical_options,
+                    default=vertical_options,
+                )
+            with filter_col2:
+                st.write("")
+                st.write("")
+                only_never = st.toggle(tr("outreach.only_never"), value=False)
 
-        filtered = df[df["vertical"].isin(vertical_filter)] if vertical_filter else df
+            filtered = df[df["vertical"].isin(vertical_filter)] if vertical_filter else df
         if only_never:
             filtered = filtered[filtered["elapsed_human"] == "never responded"]
 
+        # In aggregated mode the vertical column is noise — the whole point
+        # of the mode is "stop segmenting". Drop it so the table is cleaner.
+        display_df = filtered.drop(columns=["vertical"]) if settings.aggregated_mode else filtered
         st.dataframe(
-            filtered,
+            display_df,
             use_container_width=True,
             hide_index=True,
             column_config={
@@ -547,6 +571,58 @@ with tab_stats:
     df = _load_report(settings.report_output_dir / "vertical_stats.csv")
     if df.empty:
         _render_empty_state("stats.empty_title", "stats.empty_desc", "stats.empty_cta")
+    elif settings.aggregated_mode:
+        # Aggregated view: collapse the per-vertical bars into a single row of
+        # headline KPIs. That's what the operator asked for when they flipped
+        # the toggle — they don't care about per-type segmentation.
+        st.caption(tr("stats.aggregated_caption"))
+
+        df_num = df.copy()
+        df_num["avg_response_seconds"] = pd.to_numeric(
+            df_num["avg_response_seconds"], errors="coerce"
+        )
+        df_num["submissions"] = pd.to_numeric(df_num["submissions"], errors="coerce").fillna(0)
+        df_num["pct_within_24h"] = pd.to_numeric(df_num["pct_within_24h"], errors="coerce")
+        df_num["pct_never_responded"] = pd.to_numeric(
+            df_num["pct_never_responded"], errors="coerce"
+        )
+
+        total_subs = int(df_num["submissions"].sum())
+        # Weight avg-response by submissions so a vertical with 1 prospect
+        # doesn't pull the aggregate average as hard as one with 40.
+        weighted_avg = (
+            (df_num["avg_response_seconds"].fillna(0) * df_num["submissions"]).sum()
+            / total_subs
+            if total_subs
+            else 0
+        )
+        # Same idea for the two percentages — weight by submission count.
+        within_24h = (
+            (df_num["pct_within_24h"].fillna(0) * df_num["submissions"]).sum()
+            / total_subs
+            if total_subs
+            else 0
+        )
+        never = (
+            (df_num["pct_never_responded"].fillna(0) * df_num["submissions"]).sum()
+            / total_subs
+            if total_subs
+            else 0
+        )
+
+        k1, k2, k3, k4 = st.columns(4)
+        k1.metric(tr("stats.kpi_total_submissions"), total_subs)
+        k2.metric(tr("stats.kpi_avg_response"), _humanize_seconds(weighted_avg))
+        k3.metric(tr("stats.kpi_within_24h"), f"{within_24h:.0%}")
+        k4.metric(tr("stats.kpi_never"), f"{never:.0%}")
+
+        st.download_button(
+            "⬇ CSV",
+            data=df.to_csv(index=False).encode("utf-8"),
+            file_name="vertical_stats.csv",
+            mime="text/csv",
+            use_container_width=False,
+        )
     else:
         st.caption(tr("stats.caption"))
 
@@ -596,6 +672,33 @@ with tab_competitors:
             "competitors.empty_desc",
             "competitors.empty_cta",
         )
+    elif settings.aggregated_mode:
+        # Collapse the stacked-by-vertical bar into a single horizontal bar
+        # of `tool → count`. That's the question the aggregated operator
+        # actually has: "across my whole market, what tools show up?".
+        st.caption(tr("competitors.aggregated_caption"))
+        agg = (
+            df.groupby("competitor_tool", as_index=False)["count"]
+            .sum()
+            .sort_values("count", ascending=False)
+        )
+        chart = (
+            alt.Chart(agg)
+            .mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4)
+            .encode(
+                x=alt.X("count:Q", title=tr("competitors.y_label")),
+                y=alt.Y("competitor_tool:N", sort="-x", title=tr("competitors.legend")),
+                color=alt.Color(
+                    "competitor_tool:N",
+                    scale=alt.Scale(scheme="tableau10"),
+                    legend=None,
+                ),
+                tooltip=["competitor_tool", "count"],
+            )
+            .properties(height=max(240, 30 * len(agg)))
+        )
+        st.altair_chart(chart, use_container_width=True)
+        st.dataframe(agg, use_container_width=True, hide_index=True)
     else:
         st.caption(tr("competitors.caption"))
 

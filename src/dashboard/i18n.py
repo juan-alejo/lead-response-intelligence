@@ -193,6 +193,10 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "outreach.col.email": "Email",
         "outreach.col.phone": "Teléfono",
         "outreach.col.elapsed_sec_help": "Vacío = nunca respondieron.",
+        "outreach.aggregated_hint": (
+            "🧺 Modo agregado activo — mostrando todos los negocios juntos, "
+            "sin segmentar por tipo."
+        ),
 
         # --- Stats tab ---
         "stats.empty_title": "📊 Sin estadísticas todavía",
@@ -208,6 +212,15 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
             "cortas = negocios más ágiles (menos oportunidad). Más altas = "
             "clientes potenciales para vos."
         ),
+        "stats.aggregated_caption": (
+            "🧺 Vista agregada — KPIs globales ponderados por cantidad de "
+            "contactos. El chart por tipo queda oculto; desactivá el modo "
+            "agregado en Configuración para verlo."
+        ),
+        "stats.kpi_total_submissions": "Total de contactos",
+        "stats.kpi_avg_response": "Tiempo promedio",
+        "stats.kpi_within_24h": "Respondieron <24h",
+        "stats.kpi_never": "Nunca respondieron",
 
         # --- Competitors tab ---
         "competitors.empty_title": "🕵 Sin datos de herramientas todavía",
@@ -224,6 +237,10 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
             "Qué herramientas de chat o agenda tienen instaladas los negocios "
             "que revisamos. Si muchos en el mismo rubro usan la misma "
             "herramienta, es una señal: **integrate** con ella, no la reemplaces."
+        ),
+        "competitors.aggregated_caption": (
+            "🧺 Distribución global — cantidad total por herramienta sin "
+            "agrupar por tipo de negocio."
         ),
 
         # --- Data tab ---
@@ -277,6 +294,66 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings.autosave_hint": "Los cambios se guardan automáticamente — no hace falta apretar ningún botón.",
         "settings.test_connection": "🔌 Probar conexión",
         "settings.testing": "Probando…",
+
+        # --- Settings: aggregated mode ---
+        "settings.aggregated_title": "### 🧺 Modo agregado (sin segmentar por tipo)",
+        "settings.aggregated_caption": (
+            "Cuando lo activás, el dashboard trata a todos los negocios como "
+            "un solo bucket — útil para clientes que venden a muchos rubros "
+            "y no les interesa el filtro por tipo. La búsqueda sigue corriendo "
+            "todos los tipos configurados; lo que cambia es solo la presentación."
+        ),
+        "settings.aggregated_toggle": "Activar modo agregado",
+        "settings.aggregated_toggle_help": (
+            "ON = lista única sin filtros por tipo, stats colapsadas a KPIs "
+            "globales. OFF = vista por tipo como siempre."
+        ),
+
+        # --- Settings: category packs ---
+        "settings.packs_title": "### 📦 Packs de categorías listos",
+        "settings.packs_caption": (
+            "Plantillas pre-configuradas por región. Elegí un pack, revisá "
+            "las categorías que trae, y aplicalo — se reemplazan (o se "
+            "suman) a tus tipos actuales con queries probadas en el idioma local."
+        ),
+        "settings.packs_empty": "No hay packs cargados.",
+        "settings.packs_select": "Pack",
+        "settings.packs_mode": "Cómo aplicar",
+        "settings.packs_mode_replace": "Reemplazar mis tipos actuales",
+        "settings.packs_mode_append": "Sumar a mis tipos actuales",
+        "settings.packs_preview": "👀 Ver categorías del pack",
+        "settings.packs_apply": "✔ Aplicar pack ({mode})",
+        "settings.packs_applied": "✅ Pack aplicado — {count} tipos activos.",
+
+        # --- Settings: Claude category generator ---
+        "settings.generator_title": "### 🧠 Generar categorías con Claude",
+        "settings.generator_caption": (
+            "¿No encontrás un pack para tu país o sector? Describile a Claude "
+            "lo que buscás y te genera una lista de categorías en el idioma "
+            "correcto, con queries que funcionan bien en Google Places para esa región."
+        ),
+        "settings.generator_disabled_info": (
+            "Claude está apagado. Prendelo arriba (Modo real o Modo prueba) "
+            "para habilitar el generador."
+        ),
+        "settings.generator_country": "País / región",
+        "settings.generator_country_placeholder": "Argentina, México, Brasil, United States, España…",
+        "settings.generator_sector": "Sector / tipo general",
+        "settings.generator_sector_placeholder": "servicios profesionales, salud, comercio minorista, hospitalidad…",
+        "settings.generator_button": "✨ Generar categorías",
+        "settings.generator_mode_mock": "🧪 Modo prueba — ejemplo pre-cargado por país.",
+        "settings.generator_mode_real": "🌐 Modo real — llamada a Claude en vivo.",
+        "settings.generator_running": "Generando categorías con Claude…",
+        "settings.generator_success": "{count} categorías generadas — revisalas abajo.",
+        "settings.generator_applied": "✅ Aplicadas — {count} tipos activos ahora.",
+        "settings.generator_error": "❌ Error al generar: {error}",
+        "settings.generator_preview": "Vista previa",
+        "settings.generator_preview_meta": (
+            "📍 {country} · 🎯 {sector} · {count} categorías — revisá antes de aplicar"
+        ),
+        "settings.generator_apply_replace": "✔ Reemplazar mis tipos actuales",
+        "settings.generator_apply_append": "➕ Sumar a los existentes",
+        "settings.generator_apply_discard": "🗑 Descartar",
 
         # --- Settings: quick actions ---
         "settings.actions_title": "### 🛠 Acciones rápidas",
@@ -616,6 +693,10 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "outreach.col.email": "Email",
         "outreach.col.phone": "Phone",
         "outreach.col.elapsed_sec_help": "Null = never responded.",
+        "outreach.aggregated_hint": (
+            "🧺 Aggregated mode on — showing every prospect in one bucket, "
+            "no per-type segmentation."
+        ),
 
         # --- Stats tab ---
         "stats.empty_title": "📊 No stats yet",
@@ -630,6 +711,15 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
             "Average response time per business type. Shorter bars = faster "
             "businesses (less opportunity). Taller bars = your best prospects."
         ),
+        "stats.aggregated_caption": (
+            "🧺 Aggregated view — global KPIs weighted by submission count. "
+            "The per-type chart is hidden; turn off aggregated mode in "
+            "Settings to see it."
+        ),
+        "stats.kpi_total_submissions": "Total submissions",
+        "stats.kpi_avg_response": "Avg response time",
+        "stats.kpi_within_24h": "Replied <24h",
+        "stats.kpi_never": "Never replied",
 
         # --- Competitors tab ---
         "competitors.empty_title": "🕵 No tool data yet",
@@ -644,6 +734,10 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
             "Chat and booking tools detected on each business's website. "
             "A cluster of one tool in one business type is a pitch signal: "
             "**integrate** with it, don't replace it."
+        ),
+        "competitors.aggregated_caption": (
+            "🧺 Global distribution — total counts per tool without "
+            "grouping by business type."
         ),
 
         # --- Data tab ---
@@ -697,6 +791,66 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings.autosave_hint": "Changes save automatically — no button needed.",
         "settings.test_connection": "🔌 Test connection",
         "settings.testing": "Testing…",
+
+        # --- Settings: aggregated mode ---
+        "settings.aggregated_title": "### 🧺 Aggregated mode (no type segmentation)",
+        "settings.aggregated_caption": (
+            "When enabled, the dashboard treats every prospect as a single "
+            "bucket — useful for clients selling across many verticals who "
+            "don't want per-type filters. Ingestion still runs every "
+            "configured type; only the presentation collapses."
+        ),
+        "settings.aggregated_toggle": "Enable aggregated mode",
+        "settings.aggregated_toggle_help": (
+            "ON = one list without per-type filters, stats collapsed to "
+            "global KPIs. OFF = per-type view as usual."
+        ),
+
+        # --- Settings: category packs ---
+        "settings.packs_title": "### 📦 Ready-made category packs",
+        "settings.packs_caption": (
+            "Pre-configured templates per region. Pick a pack, preview the "
+            "categories, and apply — either replacing or appending to your "
+            "current verticals, with queries vetted for the local language."
+        ),
+        "settings.packs_empty": "No packs loaded.",
+        "settings.packs_select": "Pack",
+        "settings.packs_mode": "How to apply",
+        "settings.packs_mode_replace": "Replace my current verticals",
+        "settings.packs_mode_append": "Append to my current verticals",
+        "settings.packs_preview": "👀 Preview pack contents",
+        "settings.packs_apply": "✔ Apply pack ({mode})",
+        "settings.packs_applied": "✅ Pack applied — {count} verticals active.",
+
+        # --- Settings: Claude category generator ---
+        "settings.generator_title": "### 🧠 Generate categories with Claude",
+        "settings.generator_caption": (
+            "No pack fits your country/sector? Describe what you want to "
+            "target and Claude returns a list of categories in the correct "
+            "language, with queries that work on Google Places for the region."
+        ),
+        "settings.generator_disabled_info": (
+            "Claude is disabled. Turn it on above (Live or Demo mode) to "
+            "enable the generator."
+        ),
+        "settings.generator_country": "Country / region",
+        "settings.generator_country_placeholder": "Argentina, Mexico, Brazil, United States, Spain…",
+        "settings.generator_sector": "Sector / broad target",
+        "settings.generator_sector_placeholder": "professional services, healthcare, retail, hospitality…",
+        "settings.generator_button": "✨ Generate categories",
+        "settings.generator_mode_mock": "🧪 Demo mode — pre-loaded sample per country.",
+        "settings.generator_mode_real": "🌐 Live mode — real Claude API call.",
+        "settings.generator_running": "Generating categories with Claude…",
+        "settings.generator_success": "{count} categories generated — review them below.",
+        "settings.generator_applied": "✅ Applied — {count} verticals active now.",
+        "settings.generator_error": "❌ Generation error: {error}",
+        "settings.generator_preview": "Preview",
+        "settings.generator_preview_meta": (
+            "📍 {country} · 🎯 {sector} · {count} categories — review before applying"
+        ),
+        "settings.generator_apply_replace": "✔ Replace my current verticals",
+        "settings.generator_apply_append": "➕ Append to existing",
+        "settings.generator_apply_discard": "🗑 Discard",
 
         # --- Settings: quick actions ---
         "settings.actions_title": "### 🛠 Quick actions",

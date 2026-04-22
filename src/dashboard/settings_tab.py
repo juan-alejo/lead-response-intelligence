@@ -25,7 +25,13 @@ from pathlib import Path
 
 import streamlit as st
 
+from ..category_generator import (
+    GenerationRequest,
+    GeneratorError,
+    build_generator,
+)
 from ..locations import Location, get_location_registry
+from ..vertical_packs import apply_pack, get_pack_registry
 from ..verticals import Vertical, get_vertical_registry
 from .connection_tests import (
     test_airtable,
@@ -777,6 +783,21 @@ def render_settings_tab(env_path: Path) -> None:
     _section_gmail(env, env_path)
     _section_storage(env, env_path)
 
+    # ---------------------------- Aggregated mode toggle
+
+    st.divider()
+    _render_aggregated_mode_toggle(env_path)
+
+    # ---------------------------- Category packs section
+
+    st.divider()
+    _render_pack_selector()
+
+    # ---------------------------- Claude category generator
+
+    st.divider()
+    _render_category_generator(env)
+
     # ---------------------------- Verticals section
 
     st.divider()
@@ -832,6 +853,247 @@ def render_settings_tab(env_path: Path) -> None:
 
     st.divider()
     _render_quick_actions(env_path)
+
+
+# --------------------------------------------------------------- Category generator
+
+
+def _render_category_generator(env: dict[str, str]) -> None:
+    """Claude-powered category generator — the "magic button" of Settings.
+
+    Produces a proposed list of `Vertical` rows for an arbitrary country +
+    sector that the operator reviews, edits, then applies. In mock mode
+    returns a pre-baked set so the button feels alive without spend; in
+    real mode hits Claude with the system prompt in `category_generator.py`.
+
+    Failure handling: every error path surfaces as `GeneratorError` with
+    a human-readable message which is rendered in red. No silent fallback
+    to mock — operators expecting live results need to know when the
+    magic failed.
+    """
+    st.markdown(tr("settings.generator_title"))
+    st.caption(tr("settings.generator_caption"))
+
+    mode = env.get("CLAUDE_MODE", "mock")
+    if mode == "disabled":
+        st.info(tr("settings.generator_disabled_info"))
+        return
+
+    col_country, col_sector = st.columns(2)
+    country = col_country.text_input(
+        tr("settings.generator_country"),
+        placeholder=tr("settings.generator_country_placeholder"),
+        key="gen_country",
+    )
+    sector = col_sector.text_input(
+        tr("settings.generator_sector"),
+        placeholder=tr("settings.generator_sector_placeholder"),
+        key="gen_sector",
+    )
+
+    gen_col, mode_hint_col = st.columns([1, 2])
+    go = gen_col.button(
+        tr("settings.generator_button"),
+        type="primary",
+        disabled=not (country.strip() and sector.strip()),
+        key="gen_btn",
+    )
+    if mode == "mock":
+        mode_hint_col.caption(tr("settings.generator_mode_mock"))
+    else:
+        mode_hint_col.caption(tr("settings.generator_mode_real"))
+
+    if go:
+        _run_generator(
+            mode=mode,
+            api_key=env.get("ANTHROPIC_API_KEY", ""),
+            country=country.strip(),
+            sector=sector.strip(),
+        )
+
+    # --- Preview + Apply (state lives in session so multiple reruns work)
+    preview = st.session_state.get("gen_preview")
+    if preview:
+        st.markdown(f"##### {tr('settings.generator_preview')}")
+        st.caption(
+            tr(
+                "settings.generator_preview_meta",
+                country=preview["country"],
+                sector=preview["sector"],
+                count=len(preview["verticals"]),
+            )
+        )
+        rows = [
+            {
+                tr("settings.verticals_col_name"): v.name,
+                tr("settings.verticals_col_display"): v.display_name,
+                tr("settings.verticals_col_query"): v.query,
+            }
+            for v in preview["verticals"]
+        ]
+        st.dataframe(rows, hide_index=True, use_container_width=True)
+
+        apply_cols = st.columns(3)
+        if apply_cols[0].button(
+            tr("settings.generator_apply_replace"),
+            type="primary",
+            key="gen_apply_replace",
+        ):
+            _apply_generated(preview["verticals"], mode="replace")
+        if apply_cols[1].button(
+            tr("settings.generator_apply_append"),
+            key="gen_apply_append",
+        ):
+            _apply_generated(preview["verticals"], mode="append")
+        if apply_cols[2].button(
+            tr("settings.generator_apply_discard"),
+            key="gen_apply_discard",
+        ):
+            st.session_state.pop("gen_preview", None)
+            st.rerun()
+
+
+def _run_generator(*, mode: str, api_key: str, country: str, sector: str) -> None:
+    """Invoke the factory + render progress inline — separate function so
+    the main render flow reads linearly."""
+    with st.spinner(tr("settings.generator_running")):
+        try:
+            generator = build_generator(mode=mode, api_key=api_key)
+            verticals = generator.generate(
+                GenerationRequest(country=country, sector_hint=sector)
+            )
+        except GeneratorError as e:
+            st.error(tr("settings.generator_error", error=str(e)))
+            return
+
+    st.session_state["gen_preview"] = {
+        "country": country,
+        "sector": sector,
+        "verticals": verticals,
+    }
+    st.toast(tr("settings.generator_success", count=len(verticals)), icon="✨")
+
+
+def _apply_generated(verticals: list[Vertical], *, mode: str) -> None:
+    registry = get_vertical_registry()
+    if mode == "replace":
+        merged = list(verticals)
+    else:  # append
+        existing = {v.name: v for v in registry.all()}
+        for v in verticals:
+            existing[v.name] = v
+        merged = list(existing.values())
+    registry.save(merged)
+    # Invalidate cached editor state so the data_editor picks up the change.
+    st.session_state.pop("verticals_editor", None)
+    st.session_state.pop("_verticals_last_saved", None)
+    st.session_state.pop("gen_preview", None)
+    st.toast(tr("settings.generator_applied", count=len(merged)), icon="✅")
+    st.rerun()
+
+
+# --------------------------------------------------------------- Aggregated mode
+
+
+def _render_aggregated_mode_toggle(env_path: Path) -> None:
+    """Toggle for `AGGREGATED_MODE` — hides per-vertical UI in Outreach/Stats/
+    Competitors. Ingestion and storage are unchanged; the pipeline still
+    runs every configured vertical. Only the presentation collapses.
+    """
+    st.markdown(tr("settings.aggregated_title"))
+    st.caption(tr("settings.aggregated_caption"))
+
+    env = _read_env(env_path)
+    current = env.get("AGGREGATED_MODE", "false").strip().lower() in (
+        "true",
+        "1",
+        "yes",
+    )
+
+    # Seed session state so Streamlit's widget state matches env on first render.
+    if "aggregated_mode_toggle" not in st.session_state:
+        st.session_state["aggregated_mode_toggle"] = current
+
+    def _on_toggle() -> None:
+        new_val = "true" if st.session_state.get("aggregated_mode_toggle") else "false"
+        _save_single(env_path, "AGGREGATED_MODE", new_val)
+
+    st.toggle(
+        tr("settings.aggregated_toggle"),
+        help=tr("settings.aggregated_toggle_help"),
+        key="aggregated_mode_toggle",
+        on_change=_on_toggle,
+    )
+
+
+# --------------------------------------------------------------- Pack selector
+
+
+def _render_pack_selector() -> None:
+    """UI for applying a pre-configured vertical pack.
+
+    Two-click flow:
+        1. Pick a pack from the selectbox → preview expander shows its verticals.
+        2. Choose "replace" or "append" → "Aplicar" commits to verticals.yaml.
+
+    A small intentional friction (the explicit Apply button, not auto-
+    apply on selection) protects operators who've painstakingly tuned
+    their own verticals from one-click overwrites.
+    """
+    st.markdown(tr("settings.packs_title"))
+    st.caption(tr("settings.packs_caption"))
+
+    registry = get_pack_registry()
+    packs = registry.all()
+    if not packs:
+        st.info(tr("settings.packs_empty"))
+        return
+
+    col1, col2 = st.columns([3, 2])
+    with col1:
+        labels = {p.name: p.display_name for p in packs}
+        selected = st.selectbox(
+            tr("settings.packs_select"),
+            options=[p.name for p in packs],
+            format_func=lambda n: labels.get(n, n),
+            key="pack_selector",
+        )
+    with col2:
+        mode = st.radio(
+            tr("settings.packs_mode"),
+            options=["replace", "append"],
+            format_func=lambda m: tr(f"settings.packs_mode_{m}"),
+            horizontal=True,
+            key="pack_apply_mode",
+        )
+
+    pack = registry.get(selected)
+    st.caption(f"📍 **{pack.region}** · 🗣 `{pack.language}` · {pack.description}")
+
+    with st.expander(tr("settings.packs_preview"), expanded=False):
+        rows = [
+            {
+                tr("settings.verticals_col_name"): v.name,
+                tr("settings.verticals_col_display"): v.display_name,
+                tr("settings.verticals_col_query"): v.query,
+            }
+            for v in pack.verticals
+        ]
+        st.dataframe(rows, hide_index=True, use_container_width=True)
+
+    if st.button(
+        tr("settings.packs_apply", mode=tr(f"settings.packs_mode_{mode}")),
+        type="primary",
+        key="pack_apply_btn",
+    ):
+        count = apply_pack(selected, mode=mode)
+        # Clear stale editor state so the verticals data_editor reflects
+        # the new registry on the next render — otherwise Streamlit
+        # caches the pre-apply rows.
+        st.session_state.pop("verticals_editor", None)
+        st.session_state.pop("_verticals_last_saved", None)
+        st.toast(tr("settings.packs_applied", count=count), icon="✅")
+        st.rerun()
 
 
 # --------------------------------------------------------------- Locations editor

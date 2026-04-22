@@ -67,6 +67,14 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     report_output_dir: Path = Field(default=Path("reports"))
 
+    # Aggregated mode — runs every configured vertical but presents the
+    # dashboard as if prospects were ungrouped. Useful for operators whose
+    # clients don't care about per-type segmentation ("just give me the
+    # slowest responders across all of my market"), and for clients who
+    # apply a broad pack and want the Outreach list flat rather than
+    # filtered.
+    aggregated_mode: bool = False
+
     # ----------------------------------------------------------------- Phase 2
     # Automated form submission. Off by default so upgrading an existing Phase 1
     # install never changes runtime behavior until the operator explicitly opts

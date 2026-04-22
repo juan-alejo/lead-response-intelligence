@@ -90,3 +90,14 @@ def test_dashboard_renders_with_phase_2_enabled() -> None:
 def test_dashboard_renders_across_submitter_modes(mode: str) -> None:
     """Both modes must render without raising — disabled just greys out the CTA."""
     _run(PHASE_2_ENABLED="true", SUBMITTER_MODE=mode)
+
+
+def test_dashboard_renders_with_aggregated_mode() -> None:
+    """Aggregated mode collapses per-vertical UI; must not break rendering
+    even when the reports don't exist yet (empty-state path)."""
+    _run(AGGREGATED_MODE="true")
+
+
+def test_dashboard_renders_with_aggregated_mode_and_phase_2() -> None:
+    """Both toggles on — catches any interference between the two features."""
+    _run(AGGREGATED_MODE="true", PHASE_2_ENABLED="true", SUBMITTER_MODE="mock")
