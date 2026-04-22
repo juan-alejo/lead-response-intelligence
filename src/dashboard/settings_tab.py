@@ -26,6 +26,12 @@ from pathlib import Path
 import streamlit as st
 
 from ..verticals import Vertical, get_registry
+from .connection_tests import (
+    test_airtable,
+    test_anthropic,
+    test_google_places,
+    test_twilio,
+)
 from .i18n import get_lang, tr
 
 # --------------------------------------------------------------- Help blurbs
@@ -364,6 +370,20 @@ def _section_title(name: str, state: str) -> str:
     return f"{_STATE_ICONS[state]}  {name}"
 
 
+def _render_test_button(label: str, key: str, test_callable) -> None:
+    """Render a 'Test connection' button that shows the result inline.
+
+    `test_callable` is a zero-arg function returning (ok: bool, message: str).
+    """
+    if st.button(label, key=key):
+        with st.spinner("🔌 " + tr("settings.testing")):
+            ok, msg = test_callable()
+        if ok:
+            st.success(f"✅ {msg}")
+        else:
+            st.error(f"❌ {msg}")
+
+
 # --------------------------------------------------------------- Integration sections
 
 
@@ -390,6 +410,15 @@ def _section_claude(env: dict[str, str], env_path: Path) -> None:
             key="claude_mode_sel",
             on_change=_on_change_factory(env_path, "CLAUDE_MODE", "claude_mode_sel"),
         )
+        if env.get("CLAUDE_MODE") == "real":
+            _render_test_button(
+                tr("settings.test_connection"),
+                key="test_anthropic_btn",
+                test_callable=lambda: test_anthropic(
+                    api_key=env.get("ANTHROPIC_API_KEY", ""),
+                    model=env.get("CLAUDE_MODEL", "claude-sonnet-4-6"),
+                ),
+            )
         with st.expander(tr("settings.help_expander"), expanded=False):
             st.markdown(_lang_help(_HELP_ANTHROPIC))
 
@@ -417,6 +446,14 @@ def _section_places(env: dict[str, str], env_path: Path) -> None:
             key="places_mode_sel",
             on_change=_on_change_factory(env_path, "PLACES_MODE", "places_mode_sel"),
         )
+        if env.get("PLACES_MODE") == "real":
+            _render_test_button(
+                tr("settings.test_connection"),
+                key="test_places_btn",
+                test_callable=lambda: test_google_places(
+                    api_key=env.get("GOOGLE_PLACES_API_KEY", "")
+                ),
+            )
         with st.expander(tr("settings.help_expander"), expanded=False):
             st.markdown(_lang_help(_HELP_GOOGLE_PLACES))
 
@@ -459,6 +496,15 @@ def _section_twilio(env: dict[str, str], env_path: Path) -> None:
             key="twilio_phone_input",
             on_change=_on_change_factory(env_path, "TWILIO_PHONE_NUMBER", "twilio_phone_input"),
         )
+        if env.get("TWILIO_MODE") == "real":
+            _render_test_button(
+                tr("settings.test_connection"),
+                key="test_twilio_btn",
+                test_callable=lambda: test_twilio(
+                    account_sid=env.get("TWILIO_ACCOUNT_SID", ""),
+                    auth_token=env.get("TWILIO_AUTH_TOKEN", ""),
+                ),
+            )
         with st.expander(tr("settings.help_expander"), expanded=False):
             st.markdown(_lang_help(_HELP_TWILIO_SMS))
 
@@ -565,6 +611,15 @@ def _section_storage(env: dict[str, str], env_path: Path) -> None:
             key="airtable_base_input",
             on_change=_on_change_factory(env_path, "AIRTABLE_BASE_ID", "airtable_base_input"),
         )
+        if backend == "airtable":
+            _render_test_button(
+                tr("settings.test_connection"),
+                key="test_airtable_btn",
+                test_callable=lambda: test_airtable(
+                    api_key=env.get("AIRTABLE_API_KEY", ""),
+                    base_id=env.get("AIRTABLE_BASE_ID", ""),
+                ),
+            )
         with st.expander(tr("settings.help_expander"), expanded=False):
             st.markdown(_lang_help(_HELP_AIRTABLE))
 

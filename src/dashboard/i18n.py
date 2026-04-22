@@ -228,6 +228,8 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings.save_integrations": "💾 Guardar configuración",
         "settings.saved_to_env": "✅ Guardado en `{path}`. La próxima búsqueda usa los nuevos valores.",
         "settings.autosave_hint": "Los cambios se guardan automáticamente — no hace falta apretar ningún botón.",
+        "settings.test_connection": "🔌 Probar conexión",
+        "settings.testing": "Probando…",
 
         # --- Settings: quick actions ---
         "settings.actions_title": "### 🛠 Acciones rápidas",
@@ -501,6 +503,8 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings.save_integrations": "💾 Save integrations",
         "settings.saved_to_env": "✅ Saved to `{path}`. Next search uses the new values.",
         "settings.autosave_hint": "Changes save automatically — no button needed.",
+        "settings.test_connection": "🔌 Test connection",
+        "settings.testing": "Testing…",
 
         # --- Settings: quick actions ---
         "settings.actions_title": "### 🛠 Quick actions",
