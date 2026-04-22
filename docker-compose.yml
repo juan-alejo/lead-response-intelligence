@@ -1,0 +1,23 @@
+# One-command local deploy for clients who don't want to use Railway.
+#
+#   docker compose up -d       # start (detached)
+#   docker compose down        # stop
+#   docker compose logs -f     # follow logs
+#
+# Access the dashboard at http://localhost:8501
+
+services:
+  dashboard:
+    build: .
+    container_name: lead-response-intelligence
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    volumes:
+      # Persist the SQLite DB, run history, and any generated reports.
+      - ./data:/app/data
+      - ./reports:/app/reports
+      # Config files are edited from the Settings tab in the UI.
+      - ./config:/app/config
+      # API keys live here — never copied into the image.
+      - ./.env:/app/.env
