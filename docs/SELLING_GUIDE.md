@@ -189,13 +189,34 @@ Para saber si la estrategia está funcionando:
   efectivo (no el listed rate)
 - **Repeat clients / referencias** — LTV real del cliente
 
-## 💡 Ideas de evolución del producto
+## 💡 Upsells y evolución del producto
 
-- **Phase 2**: automated form submission con Playwright (+$500-800 extra)
+### Phase 2 — Automated form submission ($800-1800, **ya vendible al 2026-04-22**)
+
+El scaffolding está en `main`: `FormSubmitter` ABC, `MockFormSubmitter`,
+dashboard tab, feature flag, 47 tests verdes. El spec comercial completo
+— scope, arquitectura, pricing, timeline, SLA, qué NO incluye — vive en
+[`docs/PHASE_2_SPEC.md`](./PHASE_2_SPEC.md).
+
+Tres tiers: **Essentials** ($800), **Production** ($1200, recomendado),
+**White-glove** ($1800 + $250/mes retainer opcional). Lo que se entrega
+es el `PlaywrightFormSubmitter` real que reemplaza al mock.
+
+**Pitch de upsell para clientes de Phase 1:**
+
+> "Ya viste cómo te generamos la lista priorizada todos los lunes — el
+> único paso manual que queda es apretar 'enviar' en cada formulario.
+> Por $1200 más eso también lo hacemos nosotros, con evidencia por
+> submission (screenshot + confirmación del sitio + logs), bajada de
+> CAPTCHAs a tu cola humana, y retainer opcional para cuando los sitios
+> cambien layout."
+
+### Otros
+
 - **Lead enrichment**: conectar con Apollo / LinkedIn Sales Nav para
   enriquecer datos del decision-maker
 - **CRM integrations**: HubSpot, Pipedrive, Salesforce webhooks
 - **Multi-language prospects**: soporte para detección de formularios en
-  idiomas no-inglés (alemán, francés)
+  idiomas no-inglés (alemán, francés) — $400/idioma como add-on de Phase 2
 - **AI-generated outreach drafts**: Claude genera el primer contacto
   personalizado para cada prospect

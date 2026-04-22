@@ -187,6 +187,39 @@ dev, live APIs, or disable a channel entirely.
 
 ---
 
+## Phase 2 — automated form submission (available)
+
+The one manual step in Phase 1 — a human working through the submission
+queue — is now automated end-to-end behind a feature flag.
+
+- **Try it in demo mode today.** Set `PHASE_2_ENABLED=true` in `.env`,
+  restart the dashboard, open the new **🤖 Auto-submit** tab. The
+  bundled `MockFormSubmitter` runs a realistic ~80% success / ~10%
+  needs-manual / ~10% failure distribution against the existing
+  submission queue.
+- **Architecture is already in `main`:** `FormSubmitter` ABC,
+  `SubmissionAttempt` data model, storage table + indexes, dashboard
+  tab, pipeline integration, 20+ tests.
+- **The live Playwright submitter is a paid engagement.** Full
+  commercial spec — scope, architecture, pricing tiers, acceptance
+  criteria, SLAs, what is NOT included — is in
+  [**docs/PHASE_2_SPEC.md**](./docs/PHASE_2_SPEC.md). Starting at
+  $800 USD for a single-tenant delivery.
+
+What's covered in the live submitter:
+
+- Standard contact forms (single-page + multi-step + iframe-hosted)
+- Chat widgets: Intercom, Drift, Tawk.to, LiveChat, Crisp
+- Booking widgets: Calendly, Acuity, HubSpot Meetings
+- CAPTCHA detection → graceful hand-off to the human queue (policy
+  choice — we don't solve live CAPTCHAs)
+- Retries, rate limiting, per-host throttling, audit screenshots
+
+Rolling back is a single flag flip. Phase 1 behavior is unchanged
+with the flag off.
+
+---
+
 ## Tech stack
 
 - **Python 3.11+**
@@ -308,10 +341,12 @@ src/
 ├── storage/                     # SQLite + Airtable (interface stub)
 ├── monitoring/                  # SMS / voice / WhatsApp / email + matcher
 ├── reporting/                   # weekly CSV reports
+├── submitter/                   # Phase 2 — auto form submission (FormSubmitter ABC, MockFormSubmitter, queue)
 └── dashboard/
     ├── app.py                   # Streamlit operator dashboard
     ├── settings_tab.py          # per-service config UI (auto-save)
     ├── connection_tests.py      # live API verification helpers
+    ├── phase2_tab.py            # 🤖 Auto-submit queue + drill-down
     └── i18n.py                  # bilingual translations
 
 config/verticals.yaml            # editable vertical definitions
@@ -336,10 +371,14 @@ railway.json                     # Railway deploy config
 - [x] Streamlit operator dashboard with bilingual UI + per-service config
 - [x] Auto-save, test-connection, run history, export/import config
 - [x] Docker + Railway deploy story
-- [ ] **Phase 2** — automated form submission (browser automation for
-      the actual form-fill, estimated +40 hours)
-- [ ] Chat-widget and booking-widget submission beyond classification
-- [ ] Multi-tenant / SaaS mode for reselling
+- [x] **Phase 2 scaffolding** — `FormSubmitter` ABC + `MockFormSubmitter`
+      + dashboard tab + feature flag + commercial spec. Available to try
+      today (`PHASE_2_ENABLED=true`); live Playwright submitter delivered
+      as a paid engagement — see
+      [docs/PHASE_2_SPEC.md](./docs/PHASE_2_SPEC.md) for scope & pricing.
+- [ ] Phase 2 live: `PlaywrightFormSubmitter` with widget handlers
+      (Intercom, Drift, Calendly, Acuity, HubSpot Meetings)
+- [ ] Phase 3 — Multi-tenant / SaaS mode for reselling
 
 ---
 
