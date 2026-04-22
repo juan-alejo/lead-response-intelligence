@@ -123,6 +123,13 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "tab.settings": "⚙ Configuración",
 
         # --- Outreach tab ---
+        "outreach.empty_title": "📭 Todavía no hay lista generada",
+        "outreach.empty_desc": (
+            "Acá aparece la **lista priorizada de clientes potenciales** "
+            "ordenada de más lento a más rápido en responder. Los que "
+            "nunca responden van arriba — son tus mejores prospectos."
+        ),
+        "outreach.empty_cta": "👉 Abrí el panel lateral y tocá **Buscar ahora** para generarla.",
         "outreach.empty": "📭 Todavía no hay lista generada — tocá **Buscar ahora** arriba.",
         "outreach.summary": (
             "**{total} clientes potenciales** para contactar — "
@@ -141,6 +148,13 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "outreach.col.elapsed_sec_help": "Vacío = nunca respondieron.",
 
         # --- Stats tab ---
+        "stats.empty_title": "📊 Sin estadísticas todavía",
+        "stats.empty_desc": (
+            "Acá vas a ver el **tiempo promedio de respuesta por tipo "
+            "de negocio** — útil para encontrar nichos enteros que "
+            "responden lento (oportunidades comerciales grandes)."
+        ),
+        "stats.empty_cta": "👉 Abrí el panel lateral y tocá **Buscar ahora**.",
         "stats.empty": "📭 Sin estadísticas todavía — corré la búsqueda para generarlas.",
         "stats.caption": (
             "Tiempo de respuesta promedio por tipo de negocio. Barras más "
@@ -149,6 +163,13 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
 
         # --- Competitors tab ---
+        "competitors.empty_title": "🕵 Sin datos de herramientas todavía",
+        "competitors.empty_desc": (
+            "Acá aparece **qué herramientas de chat o agenda** usan los "
+            "negocios que revisamos (Intercom, Calendly, Drift, etc). "
+            "Útil para calibrar el pitch: integrar o reemplazar."
+        ),
+        "competitors.empty_cta": "👉 Abrí el panel lateral y tocá **Buscar ahora**.",
         "competitors.empty": (
             "📭 Sin datos de herramientas todavía — corré la búsqueda primero."
         ),
@@ -349,6 +370,13 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "tab.settings": "⚙ Settings",
 
         # --- Outreach tab ---
+        "outreach.empty_title": "📭 No priority list yet",
+        "outreach.empty_desc": (
+            "This is where the **prioritized prospect list** will show "
+            "up — sorted from slowest to fastest responders. Never-"
+            "responders float to the top: those are your best leads."
+        ),
+        "outreach.empty_cta": "👉 Open the side panel and click **Search now** to generate it.",
         "outreach.empty": "📭 No priority list yet — hit **Search now** above.",
         "outreach.summary": (
             "**{total} prospects** to contact — **{never}** never responded "
@@ -367,6 +395,13 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "outreach.col.elapsed_sec_help": "Null = never responded.",
 
         # --- Stats tab ---
+        "stats.empty_title": "📊 No stats yet",
+        "stats.empty_desc": (
+            "This tab shows **average response time per business type** "
+            "— handy for spotting whole niches that respond slowly "
+            "(large commercial opportunities)."
+        ),
+        "stats.empty_cta": "👉 Open the side panel and click **Search now**.",
         "stats.empty": "📭 No stats yet — run the search to generate them.",
         "stats.caption": (
             "Average response time per business type. Shorter bars = faster "
@@ -374,6 +409,13 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
 
         # --- Competitors tab ---
+        "competitors.empty_title": "🕵 No tool data yet",
+        "competitors.empty_desc": (
+            "This is where **which chat / booking tools each business "
+            "uses** (Intercom, Calendly, Drift, etc.) shows up. Helps "
+            "you calibrate the pitch: integrate or replace."
+        ),
+        "competitors.empty_cta": "👉 Open the side panel and click **Search now**.",
         "competitors.empty": "📭 No tool data yet — run the search first.",
         "competitors.caption": (
             "Chat and booking tools detected on each business's website. "

@@ -309,10 +309,19 @@ tab_outreach, tab_stats, tab_competitors, tab_data, tab_settings = st.tabs(
 
 # ---------- Tab 1: Outreach priority ----------
 
+def _render_empty_state(title_key: str, desc_key: str, cta_key: str) -> None:
+    """Uniform empty-state card: icon/title + explanation + action pointer."""
+    st.markdown(f"### {tr(title_key)}")
+    st.write(tr(desc_key))
+    st.info(tr(cta_key))
+
+
 with tab_outreach:
     df = _load_report(settings.report_output_dir / "outreach_priority.csv")
     if df.empty:
-        st.info(tr("outreach.empty"))
+        _render_empty_state(
+            "outreach.empty_title", "outreach.empty_desc", "outreach.empty_cta"
+        )
     else:
         total = len(df)
         never = int((df["elapsed_human"] == "never responded").sum())
@@ -358,7 +367,9 @@ with tab_outreach:
 with tab_stats:
     df = _load_report(settings.report_output_dir / "vertical_stats.csv")
     if df.empty:
-        st.info(tr("stats.empty"))
+        _render_empty_state(
+            "stats.empty_title", "stats.empty_desc", "stats.empty_cta"
+        )
     else:
         st.caption(tr("stats.caption"))
 
@@ -375,7 +386,11 @@ with tab_stats:
 with tab_competitors:
     df = _load_report(settings.report_output_dir / "competitor_distribution.csv")
     if df.empty:
-        st.info(tr("competitors.empty"))
+        _render_empty_state(
+            "competitors.empty_title",
+            "competitors.empty_desc",
+            "competitors.empty_cta",
+        )
     else:
         st.caption(tr("competitors.caption"))
 
