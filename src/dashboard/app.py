@@ -31,6 +31,7 @@ import pandas as pd  # noqa: E402
 import streamlit as st  # noqa: E402
 
 from src.config import get_settings  # noqa: E402
+from src.dashboard.auth import require_auth  # noqa: E402
 from src.dashboard.i18n import LANGUAGES, get_lang, set_lang, tr  # noqa: E402
 from src.dashboard.settings_tab import render_settings_tab  # noqa: E402
 from src.models import Borough  # noqa: E402
@@ -44,6 +45,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+
+# If DASHBOARD_PASSWORD is set, gate the entire UI behind a login form.
+require_auth()
 
 # ------------------------------------------------------------ minimal CSS
 
