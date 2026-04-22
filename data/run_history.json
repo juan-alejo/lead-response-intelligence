@@ -1,0 +1,14 @@
+[
+  {
+    "timestamp": "2026-04-22T01:21:37",
+    "borough": "manhattan",
+    "limit": 50,
+    "fetch_pages": false,
+    "ingested": 7,
+    "deduplicated": 7,
+    "classified": 7,
+    "submissions_queued": 7,
+    "responses_pulled": 8,
+    "responses_matched": 6
+  }
+]

@@ -1,25 +1,16 @@
-# Editable from the dashboard's Settings tab.
-#
-# Each entry defines a "vertical" — a category of prospect business the
-# pipeline can target. `query` is the text sent to Google Places Text
-# Search, appended with the selected location (borough).
-#
-# Add / remove entries freely. New verticals show up in the CLI and the
-# dashboard immediately — no code change needed.
-
 verticals:
-  - name: law_firm
-    display_name: Law Firm
-    query: law firm
-  - name: home_services
-    display_name: Home Services
-    query: home services contractor
-  - name: med_spa
-    display_name: Med Spa
-    query: med spa
-  - name: dentist
-    display_name: Dentist
-    query: dentist
-  - name: general
-    display_name: General
-    query: small business
+- name: law_firm
+  display_name: Law Firm
+  query: law firm
+- name: home_services
+  display_name: Home Services
+  query: home services contractor
+- name: med_spa
+  display_name: Med Spa
+  query: med spa
+- name: dentist
+  display_name: Dentist
+  query: dentist
+- name: general
+  display_name: General
+  query: small business

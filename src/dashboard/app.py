@@ -6,11 +6,13 @@ Launch with:
 
 UX rules (keep these — they're why the dashboard is readable):
 
-1. The main area shows only what the operator reads every day:
-   title → metrics → tabs. Nothing else.
-2. Integration status, language, GitHub, and run controls live in the
-   sidebar so they're available without taking screen real estate.
-3. The 'Run now' button is a single primary CTA in the sidebar. The
+1. Tabs are at the top of the main area so navigation is always reachable.
+2. The "Inicio" tab holds metrics, the welcome hero (first-run), and the
+   last-run indicator. The other tabs hold data + settings.
+3. Integration status, language, GitHub, run controls, and run history
+   all live in the collapsible sidebar so they're available without
+   taking screen real estate.
+4. The 'Run now' button is a single primary CTA in the sidebar. The
    options (borough, limit) default to sensible values; advanced users
    tweak them inside the same panel.
 
@@ -27,6 +29,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+import altair as alt  # noqa: E402
 import pandas as pd  # noqa: E402
 import streamlit as st  # noqa: E402
 
@@ -46,15 +49,14 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# If DASHBOARD_PASSWORD is set, gate the entire UI behind a login form.
 require_auth()
 
-# ------------------------------------------------------------ minimal CSS
+# ------------------------------------------------------------ CSS
 
 st.markdown(
     """
     <style>
-      /* ---------- Status pills (integration chips + setup status) ---------- */
+      /* ---------- Status pills ---------- */
       .pill {
         display: inline-block;
         padding: 3px 10px;
@@ -65,52 +67,51 @@ st.markdown(
         border: 1px solid transparent;
         transition: transform 0.15s ease, box-shadow 0.15s ease;
       }
-      .pill:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.12);
-      }
+      .pill:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.12); }
       .pill-real { background: #dcfce7; color: #14532d; border-color: #86efac; }
       .pill-mock { background: #fef3c7; color: #713f12; border-color: #fde047; }
       .pill-off  { background: #e5e7eb; color: #374151; border-color: #9ca3af; }
 
-      /* ---------- Tabs look slightly larger and clearer ---------- */
+      /* ---------- Tabs — bigger, more prominent since they're at the top ---------- */
+      div[data-baseweb="tab-list"] {
+        gap: 4px;
+        border-bottom: 2px solid rgba(99, 102, 241, 0.1);
+        padding-bottom: 2px;
+      }
       div[data-baseweb="tab-list"] button {
-        font-size: 15px;
+        font-size: 16px;
         font-weight: 500;
+        padding: 10px 18px !important;
       }
       div[data-baseweb="tab-list"] button[aria-selected="true"] {
-        font-weight: 600;
-      }
-
-      /* ---------- Metric cards: subtle surface, consistent padding ---------- */
-      div[data-testid="stMetric"] {
-        background: rgba(99, 102, 241, 0.04);
-        border: 1px solid rgba(99, 102, 241, 0.15);
-        border-radius: 10px;
-        padding: 12px 14px;
-      }
-      div[data-testid="stMetricLabel"] {
-        font-size: 13px;
-        font-weight: 500;
-        opacity: 0.9;
-      }
-      div[data-testid="stMetricValue"] {
-        font-size: 32px !important;
         font-weight: 700;
+        color: rgb(99, 102, 241) !important;
       }
 
-      /* ---------- Expanders: tighter vertical rhythm, rounded corners ---------- */
+      /* ---------- Metric cards ---------- */
+      div[data-testid="stMetric"] {
+        background: rgba(99, 102, 241, 0.05);
+        border: 1px solid rgba(99, 102, 241, 0.18);
+        border-radius: 12px;
+        padding: 14px 16px;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+      div[data-testid="stMetric"]:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.12);
+      }
+      div[data-testid="stMetricLabel"] { font-size: 13px; font-weight: 500; opacity: 0.9; }
+      div[data-testid="stMetricValue"] { font-size: 34px !important; font-weight: 700; }
+
+      /* ---------- Expanders ---------- */
       details[data-testid="stExpander"] {
-        border: 1px solid rgba(99, 102, 241, 0.15);
+        border: 1px solid rgba(99, 102, 241, 0.18);
         border-radius: 10px;
         margin-bottom: 8px;
       }
-      details[data-testid="stExpander"] summary {
-        padding: 8px 14px;
-        font-weight: 500;
-      }
+      details[data-testid="stExpander"] summary { padding: 10px 14px; font-weight: 500; }
 
-      /* ---------- Buttons: slightly rounder, smooth hover ---------- */
+      /* ---------- Buttons ---------- */
       div[data-testid="stButton"] > button {
         border-radius: 8px;
         transition: transform 0.12s ease, box-shadow 0.12s ease;
@@ -120,20 +121,28 @@ st.markdown(
         box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);
       }
 
-      /* ---------- Sidebar: soft divider between sections ---------- */
-      section[data-testid="stSidebar"] hr {
-        margin: 10px 0;
-        opacity: 0.25;
-      }
+      /* ---------- Sidebar ---------- */
+      section[data-testid="stSidebar"] hr { margin: 10px 0; opacity: 0.25; }
 
-      /* ---------- Smaller caption next to "última búsqueda" ---------- */
-      div[data-testid="stCaptionContainer"] {
-        opacity: 0.85;
+      /* ---------- Hero card on the Home tab ---------- */
+      .hero-card {
+        background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(14,165,233,0.08));
+        border: 1px solid rgba(99,102,241,0.2);
+        border-radius: 14px;
+        padding: 22px 26px;
+        margin-bottom: 16px;
       }
+      .hero-card h1 { margin-top: 0 !important; font-size: 30px !important; }
+
+      /* ---------- Caption polish ---------- */
+      div[data-testid="stCaptionContainer"] { opacity: 0.85; }
     </style>
     """,
     unsafe_allow_html=True,
 )
+
+
+# ------------------------------------------------------------ Helpers
 
 
 @st.cache_resource
@@ -159,7 +168,6 @@ def _load_run_history(path: Path = Path("data/run_history.json")) -> list[dict]:
 
 
 def _humanize_ago(iso_timestamp: str) -> str:
-    """Turn an ISO timestamp into a 'hace X min/h/días' human string."""
     from datetime import datetime
 
     from src.models import _utc_now
@@ -180,11 +188,68 @@ def _humanize_ago(iso_timestamp: str) -> str:
     return tr("lastrun.ago_days", n=seconds // 86400)
 
 
+def _render_empty_state(title_key: str, desc_key: str, cta_key: str) -> None:
+    st.markdown(f"### {tr(title_key)}")
+    st.write(tr(desc_key))
+    st.info(tr(cta_key))
+
+
+def _execute_pipeline(
+    *,
+    borough: Borough,
+    limit: int,
+    celebrate_first_run: bool = False,
+) -> None:
+    """Run the pipeline with friendly status updates + error handling.
+
+    When a first-time run succeeds, throws a single confetti burst so the
+    moment is memorable for demos. Failures surface as st.error instead
+    of bubbling up as a raw stack trace.
+    """
+    had_data_before = bool(
+        store.recent_place_ids() or store.all_submissions() or store.all_responses()
+    )
+    try:
+        with st.status(tr("run.status_running"), expanded=True) as status:
+            result = run_all_verticals(
+                settings,
+                borough=borough,
+                limit=limit,
+                fetch_pages=False,
+            )
+            status.update(
+                label=tr(
+                    "run.status_done",
+                    ingested=result.ingested,
+                    matched=result.responses_matched,
+                    pulled=result.responses_pulled,
+                ),
+                state="complete",
+            )
+        st.success(tr("run.success"))
+        if celebrate_first_run and not had_data_before:
+            st.balloons()
+        st.rerun()
+    except Exception as e:  # noqa: BLE001
+        st.error(tr("run.error", error=str(e)[:200]))
+
+
+# ------------------------------------------------------------ Data loading
+
 settings = get_settings()
 store = _load_store(settings.sqlite_path)
 
+prospects_recent = store.recent_place_ids()
+submissions = store.all_submissions()
+responses = store.all_responses()
+matched = [r for r in responses if r.matched_submission_id is not None]
+match_rate = (len(matched) / len(responses)) if responses else 0.0
+
+_is_first_run = not prospects_recent and not submissions and not responses
+_runs = _load_run_history()
+
 # ============================================================================
-# SIDEBAR — every control that doesn't need to be front-and-center lives here.
+# SIDEBAR
 # ============================================================================
 
 with st.sidebar:
@@ -203,7 +268,7 @@ with st.sidebar:
 
     st.divider()
 
-    # --- Run pipeline (primary action) ---
+    # --- Run pipeline ---
     st.markdown(f"#### {tr('run.title').replace('### ', '').replace('▶ ', '▶ ')}")
     borough_choice = st.selectbox(
         tr("run.borough"),
@@ -221,7 +286,7 @@ with st.sidebar:
 
     st.divider()
 
-    # --- Integration status (compact) ---
+    # --- Integration status ---
     def _pill(label_key: str, mode: str) -> str:
         css = {"real": "pill-real", "mock": "pill-mock", "disabled": "pill-off"}[mode]
         icon = {"real": "🌐", "mock": "🧪", "disabled": "⏸"}[mode]
@@ -250,8 +315,7 @@ with st.sidebar:
 
     # --- Run history ---
     st.markdown(f"**{tr('history.title')}**")
-    runs = _load_run_history()
-    if not runs:
+    if not _runs:
         st.caption(tr("history.empty"))
     else:
         history_rows = [
@@ -262,7 +326,7 @@ with st.sidebar:
                     f"{r.get('responses_matched', 0)}/{r.get('responses_pulled', 0)}"
                 ),
             }
-            for r in runs[:5]
+            for r in _runs[:5]
         ]
         st.dataframe(
             pd.DataFrame(history_rows),
@@ -278,93 +342,12 @@ with st.sidebar:
     )
 
 # ============================================================================
-# MAIN — header (compact) → metrics → tabs. No other noise.
+# MAIN — tabs at the top, Inicio tab holds hero + metrics
 # ============================================================================
 
-st.markdown(f"# {tr('app.title')}")
-st.caption(tr("app.subtitle"))
-
-# --- Data loading ---
-
-prospects_recent = store.recent_place_ids()
-submissions = store.all_submissions()
-responses = store.all_responses()
-matched = [r for r in responses if r.matched_submission_id is not None]
-match_rate = (len(matched) / len(responses)) if responses else 0.0
-
-# --- Welcome hero for first-run (empty state) ---
-
-_is_first_run = not prospects_recent and not submissions and not responses
-if _is_first_run:
-    st.info(tr("welcome.banner"))
-    welcome_cols = st.columns([1, 1, 1])
-    welcome_cols[0].markdown(tr("welcome.step1"))
-    welcome_cols[1].markdown(tr("welcome.step2"))
-    welcome_cols[2].markdown(tr("welcome.step3"))
-    if st.button(tr("welcome.cta"), type="primary", use_container_width=False):
-        with st.status(tr("run.status_running"), expanded=True) as status:
-            result = run_all_verticals(
-                settings,
-                borough=Borough.MANHATTAN,
-                limit=50,
-                fetch_pages=False,
-            )
-            status.update(
-                label=tr(
-                    "run.status_done",
-                    ingested=result.ingested,
-                    matched=result.responses_matched,
-                    pulled=result.responses_pulled,
-                ),
-                state="complete",
-            )
-        st.rerun()
-    st.divider()
-
-# --- Last-run indicator ---
-
-_runs = _load_run_history()
-if _runs:
-    st.caption(f"🕒 {tr('lastrun.label')} {_humanize_ago(_runs[0]['timestamp'])}")
-
-# --- Metrics ---
-
-m1, m2, m3, m4 = st.columns(4)
-m1.metric(tr("metrics.prospects"), len(prospects_recent), help=tr("metrics.prospects_help"))
-m2.metric(tr("metrics.submissions"), len(submissions), help=tr("metrics.submissions_help"))
-m3.metric(tr("metrics.responses"), len(responses), help=tr("metrics.responses_help"))
-m4.metric(
-    tr("metrics.match_rate"),
-    f"{match_rate:.0%}" if responses else "—",
-    help=tr("metrics.match_rate_help"),
-)
-
-# --- Run pipeline trigger (fires from sidebar button) ---
-
-if run_now:
-    with st.status(tr("run.status_running"), expanded=True) as status:
-        result = run_all_verticals(
-            settings,
-            borough=Borough(borough_choice),
-            limit=limit_choice,
-            fetch_pages=False,
-        )
-        status.update(
-            label=tr(
-                "run.status_done",
-                ingested=result.ingested,
-                matched=result.responses_matched,
-                pulled=result.responses_pulled,
-            ),
-            state="complete",
-        )
-    st.success(tr("run.success"))
-    st.rerun()
-
-# --- Tabs ---
-
-tab_outreach, tab_stats, tab_competitors, tab_data, tab_settings = st.tabs(
+tab_home, tab_outreach, tab_stats, tab_competitors, tab_data, tab_settings = st.tabs(
     [
+        tr("tab.home"),
         tr("tab.outreach"),
         tr("tab.stats"),
         tr("tab.competitors"),
@@ -373,14 +356,65 @@ tab_outreach, tab_stats, tab_competitors, tab_data, tab_settings = st.tabs(
     ]
 )
 
-# ---------- Tab 1: Outreach priority ----------
+# Sidebar-triggered run — we execute BEFORE rendering tab contents so any
+# successful run refreshes the data the tabs read.
+if run_now:
+    _execute_pipeline(
+        borough=Borough(borough_choice),
+        limit=limit_choice,
+        celebrate_first_run=True,
+    )
 
-def _render_empty_state(title_key: str, desc_key: str, cta_key: str) -> None:
-    """Uniform empty-state card: icon/title + explanation + action pointer."""
-    st.markdown(f"### {tr(title_key)}")
-    st.write(tr(desc_key))
-    st.info(tr(cta_key))
+# ---------- Tab: Inicio ----------
 
+with tab_home:
+    # Hero card with title + subtitle.
+    st.markdown(
+        f"""
+        <div class="hero-card">
+            <h1>{tr('app.title')}</h1>
+            <p style="opacity: 0.85; font-size: 15px; margin: 0;">
+                {tr('app.subtitle')}
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Welcome hero only on first-run.
+    if _is_first_run:
+        st.info(tr("welcome.banner"))
+        welcome_cols = st.columns([1, 1, 1])
+        welcome_cols[0].markdown(tr("welcome.step1"))
+        welcome_cols[1].markdown(tr("welcome.step2"))
+        welcome_cols[2].markdown(tr("welcome.step3"))
+        if st.button(tr("welcome.cta"), type="primary", use_container_width=False):
+            _execute_pipeline(
+                borough=Borough.MANHATTAN,
+                limit=50,
+                celebrate_first_run=True,
+            )
+        st.divider()
+
+    # Last-run indicator.
+    if _runs:
+        st.caption(f"🕒 {tr('lastrun.label')} {_humanize_ago(_runs[0]['timestamp'])}")
+
+    # Metrics row.
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric(tr("metrics.prospects"), len(prospects_recent), help=tr("metrics.prospects_help"))
+    m2.metric(tr("metrics.submissions"), len(submissions), help=tr("metrics.submissions_help"))
+    m3.metric(tr("metrics.responses"), len(responses), help=tr("metrics.responses_help"))
+    m4.metric(
+        tr("metrics.match_rate"),
+        f"{match_rate:.0%}" if responses else "—",
+        help=tr("metrics.match_rate_help"),
+    )
+
+    # Quick navigation hint.
+    st.caption(tr("home.navigation_hint"))
+
+# ---------- Tab: Outreach priority ----------
 
 with tab_outreach:
     df = _load_report(settings.report_output_dir / "outreach_priority.csv")
@@ -428,14 +462,12 @@ with tab_outreach:
             use_container_width=False,
         )
 
-# ---------- Tab 2: Vertical stats ----------
+# ---------- Tab: Vertical stats ----------
 
 with tab_stats:
     df = _load_report(settings.report_output_dir / "vertical_stats.csv")
     if df.empty:
-        _render_empty_state(
-            "stats.empty_title", "stats.empty_desc", "stats.empty_cta"
-        )
+        _render_empty_state("stats.empty_title", "stats.empty_desc", "stats.empty_cta")
     else:
         st.caption(tr("stats.caption"))
 
@@ -443,11 +475,32 @@ with tab_stats:
         chart_df["avg_response_seconds"] = pd.to_numeric(
             chart_df["avg_response_seconds"], errors="coerce"
         ).fillna(0)
-        st.bar_chart(chart_df, x="vertical", y="avg_response_seconds", height=320)
+
+        # Altair bar chart — sortable, color-coded, interactive tooltip.
+        chart = (
+            alt.Chart(chart_df)
+            .mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4)
+            .encode(
+                x=alt.X("vertical:N", sort="-y", title=tr("outreach.col.vertical")),
+                y=alt.Y(
+                    "avg_response_seconds:Q",
+                    title=tr("stats.y_label"),
+                ),
+                color=alt.Color(
+                    "avg_response_seconds:Q",
+                    scale=alt.Scale(scheme="redyellowgreen", reverse=True),
+                    legend=None,
+                ),
+                tooltip=["vertical", "submissions", "avg_response_seconds",
+                         "pct_within_24h", "pct_never_responded"],
+            )
+            .properties(height=320)
+        )
+        st.altair_chart(chart, use_container_width=True)
 
         st.dataframe(df, use_container_width=True, hide_index=True)
 
-# ---------- Tab 3: Competitor distribution ----------
+# ---------- Tab: Competitor distribution ----------
 
 with tab_competitors:
     df = _load_report(settings.report_output_dir / "competitor_distribution.csv")
@@ -460,13 +513,27 @@ with tab_competitors:
     else:
         st.caption(tr("competitors.caption"))
 
-        pivoted = df.pivot(
-            index="vertical", columns="competitor_tool", values="count"
-        ).fillna(0)
-        st.bar_chart(pivoted, height=320)
+        # Altair stacked bar — vertical on x, counts stacked by tool.
+        chart = (
+            alt.Chart(df)
+            .mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4)
+            .encode(
+                x=alt.X("vertical:N", title=tr("outreach.col.vertical")),
+                y=alt.Y("count:Q", title=tr("competitors.y_label")),
+                color=alt.Color(
+                    "competitor_tool:N",
+                    scale=alt.Scale(scheme="tableau10"),
+                    legend=alt.Legend(title=tr("competitors.legend")),
+                ),
+                tooltip=["vertical", "competitor_tool", "count"],
+            )
+            .properties(height=320)
+        )
+        st.altair_chart(chart, use_container_width=True)
+
         st.dataframe(df, use_container_width=True, hide_index=True)
 
-# ---------- Tab 4: Raw data ----------
+# ---------- Tab: Raw data ----------
 
 with tab_data:
     st.caption(tr("data.caption"))
@@ -515,7 +582,7 @@ with tab_data:
         else:
             st.info(tr("data.empty.responses"))
 
-# ---------- Tab 5: Settings ----------
+# ---------- Tab: Settings ----------
 
 with tab_settings:
     render_settings_tab(env_path=_REPO_ROOT / ".env")

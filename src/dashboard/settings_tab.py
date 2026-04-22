@@ -628,12 +628,27 @@ def _section_storage(env: dict[str, str], env_path: Path) -> None:
 
 
 def _toggle_demo_mode(env_path: Path) -> None:
-    """Callback for the master demo toggle — fans out to all *_MODE keys."""
+    """Callback for the master demo toggle — fans out to all *_MODE keys.
+
+    Crucial detail: we also clear each individual mode's widget state. Streamlit
+    widgets with `key=` pull from `st.session_state` as the source of truth
+    and ignore their `index=` argument once a key exists. Without this clear,
+    the per-service selectboxes would keep showing 'mock' after the toggle
+    flipped everything on disk to 'real'.
+    """
     target = "mock" if st.session_state.get("demo_mode_toggle") else "real"
     env = _read_env(env_path)
     for key in ("CLAUDE_MODE", "PLACES_MODE", "TWILIO_MODE", "WHATSAPP_MODE", "GMAIL_MODE"):
         env[key] = target
     _write_env(env_path, env)
+    for widget_key in (
+        "claude_mode_sel",
+        "places_mode_sel",
+        "twilio_mode_sel",
+        "whatsapp_mode_sel",
+        "gmail_mode_sel",
+    ):
+        st.session_state.pop(widget_key, None)
 
 
 # --------------------------------------------------------------- Verticals auto-save

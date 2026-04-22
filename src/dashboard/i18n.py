@@ -114,8 +114,18 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "run.status_running": "Buscando clientes potenciales en todos los tipos de negocio…",
         "run.status_done": "Listo — encontrados {ingested}, {matched}/{pulled} respuestas identificadas.",
         "run.success": "✅ Reportes actualizados. Mirá las tabs de abajo.",
+        "run.error": "❌ Error al correr la búsqueda: {error}. Revisá la tab **Configuración** para verificar que las APIs estén bien seteadas.",
+
+        # --- Home tab ---
+        "home.navigation_hint": "👉 Usá las tabs de arriba para ver la **Lista prioritaria**, **Estadísticas**, **Herramientas detectadas** o ajustar la **Configuración**.",
+
+        # --- Chart labels ---
+        "stats.y_label": "Segundos promedio de respuesta",
+        "competitors.y_label": "Cantidad de negocios",
+        "competitors.legend": "Herramienta",
 
         # --- Tabs ---
+        "tab.home": "🏠 Inicio",
         "tab.outreach": "🎯 Lista prioritaria",
         "tab.stats": "📊 Estadísticas",
         "tab.competitors": "🕵 Herramientas que usan",
@@ -392,8 +402,18 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "run.status_running": "Searching for prospects across every business type…",
         "run.status_done": "Done — {ingested} found, {matched}/{pulled} responses attributed.",
         "run.success": "✅ Reports refreshed. See the tabs below.",
+        "run.error": "❌ Search failed: {error}. Check the **Settings** tab to verify your APIs are configured correctly.",
+
+        # --- Home tab ---
+        "home.navigation_hint": "👉 Use the tabs above to see the **Priority list**, **Stats**, **Detected tools**, or adjust **Settings**.",
+
+        # --- Chart labels ---
+        "stats.y_label": "Average response seconds",
+        "competitors.y_label": "Number of businesses",
+        "competitors.legend": "Tool",
 
         # --- Tabs ---
+        "tab.home": "🏠 Home",
         "tab.outreach": "🎯 Priority list",
         "tab.stats": "📊 Stats",
         "tab.competitors": "🕵 Tools they use",
