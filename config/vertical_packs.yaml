@@ -1,0 +1,175 @@
+# Pre-configured category packs — shipped with the repo so new operators
+# get a useful starting set in their market without hand-typing 10 rows.
+#
+# Each pack has:
+#   - name: stable id (snake_case, unique across packs)
+#   - display_name: label shown in the pack selector dropdown
+#   - description: one line explaining the market segment covered
+#   - language: ISO code of the verticals' query language (es, en, pt, …)
+#   - region: free-form human region tag for filtering in the UI
+#   - verticals: list of Vertical rows (same shape as config/verticals.yaml)
+#
+# Queries are chosen to be ones Google Places actually matches against its
+# taxonomy. "small business" / "pyme" don't match any Places type and
+# return noise; "dentist" / "estudio jurídico" / "escritório de advocacia"
+# match well and return clean results.
+#
+# Operator flow: Settings → Pack selector → pick one → "Apply" replaces
+# the current config/verticals.yaml. Packs are NOT auto-reloaded into
+# verticals.yaml so an operator who customized their list won't lose it.
+
+packs:
+  # ---------------------------------------------------------------
+  - name: servicios_argentina
+    display_name: 🇦🇷 Servicios locales Argentina
+    description: 10 tipos de negocio típicos B2B / servicios profesionales en Argentina. Queries probadas en Google Places con terminología local.
+    language: es
+    region: Argentina
+    verticals:
+      - name: abogados
+        display_name: Abogados / Estudios jurídicos
+        query: estudio jurídico
+      - name: dentistas
+        display_name: Dentistas / Odontólogos
+        query: odontólogo
+      - name: clinicas_medicas
+        display_name: Clínicas médicas
+        query: clínica médica
+      - name: contadores
+        display_name: Contadores públicos
+        query: contador
+      - name: arquitectos
+        display_name: Arquitectos / Estudios de arquitectura
+        query: estudio de arquitectura
+      - name: inmobiliarias
+        display_name: Inmobiliarias
+        query: inmobiliaria
+      - name: peluquerias
+        display_name: Peluquerías
+        query: peluquería
+      - name: esteticas
+        display_name: Centros de estética
+        query: centro de estética
+      - name: veterinarias
+        display_name: Veterinarias
+        query: veterinaria
+      - name: plomeros
+        display_name: Plomeros / Gasistas
+        query: plomero
+  # ---------------------------------------------------------------
+  - name: latam_servicios
+    display_name: 🌎 LatAm — Servicios profesionales (multi-país)
+    description: Queries en español latinoamericano genérico, funcionan bien en México, Colombia, Chile, Perú, Uruguay. Para Argentina específicamente el pack "Servicios locales Argentina" es mejor.
+    language: es
+    region: Latinoamérica
+    verticals:
+      - name: abogados
+        display_name: Abogados
+        query: abogado
+      - name: dentistas
+        display_name: Dentistas
+        query: dentista
+      - name: medicos
+        display_name: Consultorios médicos
+        query: consultorio médico
+      - name: contadores
+        display_name: Contadores
+        query: contador público
+      - name: arquitectos
+        display_name: Arquitectos
+        query: arquitecto
+      - name: bienes_raices
+        display_name: Bienes raíces / Inmobiliarias
+        query: bienes raíces
+      - name: salones_belleza
+        display_name: Salones de belleza
+        query: salón de belleza
+      - name: spa_estetica
+        display_name: Spa / Estética
+        query: spa
+      - name: veterinarias
+        display_name: Veterinarias
+        query: veterinaria
+      - name: gimnasios
+        display_name: Gimnasios
+        query: gimnasio
+  # ---------------------------------------------------------------
+  - name: us_local_services
+    display_name: 🇺🇸 US Local Services
+    description: 12 English-language verticals tuned for Google Places in the US / Canada. These are the classic "sue a response bot at them" targets — law firms, dentists, home services, med spas.
+    language: en
+    region: United States / Canada
+    verticals:
+      - name: law_firm
+        display_name: Law Firm
+        query: law firm
+      - name: dentist
+        display_name: Dentist
+        query: dentist
+      - name: med_spa
+        display_name: Med Spa
+        query: med spa
+      - name: chiropractor
+        display_name: Chiropractor
+        query: chiropractor
+      - name: real_estate_agent
+        display_name: Real Estate Agency
+        query: real estate agency
+      - name: hair_salon
+        display_name: Hair Salon
+        query: hair salon
+      - name: accountant
+        display_name: Accountant
+        query: accountant
+      - name: plumber
+        display_name: Plumber
+        query: plumber
+      - name: electrician
+        display_name: Electrician
+        query: electrician
+      - name: hvac
+        display_name: HVAC Contractor
+        query: hvac contractor
+      - name: veterinarian
+        display_name: Veterinarian
+        query: veterinarian
+      - name: insurance_agent
+        display_name: Insurance Agency
+        query: insurance agency
+  # ---------------------------------------------------------------
+  - name: brasil_servicos
+    display_name: 🇧🇷 Brasil — Serviços locais
+    description: 10 categorias em português brasileiro com terminologia local. Especialmente útil para clientes operando em SP, Rio, BH e capitais.
+    language: pt
+    region: Brasil
+    verticals:
+      - name: advogados
+        display_name: Escritórios de advocacia
+        query: escritório de advocacia
+      - name: dentistas
+        display_name: Consultórios odontológicos
+        query: consultório odontológico
+      - name: imobiliarias
+        display_name: Imobiliárias
+        query: imobiliária
+      - name: contadores
+        display_name: Contadores
+        query: contador
+      - name: clinicas_medicas
+        display_name: Clínicas médicas
+        query: clínica médica
+      - name: arquitetos
+        display_name: Arquitetos
+        query: arquiteto
+      - name: saloes_beleza
+        display_name: Salões de beleza
+        query: salão de beleza
+      - name: veterinarios
+        display_name: Veterinários / Pet shops
+        query: pet shop
+      - name: academias
+        display_name: Academias
+        query: academia
+      - name: restaurantes
+        display_name: Restaurantes
+        query: restaurante
