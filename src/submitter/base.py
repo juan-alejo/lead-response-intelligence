@@ -43,9 +43,9 @@ class LeadIdentity:
     def default_demo(cls) -> LeadIdentity:
         return cls(
             full_name="Demo Tester",
-            email="demo+leadresponse@example.com",
+            email="demo+reachrate@example.com",
             phone="+15555550100",
-            company="Lead Response Intelligence Demo",
+            company="ReachRate Demo",
             message=(
                 "Hi — checking how quickly your team responds to inbound "
                 "contact. This is an automated deliverability test."

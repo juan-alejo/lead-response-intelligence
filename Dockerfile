@@ -1,9 +1,9 @@
-# Lead Response Intelligence — production image for the operator dashboard.
+# ReachRate — production image for the operator dashboard.
 #
-# Build:  docker build -t lead-response-intelligence .
+# Build:  docker build -t reachrate .
 # Run:    docker run -p 8501:8501 -v $(pwd)/config:/app/config \
 #                                 -v $(pwd)/data:/app/data \
-#                                 --env-file .env lead-response-intelligence
+#                                 --env-file .env reachrate
 #
 # The image ships the full pipeline + Streamlit dashboard. Bring your own
 # `.env` and `config/verticals.yaml` (bind-mount at runtime so settings

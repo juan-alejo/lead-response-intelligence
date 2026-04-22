@@ -9,7 +9,7 @@
 services:
   dashboard:
     build: .
-    container_name: lead-response-intelligence
+    container_name: reachrate
     restart: unless-stopped
     ports:
       - "8501:8501"

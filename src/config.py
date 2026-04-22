@@ -86,9 +86,9 @@ class Settings(BaseSettings):
     # mode a safe default is used; for real clients these MUST be overridden
     # to the operator's owned inbox / number so reply attribution works.
     lead_full_name: str = "Demo Tester"
-    lead_email: str = "demo+leadresponse@example.com"
+    lead_email: str = "demo+reachrate@example.com"
     lead_phone: str = "+15555550100"
-    lead_company: str = "Lead Response Intelligence Demo"
+    lead_company: str = "ReachRate Demo"
     lead_message: str = (
         "Hi — checking how quickly your team responds to inbound contact. "
         "This is an automated deliverability test."

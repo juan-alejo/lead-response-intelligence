@@ -44,7 +44,7 @@ from src.storage import SQLiteStore  # noqa: E402
 from src.verticals import get_vertical_registry  # noqa: E402
 
 st.set_page_config(
-    page_title="Lead Response Intelligence",
+    page_title="ReachRate",
     page_icon="📡",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -133,7 +133,24 @@ st.markdown(
         padding: 22px 26px;
         margin-bottom: 16px;
       }
-      .hero-card h1 { margin-top: 0 !important; font-size: 30px !important; }
+      .hero-card h1 {
+        margin-top: 0 !important;
+        margin-bottom: 4px !important;
+        font-size: 30px !important;
+        letter-spacing: -0.02em;
+      }
+      .hero-tagline {
+        color: rgb(99, 102, 241);
+        font-weight: 600;
+        font-size: 16px;
+        margin: 0 0 10px 0 !important;
+      }
+      .hero-subtitle {
+        opacity: 0.85;
+        font-size: 15px;
+        margin: 0 !important;
+        line-height: 1.55;
+      }
 
       /* ---------- Caption polish ---------- */
       div[data-testid="stCaptionContainer"] { opacity: 0.85; }
@@ -354,7 +371,7 @@ with st.sidebar:
     st.divider()
     st.link_button(
         tr("app.github_button"),
-        "https://github.com/juan-alejo/lead-response-intelligence",
+        "https://github.com/juan-alejo/reachrate",
         use_container_width=True,
     )
 
@@ -394,14 +411,15 @@ if run_now:
 # ---------- Tab: Inicio ----------
 
 with tab_home:
-    # Hero card with title + subtitle.
+    # Hero card — wordmark, tagline, one-line elevator. Tagline sits
+    # between title and subtitle so the brand reads as "ReachRate —
+    # Medí cómo responde tu mercado" at a glance.
     st.markdown(
         f"""
         <div class="hero-card">
             <h1>{tr('app.title')}</h1>
-            <p style="opacity: 0.85; font-size: 15px; margin: 0;">
-                {tr('app.subtitle')}
-            </p>
+            <p class="hero-tagline">{tr('app.tagline')}</p>
+            <p class="hero-subtitle">{tr('app.subtitle')}</p>
         </div>
         """,
         unsafe_allow_html=True,

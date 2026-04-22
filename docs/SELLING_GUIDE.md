@@ -97,7 +97,7 @@ priority list sorted by worst responders — which is the cohort most
 likely to convert for a response-automation product.
 
 It's already working. Full source + demo screenshots:
-https://github.com/juan-alejo/lead-response-intelligence
+https://github.com/juan-alejo/reachrate
 
 What I'd build for you:
 - Deploy a custom instance on your infrastructure

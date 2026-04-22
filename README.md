@@ -1,11 +1,11 @@
-# Lead Response Intelligence Pipeline
+# 📡 ReachRate
 
-> A B2B lead-intelligence pipeline that discovers prospects, classifies
-> their inbound-contact mechanisms, watches for responses across SMS /
-> WhatsApp / email / voice, and produces a prioritized outreach list
-> every Monday morning.
+> **Measure how your market responds.**
+>
+> ReachRate audits how fast every business in your target market replies
+> to inbound contact — every week. The slowest are your best prospects.
 
-[![CI](https://github.com/juan-alejo/lead-response-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/juan-alejo/lead-response-intelligence/actions/workflows/ci.yml)
+[![CI](https://github.com/juan-alejo/reachrate/actions/workflows/ci.yml/badge.svg)](https://github.com/juan-alejo/reachrate/actions/workflows/ci.yml)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
 ![Playwright](https://img.shields.io/badge/browser-Playwright%20Chromium-45ba4b)
 ![Claude API](https://img.shields.io/badge/LLM-Claude-d97757)
@@ -78,7 +78,7 @@ Features:
 
 ### One-click deploy to Railway
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/deploy?template=https%3A%2F%2Fgithub.com%2Fjuan-alejo%2Flead-response-intelligence)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/deploy?template=https%3A%2F%2Fgithub.com%2Fjuan-alejo%2Freachrate)
 
 Railway gives you $5/mo of free credit — enough to host this for small
 clients indefinitely.
@@ -86,8 +86,8 @@ clients indefinitely.
 ### Docker (one command)
 
 ```bash
-git clone https://github.com/juan-alejo/lead-response-intelligence.git
-cd lead-response-intelligence
+git clone https://github.com/juan-alejo/reachrate.git
+cd reachrate
 docker compose up -d
 # open http://localhost:8501
 ```

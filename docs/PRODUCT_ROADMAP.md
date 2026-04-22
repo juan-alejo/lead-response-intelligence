@@ -12,61 +12,58 @@ Our value: the cohort of slow-responders, already prioritized.
 
 ---
 
-## Part 1 — Naming
+## Part 1 — Naming (decided: **ReachRate**)
 
-### Why this matters
+The product is named **ReachRate**. Full brand guidelines
+(wordmark rules, tagline, voice, palette, emoji conventions) live in
+[BRAND.md](./BRAND.md) — reference that doc when writing copy or
+commissioning a logo.
 
-"Lead Response Intelligence Pipeline" is a description, not a brand.
-It won't be typed into Slack messages, it won't be recognized at a
-conference, and it's forgettable in a LinkedIn feed. Every
-category-defining tool in this space has a short, distinctive name
-(HubSpot, Intercom, Drift, Calendly — none literally describe what
-they do). A name that sticks is a free marketing multiplier.
+### Why ReachRate
 
-### Criteria
+After iterating through a first round of options (Pulso, Sabueso,
+Latentia, Respondly, ReplyRadar, LeadLag), the final pick landed on a
+name that is simultaneously:
 
-- Pronounceable in Spanish and English (market is LatAm + US).
-- Short (1–3 syllables). Typable on mobile without autocorrect fights.
-- Evocative > descriptive (Stripe doesn't mean "payment"; Linear
-  doesn't mean "project management").
-- Not an obvious trademark in sales/martech space.
-- Domain plausibly available on a variant (.ai / .io / .app / .so).
+- **Descriptive** — "Reach" + "Rate" tells a buyer what the product
+  measures the first time they see it. No metaphor to decode.
+- **Short & memorable** — two one-syllable words, one compound
+  wordmark. Types cleanly on mobile. Rhythmic to say out loud.
+- **Positive framing** — names the *value* the tool delivers
+  (your reach rate, a measurable outcome), not the *problem* it
+  detects (lag / silence / slowness). LeadLag was rejected for this
+  exact reason: you don't want "Lag" attached to your product in the
+  buyer's mind.
+- **Free in the martech space** — no major competitor owns this name
+  at time of writing. (Confirm domain + INPI/USPTO before signing
+  contracts — that's a 10-minute task Juan should do before the first
+  paid invoice.)
+- **Works in both languages** — "ReachRate" pronounces comfortably in
+  Spanish and English without translation. The tagline handles the
+  localization layer.
 
-### Six candidates, ranked
+### Taglines locked in
 
-| # | Name | Feel | Strong because | Weakness |
-|---|------|------|----------------|----------|
-| 1 | **Pulso** | 🇦🇷 LatAm-native, clinical | Two syllables. "the pulse of your market". Works perfectly in Spanish *and* English. Evokes signal/heartbeat. Hard to misspell. | `pulso.com` almost certainly taken; `pulso.ai` may work. |
-| 2 | **Sabueso** | 🇦🇷 Distinctive, memorable | "Bloodhound" in Spanish. Tells a story — it *finds* what's hidden. LatAm flavor without being parochial. Unique in martech. | US/English buyers will stumble on pronunciation at first. Mitigated by tagline. |
-| 3 | **Latentia** | 🌐 Techy, sophisticated | "Latent" (Latin root) = dormant opportunity. Sounds enterprise-grade. Pronounceable in both languages. Google-able without collisions. | Feels a bit cold/clinical; less emotional hook. |
-| 4 | **Respondly** | 🌐 Descriptive, safe | Says exactly what it does. Works for SEO. Easy in English. | Generic — blends into the martech name soup. Many "-ly" brands. |
-| 5 | **ReplyRadar** | 🇺🇸 English-first, metaphor | Radar = scanning for signals. Alliterative, memorable. Strong in English. | Weak in Spanish ("ReplyRadar" doesn't roll off the tongue in es). |
-| 6 | **Lagger** | 🎮 Edgy, gamer-adjacent | "Lag" = delay in tech culture. Confrontational, quotable. | Slightly insulting-to-prospects vibe. Not premium. |
+- **ES**: *Medí cómo responde tu mercado.*
+- **EN**: *Measure how your market responds.*
 
-### Recommendation
+Elevator one-liner — EN: *"ReachRate audits how fast every business in
+your target market replies to inbound contact. The slowest are your
+best prospects."* · ES: *"ReachRate mide cada semana cuánto tarda cada
+negocio de tu mercado en contestar mensajes — los más lentos son tus
+mejores prospectos."*
 
-**Pulso** — primary. It passes every criterion and the double-meaning
-(heartbeat + pulse-check) aligns with the product story: *"we take
-the pulse of your market's response times, every Monday"*.
+### Pending follow-ups (short, do once when Juan has 30 min)
 
-**Sabueso** as the LatAm-first alternative if Pulso's domains are
-taken and you want something more distinctive. "El sabueso que te
-encuentra los prospectos que nadie atiende" is a killer tagline.
-
-Check domain availability on both + search USPTO / INPI for
-conflicts before committing. If both pass, I'd go **Pulso** for a
-global product, **Sabueso** if the go-to-market is LatAm-first for the
-first year.
-
-### Branded phrasing to replace the current labels
-
-Current: "Lead Response Intelligence · discovers slow responders"
-
-New (with Pulso): *"Pulso — la frecuencia de respuesta de tu mercado.
-Encontrá los negocios más lentos, los que más necesitan tu solución."*
-
-English: *"Pulso — the response heartbeat of your market. Find the
-businesses slow enough to need what you sell."*
+- **Rename the GitHub repo** `juan-alejo/lead-response-intelligence`
+  → `juan-alejo/reachrate` (Settings → Rename). GitHub auto-redirects
+  old URLs, so badges keep working.
+- **Buy `reachrate.io`** (or `.app` / `.ai` if `.io` is taken) and
+  point it at the Railway deploy.
+- **Register `@ReachRate` / `@reachrate_io`** on LinkedIn, X, Indie
+  Hackers, Product Hunt.
+- **USPTO / INPI trademark check** — paid for $80–200 or DIY in the
+  public registries in ~30 min.
 
 ---
 
@@ -250,11 +247,17 @@ to sell. Do in parallel with the above.
 
 ## Summary — what to do first
 
-If you have 40 hours of focused time in the next month:
+If you have 40 hours of focused time in the next month (naming is done —
+ReachRate locked in):
 
-1. **Pick a name** (Pulso recommended). Buy domain + social handles. 2h.
-2. **Logo / visual identity**. $300 + 4h to integrate. 
-3. **Public demo site** on Railway with pre-loaded data. 6h.
+1. **Buy `reachrate.io` + social handles** (@ReachRate on
+   LinkedIn / X / IndieHackers). Rename the GitHub repo. ~1h.
+2. **Logo / visual identity**. Commission a wordmark + square icon
+   from Fiverr (budget $150–300) following the brief in
+   [BRAND.md §5](./BRAND.md#5-logo-direction-for-future-designer-brief).
+   Integrate as SVG + favicon. 4h.
+3. **Public demo site** on Railway at `demo.reachrate.io` with
+   pre-loaded AR+US+BR sample data. 6h.
 4. **Historical trends tab**. 8h.
 5. **One case study** — give the first engagement away or heavily
    discount it in exchange for a signed testimonial + screenshots. 20h

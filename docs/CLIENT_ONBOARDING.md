@@ -1,6 +1,6 @@
-# Guía de puesta en marcha
+# ReachRate — Guía de puesta en marcha
 
-> Documento para el **operador** — la persona del cliente que usa el sistema
+> Documento para el **operador** — la persona del cliente que usa ReachRate
 > todos los días. Asume cero conocimiento de programación.
 
 ---
@@ -27,7 +27,7 @@ gratis que cubre este uso tranquilo.
 
 1. Tocá este botón:
 
-   [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/deploy?template=https%3A%2F%2Fgithub.com%2Fjuan-alejo%2Flead-response-intelligence)
+   [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/deploy?template=https%3A%2F%2Fgithub.com%2Fjuan-alejo%2Freachrate)
 
 2. Railway te pide loguearte con tu cuenta de Google o GitHub (sin tarjeta).
 3. En ~2 minutos te genera una URL tipo `https://tu-nombre.up.railway.app`.
@@ -41,8 +41,8 @@ Si preferís tener todo local, con Docker es 2 comandos:
 
 ```bash
 # Clonás el repo
-git clone https://github.com/juan-alejo/lead-response-intelligence.git
-cd lead-response-intelligence
+git clone https://github.com/juan-alejo/reachrate.git
+cd reachrate
 
 # Arrancás el contenedor
 docker compose up -d
@@ -55,8 +55,8 @@ Para detenerlo: `docker compose down`.
 ### Opción C — Corriendo directamente con Python (para devs)
 
 ```bash
-git clone https://github.com/juan-alejo/lead-response-intelligence.git
-cd lead-response-intelligence
+git clone https://github.com/juan-alejo/reachrate.git
+cd reachrate
 python -m venv .venv
 .venv/Scripts/activate      # Windows
 # source .venv/bin/activate  # Mac/Linux
@@ -183,4 +183,4 @@ Si algo no funciona o querés customizar algo que no está en la
 configuración, contactá al integrador que te vendió el sistema.
 
 **Repo con el código fuente**:
-https://github.com/juan-alejo/lead-response-intelligence
+https://github.com/juan-alejo/reachrate

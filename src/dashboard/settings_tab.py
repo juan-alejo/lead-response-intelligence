@@ -1204,7 +1204,7 @@ def _render_quick_actions(env_path: Path) -> None:
         st.download_button(
             tr("settings.action_export"),
             data=export_blob.encode("utf-8"),
-            file_name="lead-response-intelligence-config.json",
+            file_name="reachrate-config.json",
             mime="application/json",
             help=tr("settings.action_export_help"),
             use_container_width=True,

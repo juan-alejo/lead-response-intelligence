@@ -1,3 +1,3 @@
-"""Lead Response Intelligence Pipeline."""
+"""ReachRate — response-time intelligence for local B2B markets."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

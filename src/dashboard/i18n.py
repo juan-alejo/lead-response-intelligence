@@ -35,11 +35,12 @@ DEFAULT_LANGUAGE = "es"
 _TRANSLATIONS: dict[str, dict[str, str]] = {
     "es": {
         # --- App shell ---
-        "app.title": "📡 Panel de Respuestas a Clientes",
+        "app.title": "📡 ReachRate",
+        "app.tagline": "Medí cómo responde tu mercado.",
         "app.subtitle": (
-            "Encuentra clientes potenciales, analiza cómo se los puede "
-            "contactar, y mide cuánto tardan en responder. Te genera todos "
-            "los lunes una lista de los más lentos — tus mejores prospectos."
+            "ReachRate mide cada semana cuánto tarda cada negocio de tu "
+            "mercado en contestar mensajes — los más lentos son tus "
+            "mejores prospectos."
         ),
         "app.github_button": "📖 Código (GitHub)",
         "app.language": "Idioma",
@@ -531,17 +532,17 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "phase2.attempt_header": "Intento {n} · {icon} {status}",
 
         # --- Footer ---
-        "footer.source": "Código fuente: [github.com/juan-alejo/lead-response-intelligence](https://github.com/juan-alejo/lead-response-intelligence)",
+        "footer.source": "Código fuente: [github.com/juan-alejo/reachrate](https://github.com/juan-alejo/reachrate)",
     },
 
     "en": {
         # --- App shell ---
-        "app.title": "📡 Lead Response Intelligence",
+        "app.title": "📡 ReachRate",
+        "app.tagline": "Measure how your market responds.",
         "app.subtitle": (
-            "Finds prospect businesses, analyzes how they can be contacted, "
-            "and measures how quickly they respond. Generates a prioritized "
-            "outreach list every Monday — sorted with the slowest "
-            "responders first (your best prospects)."
+            "ReachRate audits how fast every business in your target market "
+            "replies to inbound contact — every week. The slowest are your "
+            "best prospects."
         ),
         "app.github_button": "📖 GitHub repo",
         "app.language": "Language",
@@ -1026,7 +1027,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "phase2.attempt_header": "Attempt {n} · {icon} {status}",
 
         # --- Footer ---
-        "footer.source": "Source: [github.com/juan-alejo/lead-response-intelligence](https://github.com/juan-alejo/lead-response-intelligence)",
+        "footer.source": "Source: [github.com/juan-alejo/reachrate](https://github.com/juan-alejo/reachrate)",
     },
 }
 

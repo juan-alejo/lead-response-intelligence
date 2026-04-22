@@ -2,7 +2,7 @@
 
 **Technical specification & commercial offer.** This document is the
 customer-facing statement of work for implementing the Phase 2 upgrade
-on top of the existing Lead Response Intelligence pipeline.
+on top of the existing ReachRate pipeline.
 
 > Audience: a technical buyer at a B2B lead-intelligence or sales-
 > automation company who already uses Phase 1 (or is about to) and
@@ -351,7 +351,7 @@ For clients who treat the pipeline as a core product capability.
   100 prospects and hand-tune fallback selectors for their top 10
   most-common site frameworks.
 - ✅ **Dashboard branding** — logo, color palette, custom footer. No
-  "Lead Response Intelligence" visible unless the client wants it.
+  "ReachRate" visible unless the client wants it.
 - ✅ **Observability integration** — push structured logs + metrics to
   one of: Datadog, Grafana Cloud, Logfire, or Honeycomb.
 - ✅ **Dry-run report** — we run the submitter against your entire
@@ -594,4 +594,4 @@ roadmap for 2026 Q3. In the meantime: single-tenant engagements only.
 
 Juan Alejo — [juanalejofarana@gmail.com](mailto:juanalejofarana@gmail.com)
 
-GitHub: [juan-alejo/lead-response-intelligence](https://github.com/juan-alejo/lead-response-intelligence)
+GitHub: [juan-alejo/reachrate](https://github.com/juan-alejo/reachrate)

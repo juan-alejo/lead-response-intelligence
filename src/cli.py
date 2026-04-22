@@ -18,7 +18,7 @@ from .verticals import get_vertical_registry
 
 app = typer.Typer(
     add_completion=False,
-    help="Lead Response Intelligence Pipeline — CLI.",
+    help="ReachRate — response-time intelligence pipeline CLI.",
 )
 console = Console()
 

@@ -37,7 +37,7 @@ def require_auth() -> None:
     if st.session_state.get("_authed"):
         return  # already authenticated this session
 
-    st.markdown("# 🔒 Lead Response Intelligence")
+    st.markdown("# 🔒 ReachRate")
     st.caption(
         "Este panel está protegido. Ingresá la contraseña que te compartió "
         "el administrador."
