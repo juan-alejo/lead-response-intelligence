@@ -229,6 +229,35 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings.saved_to_env": "✅ Guardado en `{path}`. La próxima búsqueda usa los nuevos valores.",
         "settings.autosave_hint": "Los cambios se guardan automáticamente — no hace falta apretar ningún botón.",
 
+        # --- Settings: quick actions ---
+        "settings.actions_title": "### 🛠 Acciones rápidas",
+        "settings.actions_caption": (
+            "Exportá o importá tu configuración para moverte entre "
+            "máquinas, o reseteá los datos de demo para empezar de cero."
+        ),
+        "settings.action_export": "⬇ Exportar configuración (JSON)",
+        "settings.action_export_help": (
+            "Descarga un archivo con todas las API keys, modos y tipos de "
+            "negocio. Útil para backup o para mover la config a otra máquina."
+        ),
+        "settings.action_import": "⬆ Importar configuración",
+        "settings.action_import_help": (
+            "Subí un JSON exportado previamente. Sobreescribe tu `.env` y "
+            "`verticals.yaml`."
+        ),
+        "settings.action_import_success": "✅ Configuración importada correctamente.",
+        "settings.action_import_error": "⚠ Error al importar: {error}",
+        "settings.action_reset": "🗑 Resetear datos de demo",
+        "settings.action_reset_help": (
+            "Borra la base local de prospectos, envíos y respuestas. "
+            "La próxima búsqueda genera todo desde cero. No toca tus API keys."
+        ),
+        "settings.action_reset_success": "✅ Datos reseteados. Corré la búsqueda para regenerar.",
+        "settings.action_reset_confirm": (
+            "⚠ Esto borra permanentemente todos los prospectos / envíos / "
+            "respuestas almacenados. ¿Continuar?"
+        ),
+
         # --- Settings: mode dropdown labels ---
         "settings.mode_mock": "🧪 Prueba (datos de ejemplo)",
         "settings.mode_real": "🌐 Real (API en vivo)",
@@ -472,6 +501,35 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings.save_integrations": "💾 Save integrations",
         "settings.saved_to_env": "✅ Saved to `{path}`. Next search uses the new values.",
         "settings.autosave_hint": "Changes save automatically — no button needed.",
+
+        # --- Settings: quick actions ---
+        "settings.actions_title": "### 🛠 Quick actions",
+        "settings.actions_caption": (
+            "Export or import your config to move between machines, or "
+            "reset demo data to start fresh."
+        ),
+        "settings.action_export": "⬇ Export config (JSON)",
+        "settings.action_export_help": (
+            "Downloads a JSON file with all API keys, modes, and business "
+            "types. Handy for backup or moving to another machine."
+        ),
+        "settings.action_import": "⬆ Import config",
+        "settings.action_import_help": (
+            "Upload a previously exported JSON file. Overwrites your `.env` "
+            "and `verticals.yaml`."
+        ),
+        "settings.action_import_success": "✅ Config imported.",
+        "settings.action_import_error": "⚠ Import error: {error}",
+        "settings.action_reset": "🗑 Reset demo data",
+        "settings.action_reset_help": (
+            "Clears local prospects / submissions / responses. Next search "
+            "generates everything from scratch. API keys are kept."
+        ),
+        "settings.action_reset_success": "✅ Data cleared. Run the search to regenerate.",
+        "settings.action_reset_confirm": (
+            "⚠ This permanently deletes all stored prospects / submissions / "
+            "responses. Continue?"
+        ),
 
         # --- Settings: mode dropdown labels ---
         "settings.mode_mock": "🧪 Demo (example data)",

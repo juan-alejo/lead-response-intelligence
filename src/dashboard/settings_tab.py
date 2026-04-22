@@ -751,3 +751,106 @@ def render_settings_tab(env_path: Path) -> None:
         elif errors:
             for err in errors[:3]:  # cap at 3 to avoid spam
                 st.warning(err)
+
+    # ---------------------------- Quick actions
+
+    st.divider()
+    _render_quick_actions(env_path)
+
+
+# --------------------------------------------------------------- Quick actions
+
+
+def _render_quick_actions(env_path: Path) -> None:
+    st.markdown(tr("settings.actions_title"))
+    st.caption(tr("settings.actions_caption"))
+
+    action_col1, action_col2, action_col3 = st.columns(3)
+
+    # --- Export ---
+    with action_col1:
+        import json
+
+        env = _read_env(env_path)
+        verticals_path = Path("config/verticals.yaml")
+        verticals_raw = (
+            verticals_path.read_text(encoding="utf-8")
+            if verticals_path.exists()
+            else ""
+        )
+        export_blob = json.dumps(
+            {"env": env, "verticals_yaml": verticals_raw},
+            indent=2,
+            ensure_ascii=False,
+        )
+        st.download_button(
+            tr("settings.action_export"),
+            data=export_blob.encode("utf-8"),
+            file_name="lead-response-intelligence-config.json",
+            mime="application/json",
+            help=tr("settings.action_export_help"),
+            use_container_width=True,
+        )
+
+    # --- Import ---
+    with action_col2:
+        uploaded = st.file_uploader(
+            tr("settings.action_import"),
+            type=["json"],
+            help=tr("settings.action_import_help"),
+            key="settings_import_upload",
+        )
+        if uploaded is not None:
+            try:
+                import json
+
+                payload = json.loads(uploaded.read().decode("utf-8"))
+                new_env = payload.get("env") or {}
+                if new_env:
+                    _write_env(env_path, new_env)
+                yaml_blob = payload.get("verticals_yaml") or ""
+                if yaml_blob:
+                    Path("config/verticals.yaml").write_text(
+                        yaml_blob, encoding="utf-8"
+                    )
+                    get_registry().reload()
+                st.success(tr("settings.action_import_success"))
+                st.rerun()
+            except Exception as e:  # noqa: BLE001
+                st.error(tr("settings.action_import_error", error=str(e)))
+
+    # --- Reset demo data ---
+    with action_col3:
+        if st.button(
+            tr("settings.action_reset"),
+            help=tr("settings.action_reset_help"),
+            use_container_width=True,
+        ):
+            st.session_state["_pending_reset"] = True
+
+        if st.session_state.get("_pending_reset"):
+            st.warning(tr("settings.action_reset_confirm"))
+            confirm_col1, confirm_col2 = st.columns(2)
+            if confirm_col1.button("✅ Sí", use_container_width=True):
+                _reset_demo_data()
+                st.session_state["_pending_reset"] = False
+                st.success(tr("settings.action_reset_success"))
+                st.rerun()
+            if confirm_col2.button("❌ No", use_container_width=True):
+                st.session_state["_pending_reset"] = False
+                st.rerun()
+
+
+def _reset_demo_data() -> None:
+    """Clear SQLite + run history + generated reports."""
+    import shutil
+
+    for path in [
+        Path("data/pipeline.sqlite"),
+        Path("data/run_history.json"),
+    ]:
+        path.unlink(missing_ok=True)
+    reports_dir = Path("reports")
+    if reports_dir.exists():
+        shutil.rmtree(reports_dir)
+    reports_dir.mkdir(parents=True, exist_ok=True)
