@@ -187,6 +187,57 @@ dev, live APIs, or disable a channel entirely.
 
 ---
 
+## Market packs + AI category generator
+
+The biggest hurdle for a new operator is defining their target verticals
+in a language Google Places actually understands. `"small business"` or
+`"pyme"` as a query in Spanish-speaking markets returns noise — Google
+Places is a taxonomy-first API, not a full-text search. The product
+handles this three ways:
+
+### 📦 Pre-configured market packs
+
+Bundled under [config/vertical_packs.yaml](./config/vertical_packs.yaml).
+Operators pick a pack from the Settings tab, preview the categories,
+and apply in one click — replacing or appending to their current
+verticals.
+
+- **🇦🇷 Servicios locales Argentina** — 10 Spanish-language verticals
+  tuned for Argentine Google Places (estudios jurídicos, odontólogos,
+  inmobiliarias, contadores, arquitectos, peluquerías, estéticas,
+  veterinarias, plomeros, clínicas médicas).
+- **🌎 LatAm — Servicios profesionales (multi-país)** — generic LatAm
+  Spanish queries that work across Mexico, Colombia, Chile, Peru,
+  Uruguay.
+- **🇺🇸 US Local Services** — 12 English verticals (law firm, dentist,
+  med spa, chiropractor, real estate, hair salon, accountant, plumber,
+  electrician, HVAC, veterinarian, insurance).
+- **🇧🇷 Brasil — Serviços locais** — 10 Portuguese verticals with local
+  terminology (escritórios de advocacia, consultórios odontológicos,
+  imobiliárias, pet shops, academias, etc.).
+
+### 🧠 Claude category generator
+
+For markets no pack covers — Colombia, Peru, Spain, India, niche
+sectors — the operator describes the market in free text ("Argentina +
+servicios profesionales", "Mexico + comercio minorista") and Claude
+returns 8–15 localized categories with queries vetted for the regional
+Google Places taxonomy. Output is validated (rejects malformed names /
+empty fields) and previewed before commit. Demo mode has pre-baked
+samples so the button feels alive without Claude spend.
+
+### 🧺 Aggregated mode toggle
+
+For clients selling response bots to broad markets ("all small
+businesses in Argentina", not "just law firms"), a single Settings
+toggle collapses every per-vertical UI element — the filter in the
+Outreach tab disappears, the Stats tab shows four weighted KPIs
+instead of per-type bars, the Competitors tab flattens to a global
+tool distribution. Ingestion still runs every configured type; only
+the presentation changes.
+
+---
+
 ## Phase 2 — automated form submission (available)
 
 The one manual step in Phase 1 — a human working through the submission
@@ -341,6 +392,8 @@ src/
 ├── storage/                     # SQLite + Airtable (interface stub)
 ├── monitoring/                  # SMS / voice / WhatsApp / email + matcher
 ├── reporting/                   # weekly CSV reports
+├── vertical_packs.py            # curated region packs (Argentina / LatAm / US / Brasil)
+├── category_generator.py        # Claude-powered "generate categories for my market" button
 ├── submitter/                   # Phase 2 — auto form submission (FormSubmitter ABC, MockFormSubmitter, queue)
 └── dashboard/
     ├── app.py                   # Streamlit operator dashboard
@@ -371,6 +424,12 @@ railway.json                     # Railway deploy config
 - [x] Streamlit operator dashboard with bilingual UI + per-service config
 - [x] Auto-save, test-connection, run history, export/import config
 - [x] Docker + Railway deploy story
+- [x] **Market packs** — 4 bundled region packs (Argentina / LatAm / US / Brasil)
+      with vetted local-language queries
+- [x] **Claude category generator** — "magic button" that generates 8-15
+      localized categories for any country + sector described in free text
+- [x] **Aggregated mode toggle** — presentation mode for operators who sell
+      to broad markets and don't want per-type segmentation
 - [x] **Phase 2 scaffolding** — `FormSubmitter` ABC + `MockFormSubmitter`
       + dashboard tab + feature flag + commercial spec. Available to try
       today (`PHASE_2_ENABLED=true`); live Playwright submitter delivered
