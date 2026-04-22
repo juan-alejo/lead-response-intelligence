@@ -81,6 +81,39 @@ def _load_report(path: Path) -> pd.DataFrame:
     return pd.read_csv(path)
 
 
+def _load_run_history(path: Path = Path("data/run_history.json")) -> list[dict]:
+    if not path.exists():
+        return []
+    try:
+        import json
+
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+
+def _humanize_ago(iso_timestamp: str) -> str:
+    """Turn an ISO timestamp into a 'hace X min/h/días' human string."""
+    from datetime import datetime
+
+    from src.models import _utc_now
+
+    try:
+        dt = datetime.fromisoformat(iso_timestamp)
+    except ValueError:
+        return iso_timestamp
+
+    delta = _utc_now() - dt
+    seconds = int(delta.total_seconds())
+    if seconds < 60:
+        return tr("lastrun.just_now")
+    if seconds < 3600:
+        return tr("lastrun.ago_minutes", n=seconds // 60)
+    if seconds < 86400:
+        return tr("lastrun.ago_hours", n=seconds // 3600)
+    return tr("lastrun.ago_days", n=seconds // 86400)
+
+
 settings = get_settings()
 store = _load_store(settings.sqlite_path)
 
@@ -148,6 +181,30 @@ with st.sidebar:
     )
 
     st.divider()
+
+    # --- Run history ---
+    st.markdown(f"**{tr('history.title')}**")
+    runs = _load_run_history()
+    if not runs:
+        st.caption(tr("history.empty"))
+    else:
+        history_rows = [
+            {
+                tr("history.col.when"): _humanize_ago(r["timestamp"]),
+                tr("history.col.found"): r.get("ingested", 0),
+                tr("history.col.matched"): (
+                    f"{r.get('responses_matched', 0)}/{r.get('responses_pulled', 0)}"
+                ),
+            }
+            for r in runs[:5]
+        ]
+        st.dataframe(
+            pd.DataFrame(history_rows),
+            hide_index=True,
+            use_container_width=True,
+        )
+
+    st.divider()
     st.link_button(
         tr("app.github_button"),
         "https://github.com/juan-alejo/lead-response-intelligence",
@@ -161,13 +218,50 @@ with st.sidebar:
 st.markdown(f"# {tr('app.title')}")
 st.caption(tr("app.subtitle"))
 
-# --- Metrics ---
+# --- Data loading ---
 
 prospects_recent = store.recent_place_ids()
 submissions = store.all_submissions()
 responses = store.all_responses()
 matched = [r for r in responses if r.matched_submission_id is not None]
 match_rate = (len(matched) / len(responses)) if responses else 0.0
+
+# --- Welcome hero for first-run (empty state) ---
+
+_is_first_run = not prospects_recent and not submissions and not responses
+if _is_first_run:
+    st.info(tr("welcome.banner"))
+    welcome_cols = st.columns([1, 1, 1])
+    welcome_cols[0].markdown(tr("welcome.step1"))
+    welcome_cols[1].markdown(tr("welcome.step2"))
+    welcome_cols[2].markdown(tr("welcome.step3"))
+    if st.button(tr("welcome.cta"), type="primary", use_container_width=False):
+        with st.status(tr("run.status_running"), expanded=True) as status:
+            result = run_all_verticals(
+                settings,
+                borough=Borough.MANHATTAN,
+                limit=50,
+                fetch_pages=False,
+            )
+            status.update(
+                label=tr(
+                    "run.status_done",
+                    ingested=result.ingested,
+                    matched=result.responses_matched,
+                    pulled=result.responses_pulled,
+                ),
+                state="complete",
+            )
+        st.rerun()
+    st.divider()
+
+# --- Last-run indicator ---
+
+_runs = _load_run_history()
+if _runs:
+    st.caption(f"🕒 {tr('lastrun.label')} {_humanize_ago(_runs[0]['timestamp'])}")
+
+# --- Metrics ---
 
 m1, m2, m3, m4 = st.columns(4)
 m1.metric(tr("metrics.prospects"), len(prospects_recent), help=tr("metrics.prospects_help"))

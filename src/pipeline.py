@@ -12,6 +12,7 @@ import json
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
+from pathlib import Path
 
 from loguru import logger
 
@@ -334,4 +335,50 @@ def run_all_verticals(
     totals.responses_pulled = reporting.responses_pulled
     totals.responses_matched = reporting.responses_matched
     totals.report_paths = reporting.report_paths
+
+    _append_run_history(
+        borough=borough.value,
+        limit=limit,
+        fetch_pages=fetch_pages,
+        result=totals,
+    )
     return totals
+
+
+def _append_run_history(
+    *,
+    borough: str,
+    limit: int,
+    fetch_pages: bool,
+    result: PipelineResult,
+    path: Path = Path("data/run_history.json"),
+    max_entries: int = 20,
+) -> None:
+    """Persist a compact record of the run so the dashboard can show history."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    history: list[dict] = []
+    if path.exists():
+        try:
+            history = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001 — corrupted file, start fresh
+            history = []
+
+    from .models import _utc_now
+
+    history.insert(
+        0,
+        {
+            "timestamp": _utc_now().isoformat(timespec="seconds"),
+            "borough": borough,
+            "limit": limit,
+            "fetch_pages": fetch_pages,
+            "ingested": result.ingested,
+            "deduplicated": result.deduplicated,
+            "classified": result.classified,
+            "submissions_queued": result.submissions_queued,
+            "responses_pulled": result.responses_pulled,
+            "responses_matched": result.responses_matched,
+        },
+    )
+    history = history[:max_entries]
+    path.write_text(json.dumps(history, indent=2), encoding="utf-8")

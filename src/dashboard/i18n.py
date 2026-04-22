@@ -44,6 +44,32 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "app.github_button": "📖 Código (GitHub)",
         "app.language": "Idioma",
 
+        # --- First-run welcome hero ---
+        "welcome.banner": (
+            "👋 **¡Bienvenido!** Todavía no hay datos. Probá una búsqueda de "
+            "demo para ver cómo funciona — usa datos de ejemplo, no gasta nada."
+        ),
+        "welcome.step1": "**1. Correr demo** — usamos negocios de ejemplo preconfigurados.",
+        "welcome.step2": "**2. Mirar resultados** — se llenan las tabs con lista priorizada y estadísticas.",
+        "welcome.step3": "**3. Conectar APIs reales** — cuando quieras, vas a la tab **Configuración**.",
+        "welcome.cta": "🚀 Correr búsqueda de demo (30 segundos)",
+
+        # --- Last run indicator ---
+        "lastrun.label": "Última búsqueda:",
+        "lastrun.never": "aún no se ejecutó",
+        "lastrun.ago_minutes": "hace {n} min",
+        "lastrun.ago_hours": "hace {n} h",
+        "lastrun.ago_days": "hace {n} día(s)",
+        "lastrun.just_now": "recién",
+
+        # --- Run history in sidebar ---
+        "history.title": "📋 Historial de corridas",
+        "history.empty": "Aún no hay corridas.",
+        "history.col.when": "Cuándo",
+        "history.col.found": "Encontrados",
+        "history.col.matched": "Identificadas",
+
+
         # --- Integration pills row ---
         "pills.header": "**Servicios conectados:**",
         "pills.storage": "**Base de datos:**",
@@ -245,6 +271,32 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "app.github_button": "📖 GitHub repo",
         "app.language": "Language",
+
+        # --- First-run welcome hero ---
+        "welcome.banner": (
+            "👋 **Welcome!** No data yet. Try a demo search to see how this works — "
+            "uses bundled example data, costs zero."
+        ),
+        "welcome.step1": "**1. Run demo** — we use a preconfigured set of example businesses.",
+        "welcome.step2": "**2. See results** — tabs fill with a priority list and stats.",
+        "welcome.step3": "**3. Plug real APIs** — whenever you're ready, hit the **Settings** tab.",
+        "welcome.cta": "🚀 Run demo search (30 seconds)",
+
+        # --- Last run indicator ---
+        "lastrun.label": "Last search:",
+        "lastrun.never": "never run yet",
+        "lastrun.ago_minutes": "{n} min ago",
+        "lastrun.ago_hours": "{n} h ago",
+        "lastrun.ago_days": "{n} day(s) ago",
+        "lastrun.just_now": "just now",
+
+        # --- Run history in sidebar ---
+        "history.title": "📋 Run history",
+        "history.empty": "No runs yet.",
+        "history.col.when": "When",
+        "history.col.found": "Found",
+        "history.col.matched": "Matched",
+
 
         # --- Integration pills row ---
         "pills.header": "**Integrations:**",
