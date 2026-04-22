@@ -2,7 +2,7 @@ business_name,vertical,submission_method,elapsed_seconds,elapsed_human,prospect_
 Hoch & Park Family Law,law_firm,chat_widget,,never responded,contact@hochpark.example.com,+12125550103
 Empire Roofing Contractors,home_services,contact_form,,never responded,,+12125550202
 Skin & Glow Aesthetics,med_spa,booking_widget,,never responded,,+12125550302
-Aurora Med Spa,med_spa,booking_widget,248700,2d,hello@auroramedspa.example.com,+12125550301
 Uptown HVAC & Heating,home_services,contact_form,17100,4h,dispatch@uptownhvac.example.com,+12125550201
-Sutter & Associates Law,law_firm,contact_form,4320,1h,intake@sutter-law.example.com,+12125550101
+Aurora Med Spa,med_spa,booking_widget,9900,2h,hello@auroramedspa.example.com,+12125550301
 Ramirez Immigration Attorneys,law_firm,chat_widget,1800,30m,intake@ramirez-immigration.example.com,+12125550102
+Sutter & Associates Law,law_firm,contact_form,900,15m,intake@sutter-law.example.com,+12125550101
