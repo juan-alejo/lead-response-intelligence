@@ -125,10 +125,11 @@ pills = [
     _mode_pill("Twilio SMS", settings.twilio_mode),
     _mode_pill("WhatsApp", settings.whatsapp_mode),
     _mode_pill("Gmail", settings.gmail_mode),
-    _mode_pill("Storage", settings.storage_backend),
 ]
+storage_icon = "🗂" if settings.storage_backend == "sqlite" else "☁"
 st.markdown(
-    f"**Integrations:** {' '.join(pills)}",
+    f"**Integrations:** {' '.join(pills)} &nbsp;&nbsp; "
+    f"**Storage:** {storage_icon} {settings.storage_backend}",
     unsafe_allow_html=True,
 )
 
