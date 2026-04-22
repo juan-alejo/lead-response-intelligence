@@ -3,7 +3,7 @@
     "place_id": "real_intercom_com",
     "business_name": "Intercom (SaaS site — expected to have Intercom widget on their own landing)",
     "vertical": "general",
-    "borough": "manhattan",
+    "location": "manhattan",
     "website": "https://www.intercom.com",
     "phone": null,
     "email": null
@@ -12,7 +12,7 @@
     "place_id": "real_drift_com",
     "business_name": "Drift (SaaS site — expected to have Drift widget)",
     "vertical": "general",
-    "borough": "manhattan",
+    "location": "manhattan",
     "website": "https://www.drift.com",
     "phone": null,
     "email": null
@@ -21,7 +21,7 @@
     "place_id": "real_calendly_com",
     "business_name": "Calendly (SaaS site — expected to have Calendly embed)",
     "vertical": "general",
-    "borough": "manhattan",
+    "location": "manhattan",
     "website": "https://calendly.com",
     "phone": null,
     "email": null
@@ -30,7 +30,7 @@
     "place_id": "real_hubspot_com",
     "business_name": "HubSpot (expected to have HubSpot Meetings tag)",
     "vertical": "general",
-    "borough": "manhattan",
+    "location": "manhattan",
     "website": "https://www.hubspot.com",
     "phone": null,
     "email": null
@@ -39,7 +39,7 @@
     "place_id": "real_acuity",
     "business_name": "Acuity Scheduling (expected to have Acuity tag)",
     "vertical": "general",
-    "borough": "manhattan",
+    "location": "manhattan",
     "website": "https://acuityscheduling.com",
     "phone": null,
     "email": null
@@ -48,7 +48,7 @@
     "place_id": "real_wikipedia",
     "business_name": "Wikipedia (control — should have no widgets detected)",
     "vertical": "general",
-    "borough": "manhattan",
+    "location": "manhattan",
     "website": "https://www.wikipedia.org",
     "phone": null,
     "email": null

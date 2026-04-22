@@ -8,14 +8,14 @@ from pathlib import Path
 
 from loguru import logger
 
-from ..models import Borough, Prospect
+from ..models import Prospect
 from .base import ProspectSource
 
 
 class CSVSource(ProspectSource):
     """Load prospects from a CSV with headers matching the `Prospect` model.
 
-    Required columns: place_id, business_name, vertical, borough.
+    Required columns: place_id, business_name, vertical, location.
     Optional: website, phone, email.
     """
 
@@ -23,7 +23,7 @@ class CSVSource(ProspectSource):
         self.path = path
 
     def fetch(
-        self, vertical: str, borough: Borough, limit: int = 100
+        self, vertical: str, location: str, limit: int = 100
     ) -> Iterable[Prospect]:
         if not self.path.exists():
             logger.error(f"CSV source not found: {self.path}")
@@ -35,14 +35,14 @@ class CSVSource(ProspectSource):
             for row in reader:
                 if row.get("vertical") != vertical:
                     continue
-                if row.get("borough") != borough.value:
+                if row.get("location") != location:
                     continue
                 prospects.append(
                     Prospect(
                         place_id=row["place_id"],
                         business_name=row["business_name"],
                         vertical=row["vertical"],
-                        borough=Borough(row["borough"]),
+                        location=row["location"],
                         website=row.get("website") or None,
                         phone=row.get("phone") or None,
                         email=row.get("email") or None,

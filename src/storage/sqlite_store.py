@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS prospects (
     place_id        TEXT PRIMARY KEY,
     business_name   TEXT NOT NULL,
     vertical        TEXT NOT NULL,
-    borough         TEXT NOT NULL,
+    location        TEXT NOT NULL,
     website         TEXT,
     phone           TEXT,
     email           TEXT,
@@ -60,6 +60,13 @@ class SQLiteStore(Storage):
         self.path = path
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self._conn() as c:
+            # If an older DB still has `borough` instead of `location`, rename
+            # it in-place. SQLite ≥3.25 supports ALTER TABLE RENAME COLUMN,
+            # which is what all supported Python 3.11+ runtimes ship with.
+            cols = {row["name"] for row in c.execute("PRAGMA table_info(prospects)")}
+            if "borough" in cols and "location" not in cols:
+                c.execute("ALTER TABLE prospects RENAME COLUMN borough TO location")
+                logger.info("[sqlite] migrated column prospects.borough → location")
             c.executescript(_SCHEMA)
 
     def _conn(self) -> sqlite3.Connection:
@@ -77,14 +84,14 @@ class SQLiteStore(Storage):
             c.executemany(
                 """
                 INSERT INTO prospects (
-                    place_id, business_name, vertical, borough,
+                    place_id, business_name, vertical, location,
                     website, phone, email, discovered_at
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(place_id) DO UPDATE SET
                     business_name=excluded.business_name,
                     vertical=excluded.vertical,
-                    borough=excluded.borough,
+                    location=excluded.location,
                     website=excluded.website,
                     phone=excluded.phone,
                     email=excluded.email
@@ -94,7 +101,7 @@ class SQLiteStore(Storage):
                         p.place_id,
                         p.business_name,
                         p.vertical,
-                        p.borough.value,
+                        p.location,
                         p.website,
                         p.phone,
                         p.email,

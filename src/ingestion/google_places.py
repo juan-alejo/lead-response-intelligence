@@ -20,19 +20,12 @@ from pathlib import Path
 import httpx
 from loguru import logger
 
-from ..models import Borough, Prospect
-from ..verticals import get_registry
+from ..locations import get_location_registry
+from ..models import Prospect
+from ..verticals import get_vertical_registry
 from .base import ProspectSource
 
 _PLACES_TEXT_SEARCH = "https://maps.googleapis.com/maps/api/place/textsearch/json"
-
-_BOROUGH_NAMES: dict[Borough, str] = {
-    Borough.MANHATTAN: "Manhattan, New York",
-    Borough.BROOKLYN: "Brooklyn, New York",
-    Borough.QUEENS: "Queens, New York",
-    Borough.BRONX: "Bronx, New York",
-    Borough.STATEN_ISLAND: "Staten Island, New York",
-}
 
 
 class GooglePlacesSource(ProspectSource):
@@ -48,14 +41,14 @@ class GooglePlacesSource(ProspectSource):
         self.mock_fixture = mock_fixture
 
     def fetch(
-        self, vertical: str, borough: Borough, limit: int = 100
+        self, vertical: str, location: str, limit: int = 100
     ) -> Iterable[Prospect]:
         if self.mode == "mock":
-            return self._fetch_mock(vertical, borough, limit)
-        return self._fetch_real(vertical, borough, limit)
+            return self._fetch_mock(vertical, location, limit)
+        return self._fetch_real(vertical, location, limit)
 
     def _fetch_mock(
-        self, vertical: str, borough: Borough, limit: int
+        self, vertical: str, location: str, limit: int
     ) -> list[Prospect]:
         if not self.mock_fixture.exists():
             logger.warning(f"mock fixture not found: {self.mock_fixture}")
@@ -65,24 +58,25 @@ class GooglePlacesSource(ProspectSource):
         for entry in raw:
             if entry.get("vertical") != vertical:
                 continue
-            if entry.get("borough") != borough.value:
+            if entry.get("location") != location:
                 continue
             prospects.append(Prospect(**entry))
             if len(prospects) >= limit:
                 break
         logger.info(
             f"[mock] places returned {len(prospects)} prospects "
-            f"for {vertical} in {borough.value}"
+            f"for {vertical} in {location}"
         )
         return prospects
 
     def _fetch_real(
-        self, vertical: str, borough: Borough, limit: int
+        self, vertical: str, location: str, limit: int
     ) -> list[Prospect]:
         if not self.api_key:
             raise RuntimeError("GOOGLE_PLACES_API_KEY is required for real mode")
-        vertical_cfg = get_registry().get(vertical)
-        query = f"{vertical_cfg.query} in {_BOROUGH_NAMES[borough]}"
+        vertical_cfg = get_vertical_registry().get(vertical)
+        location_cfg = get_location_registry().get(location)
+        query = f"{vertical_cfg.query} {location_cfg.query_suffix}"
         logger.info(f"[real] querying Google Places: {query!r}")
         params = {"query": query, "key": self.api_key}
         prospects: list[Prospect] = []
@@ -96,7 +90,7 @@ class GooglePlacesSource(ProspectSource):
                         place_id=result["place_id"],
                         business_name=result["name"],
                         vertical=vertical,
-                        borough=borough,
+                        location=location,
                         website=result.get("website"),
                         phone=result.get("formatted_phone_number"),
                     )

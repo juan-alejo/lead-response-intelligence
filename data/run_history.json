@@ -1,7 +1,7 @@
 [
   {
-    "timestamp": "2026-04-22T01:21:37",
-    "borough": "manhattan",
+    "timestamp": "2026-04-22T06:30:02",
+    "location": "manhattan",
     "limit": 50,
     "fetch_pages": false,
     "ingested": 7,

@@ -97,9 +97,14 @@ _BUILTIN_DEFAULTS: tuple[Vertical, ...] = (
 _registry: VerticalRegistry | None = None
 
 
-def get_registry() -> VerticalRegistry:
+def get_vertical_registry() -> VerticalRegistry:
     """Module-level singleton. Call `.reload()` on it after edits."""
     global _registry
     if _registry is None:
         _registry = VerticalRegistry()
     return _registry
+
+
+# Backward-compat alias so existing imports (`from .verticals import
+# get_registry`) keep working while the rename percolates through the codebase.
+get_registry = get_vertical_registry

@@ -25,8 +25,8 @@ from .classification import (
 )
 from .config import Settings
 from .ingestion import Deduplicator, GooglePlacesSource
+from .locations import get_location_registry
 from .models import (
-    Borough,
     Classification,
     CompetitorTool,
     FormType,
@@ -42,7 +42,7 @@ from .monitoring import (
 )
 from .reporting import WeeklyReporter
 from .storage import SQLiteStore, Storage
-from .verticals import get_registry
+from .verticals import get_vertical_registry
 
 _METHOD_BY_FORM_TYPE = {
     "contact_form": SubmissionMethod.CONTACT_FORM,
@@ -74,7 +74,7 @@ class Pipeline:
     async def run_ingestion_and_classification(
         self,
         vertical: str,
-        borough: Borough,
+        location: str,
         *,
         limit: int = 50,
         fetch_pages: bool = False,
@@ -94,7 +94,7 @@ class Pipeline:
             api_key=self.settings.google_places_api_key,
             mock_fixture=self.settings.mock_places_fixture,
         )
-        prospects = list(source.fetch(vertical, borough, limit=limit))
+        prospects = list(source.fetch(vertical, location, limit=limit))
         result.ingested = len(prospects)
 
         recent = self.storage.recent_place_ids()
@@ -270,19 +270,28 @@ def _infer_form_type_from_prospect(prospect: Prospect) -> FormType:
     return FormType.CONTACT_FORM if prospect.website else FormType.NONE
 
 
+def _default_location() -> str:
+    """Whatever the first configured location is — keeps defaults sensible as
+    the operator edits the locations.yaml file."""
+    names = get_location_registry().names()
+    return names[0] if names else "manhattan"
+
+
 def run_full_pipeline(
     settings: Settings,
     *,
     vertical: str = "law_firm",
-    borough: Borough = Borough.MANHATTAN,
+    location: str | None = None,
     limit: int = 50,
     fetch_pages: bool = False,
 ) -> PipelineResult:
     """Sync convenience wrapper for scripts / cron jobs."""
+    if location is None:
+        location = _default_location()
     pipeline = Pipeline(settings)
     ingestion_result = asyncio.run(
         pipeline.run_ingestion_and_classification(
-            vertical, borough, limit=limit, fetch_pages=fetch_pages
+            vertical, location, limit=limit, fetch_pages=fetch_pages
         )
     )
     reporting_result = pipeline.run_monitoring_and_reporting()
@@ -301,15 +310,17 @@ def run_full_pipeline(
 def run_all_verticals(
     settings: Settings,
     *,
-    borough: Borough = Borough.MANHATTAN,
+    location: str | None = None,
     limit: int = 50,
     fetch_pages: bool = False,
 ) -> PipelineResult:
     """Ingest every vertical sequentially, then generate one combined report.
 
     This is the intended weekly cron pattern: one Monday-morning run that
-    covers every configured vertical in the target borough.
+    covers every configured vertical in the target location.
     """
+    if location is None:
+        location = _default_location()
     pipeline = Pipeline(settings)
     totals = PipelineResult()
 
@@ -318,10 +329,10 @@ def run_all_verticals(
     # runs every vertical currently defined in the registry — add a dentist in
     # the dashboard Settings tab and it automatically flows through here.
     all_classifications: list[Classification] = []
-    for vertical in get_registry().names():
+    for vertical in get_vertical_registry().names():
         part = asyncio.run(
             pipeline.run_ingestion_and_classification(
-                vertical, borough, limit=limit, fetch_pages=fetch_pages
+                vertical, location, limit=limit, fetch_pages=fetch_pages
             )
         )
         totals.ingested += part.ingested
@@ -337,7 +348,7 @@ def run_all_verticals(
     totals.report_paths = reporting.report_paths
 
     _append_run_history(
-        borough=borough.value,
+        location=location,
         limit=limit,
         fetch_pages=fetch_pages,
         result=totals,
@@ -347,7 +358,7 @@ def run_all_verticals(
 
 def _append_run_history(
     *,
-    borough: str,
+    location: str,
     limit: int,
     fetch_pages: bool,
     result: PipelineResult,
@@ -369,7 +380,7 @@ def _append_run_history(
         0,
         {
             "timestamp": _utc_now().isoformat(timespec="seconds"),
-            "borough": borough,
+            "location": location,
             "limit": limit,
             "fetch_pages": fetch_pages,
             "ingested": result.ingested,

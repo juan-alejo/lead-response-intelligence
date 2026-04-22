@@ -12,9 +12,9 @@ from rich.console import Console
 from rich.table import Table
 
 from .config import get_settings
-from .models import Borough
+from .locations import get_location_registry
 from .pipeline import run_all_verticals, run_full_pipeline
-from .verticals import get_registry
+from .verticals import get_vertical_registry
 
 app = typer.Typer(
     add_completion=False,
@@ -29,7 +29,10 @@ def run_weekly(
         "law_firm",
         help="Vertical to target (must match a name in config/verticals.yaml)",
     ),
-    borough: Borough = typer.Option(Borough.MANHATTAN, help="NYC borough"),
+    location: str = typer.Option(
+        "manhattan",
+        help="Location to target (must match a name in config/locations.yaml)",
+    ),
     limit: int = typer.Option(50, help="Max prospects to fetch from the source"),
     fetch_pages: bool = typer.Option(
         False, "--fetch-pages/--no-fetch-pages", help="Hit real URLs via Playwright"
@@ -37,28 +40,35 @@ def run_weekly(
     all_verticals: bool = typer.Option(
         False,
         "--all-verticals",
-        help="Run every vertical in the borough, then generate one combined report",
+        help="Run every vertical in the location, then generate one combined report",
     ),
 ) -> None:
     """Run the full weekly pipeline end-to-end."""
     settings = get_settings()
 
-    if not all_verticals and not get_registry().contains(vertical):
-        known = ", ".join(get_registry().names())
+    if not all_verticals and not get_vertical_registry().contains(vertical):
+        known = ", ".join(get_vertical_registry().names())
         raise typer.BadParameter(
             f"unknown vertical {vertical!r}. Known: {known}. "
             "Edit config/verticals.yaml or use the Settings tab in the dashboard."
         )
 
+    if not get_location_registry().contains(location):
+        known = ", ".join(get_location_registry().names())
+        raise typer.BadParameter(
+            f"unknown location {location!r}. Known: {known}. "
+            "Edit config/locations.yaml or use the Settings tab in the dashboard."
+        )
+
     if all_verticals:
         result = run_all_verticals(
-            settings, borough=borough, limit=limit, fetch_pages=fetch_pages
+            settings, location=location, limit=limit, fetch_pages=fetch_pages
         )
     else:
         result = run_full_pipeline(
             settings,
             vertical=vertical,
-            borough=borough,
+            location=location,
             limit=limit,
             fetch_pages=fetch_pages,
         )

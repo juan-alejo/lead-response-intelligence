@@ -108,6 +108,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
             "después de agregar un tipo de negocio nuevo o para una demo."
         ),
         "run.borough": "Zona / Ciudad",
+        "run.location": "Ubicación",
         "run.limit": "Máximo de negocios a revisar (por tipo)",
         "run.button": "🚀 Buscar ahora",
         "run.verticals_info": "Se van a buscar **{count}** tipo(s) de negocio configurados (editá la lista en la tab Configuración).",
@@ -353,6 +354,20 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings.verticals_error_dup": "Nombre duplicado {name} — fila omitida.",
         "settings.verticals_warning": "Nada para guardar — revisá los errores arriba.",
 
+        # --- Settings: locations editor ---
+        "settings.locations_title": "### 📍 Ubicaciones que podés buscar",
+        "settings.locations_caption": (
+            "Una fila por zona o país. El **nombre interno** es snake_case "
+            "(ej: `caba`, `cordoba_ar`, `mexico_all`). El **sufijo** se "
+            "agrega al final de la búsqueda de Google — probá frases como "
+            "'in Palermo, Buenos Aires, Argentina' o 'in Argentina' para "
+            "cobertura nacional."
+        ),
+        "settings.locations_col_name": "Nombre interno (snake_case)",
+        "settings.locations_col_display": "Nombre para mostrar",
+        "settings.locations_col_suffix": "Sufijo para Google (ej: 'in Buenos Aires, Argentina')",
+        "settings.locations_saved": "✅ Guardadas {count} ubicaciones.",
+
         # --- Footer ---
         "footer.source": "Código fuente: [github.com/juan-alejo/lead-response-intelligence](https://github.com/juan-alejo/lead-response-intelligence)",
     },
@@ -431,6 +446,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
             "business types or for live demos."
         ),
         "run.borough": "Area / City",
+        "run.location": "Location",
         "run.limit": "Max businesses per type",
         "run.button": "🚀 Search now",
         "run.verticals_info": "Will search **{count}** configured business type(s) (edit the list in the Settings tab).",
@@ -670,6 +686,20 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         ),
         "settings.verticals_error_dup": "Duplicate name {name} — row skipped.",
         "settings.verticals_warning": "Nothing saved — fix the errors above.",
+
+        # --- Settings: locations editor ---
+        "settings.locations_title": "### 📍 Searchable locations",
+        "settings.locations_caption": (
+            "One row per area or country. The **internal name** is "
+            "snake_case (e.g. `manhattan`, `cordoba_ar`, `mexico_all`). "
+            "The **suffix** is appended to every Google Places query — "
+            "write phrases like 'in Brooklyn, New York' or 'in Argentina' "
+            "for country-wide coverage."
+        ),
+        "settings.locations_col_name": "Internal name (snake_case)",
+        "settings.locations_col_display": "Display name",
+        "settings.locations_col_suffix": "Google suffix (e.g. 'in Buenos Aires, Argentina')",
+        "settings.locations_saved": "✅ Saved {count} locations.",
 
         # --- Footer ---
         "footer.source": "Source: [github.com/juan-alejo/lead-response-intelligence](https://github.com/juan-alejo/lead-response-intelligence)",

@@ -17,3 +17,4 @@ ignore = ["B008"]  # FastAPI-style default args
 "tests/*" = ["B018"]  # useless expressions fine in tests
 "src/dashboard/i18n.py" = ["E501"]  # translation strings are naturally long
 "src/dashboard/settings_tab.py" = ["E501"]  # help text is naturally long
+"src/locations.py" = ["E501"]  # location display strings are naturally long

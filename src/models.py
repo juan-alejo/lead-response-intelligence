@@ -21,14 +21,6 @@ def _utc_now() -> datetime:
     return datetime.now(UTC).replace(tzinfo=None)
 
 
-class Borough(StrEnum):
-    MANHATTAN = "manhattan"
-    BROOKLYN = "brooklyn"
-    QUEENS = "queens"
-    BRONX = "bronx"
-    STATEN_ISLAND = "staten_island"
-
-
 class FormType(StrEnum):
     CONTACT_FORM = "contact_form"
     CHAT_WIDGET = "chat_widget"
@@ -66,7 +58,7 @@ class Prospect(BaseModel):
     place_id: str  # Stable external id — our natural key for deduplication.
     business_name: str
     vertical: str  # free-form; validated against VerticalRegistry at CLI level
-    borough: Borough
+    location: str  # free-form; validated against LocationRegistry at CLI level
     website: str | None = None
     phone: str | None = None
     email: EmailStr | None = None

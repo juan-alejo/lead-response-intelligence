@@ -25,7 +25,8 @@ from pathlib import Path
 
 import streamlit as st
 
-from ..verticals import Vertical, get_registry
+from ..locations import Location, get_location_registry
+from ..verticals import Vertical, get_vertical_registry
 from .connection_tests import (
     test_airtable,
     test_anthropic,
@@ -678,7 +679,7 @@ def _save_verticals(new_rows: list[dict]) -> tuple[int, list[str]]:
         cleaned.append(Vertical(name=name, display_name=display, query=query))
 
     if cleaned and not errors:
-        get_registry().save(cleaned)
+        get_vertical_registry().save(cleaned)
     return len(cleaned), errors
 
 
@@ -782,7 +783,7 @@ def render_settings_tab(env_path: Path) -> None:
     st.markdown(tr("settings.verticals_title"))
     st.caption(tr("settings.verticals_caption"))
 
-    registry = get_registry()
+    registry = get_vertical_registry()
     rows = [
         {"name": v.name, "display_name": v.display_name, "query": v.query}
         for v in registry.all()
@@ -822,10 +823,95 @@ def render_settings_tab(env_path: Path) -> None:
             for err in errors[:3]:  # cap at 3 to avoid spam
                 st.warning(err)
 
+    # ---------------------------- Locations editor
+
+    st.divider()
+    _render_locations_editor()
+
     # ---------------------------- Quick actions
 
     st.divider()
     _render_quick_actions(env_path)
+
+
+# --------------------------------------------------------------- Locations editor
+
+
+def _render_locations_editor() -> None:
+    """Same UX as verticals: editable data-editor with auto-save + validation."""
+    st.markdown(tr("settings.locations_title"))
+    st.caption(tr("settings.locations_caption"))
+
+    registry = get_location_registry()
+    rows = [
+        {
+            "name": loc.name,
+            "display_name": loc.display_name,
+            "query_suffix": loc.query_suffix,
+        }
+        for loc in registry.all()
+    ]
+
+    edited = st.data_editor(
+        rows,
+        num_rows="dynamic",
+        use_container_width=True,
+        column_config={
+            "name": st.column_config.TextColumn(
+                tr("settings.locations_col_name"), required=True
+            ),
+            "display_name": st.column_config.TextColumn(
+                tr("settings.locations_col_display"), required=True
+            ),
+            "query_suffix": st.column_config.TextColumn(
+                tr("settings.locations_col_suffix"), required=True
+            ),
+        },
+        key="locations_editor",
+    )
+
+    last_saved = st.session_state.get("_locations_last_saved")
+    signature = tuple(
+        (r.get("name", ""), r.get("display_name", ""), r.get("query_suffix", ""))
+        for r in edited
+    )
+    if last_saved != signature:
+        count, errors = _save_locations(edited)
+        if not errors and count > 0:
+            st.session_state["_locations_last_saved"] = signature
+            st.toast(tr("settings.locations_saved", count=count), icon="✅")
+        elif errors:
+            for err in errors[:3]:
+                st.warning(err)
+
+
+def _save_locations(new_rows: list[dict]) -> tuple[int, list[str]]:
+    """Validate + persist edited locations. Returns (count, errors)."""
+    errors: list[str] = []
+    seen: set[str] = set()
+    cleaned: list[Location] = []
+    for row in new_rows:
+        name = (row.get("name") or "").strip()
+        display = (row.get("display_name") or "").strip()
+        suffix = (row.get("query_suffix") or "").strip()
+        if not (name and display and suffix):
+            if name or display or suffix:
+                errors.append(tr("settings.verticals_error_required"))
+            continue
+        if not re.match(r"^[a-z][a-z0-9_]*$", name):
+            errors.append(tr("settings.verticals_error_name", name=repr(name)))
+            continue
+        if name in seen:
+            errors.append(tr("settings.verticals_error_dup", name=repr(name)))
+            continue
+        seen.add(name)
+        cleaned.append(
+            Location(name=name, display_name=display, query_suffix=suffix)
+        )
+
+    if cleaned and not errors:
+        get_location_registry().save(cleaned)
+    return len(cleaned), errors
 
 
 # --------------------------------------------------------------- Quick actions
@@ -883,7 +969,7 @@ def _render_quick_actions(env_path: Path) -> None:
                     Path("config/verticals.yaml").write_text(
                         yaml_blob, encoding="utf-8"
                     )
-                    get_registry().reload()
+                    get_vertical_registry().reload()
                 st.success(tr("settings.action_import_success"))
                 st.rerun()
             except Exception as e:  # noqa: BLE001

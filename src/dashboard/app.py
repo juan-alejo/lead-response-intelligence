@@ -37,10 +37,10 @@ from src.config import get_settings  # noqa: E402
 from src.dashboard.auth import require_auth  # noqa: E402
 from src.dashboard.i18n import LANGUAGES, get_lang, set_lang, tr  # noqa: E402
 from src.dashboard.settings_tab import render_settings_tab  # noqa: E402
-from src.models import Borough  # noqa: E402
+from src.locations import get_location_registry  # noqa: E402
 from src.pipeline import run_all_verticals  # noqa: E402
 from src.storage import SQLiteStore  # noqa: E402
-from src.verticals import get_registry  # noqa: E402
+from src.verticals import get_vertical_registry  # noqa: E402
 
 st.set_page_config(
     page_title="Lead Response Intelligence",
@@ -196,7 +196,7 @@ def _render_empty_state(title_key: str, desc_key: str, cta_key: str) -> None:
 
 def _execute_pipeline(
     *,
-    borough: Borough,
+    location: str,
     limit: int,
     celebrate_first_run: bool = False,
 ) -> None:
@@ -213,7 +213,7 @@ def _execute_pipeline(
         with st.status(tr("run.status_running"), expanded=True) as status:
             result = run_all_verticals(
                 settings,
-                borough=borough,
+                location=location,
                 limit=limit,
                 fetch_pages=False,
             )
@@ -270,17 +270,19 @@ with st.sidebar:
 
     # --- Run pipeline ---
     st.markdown(f"#### {tr('run.title').replace('### ', '').replace('▶ ', '▶ ')}")
-    borough_choice = st.selectbox(
-        tr("run.borough"),
-        options=[b.value for b in Borough],
+    _location_registry = get_location_registry()
+    _location_names = _location_registry.names()
+    location_choice = st.selectbox(
+        tr("run.location"),
+        options=_location_names,
         index=0,
-        format_func=lambda v: v.replace("_", " ").title(),
-        key="borough_choice",
+        format_func=lambda n: _location_registry.get(n).display_name,
+        key="location_choice",
     )
     limit_choice = st.slider(
         tr("run.limit"), min_value=10, max_value=400, value=50, step=10
     )
-    _vertical_count = len(get_registry().all())
+    _vertical_count = len(get_vertical_registry().all())
     st.caption(tr("run.verticals_info", count=_vertical_count))
     run_now = st.button(tr("run.button"), type="primary", use_container_width=True)
 
@@ -360,7 +362,7 @@ tab_home, tab_outreach, tab_stats, tab_competitors, tab_data, tab_settings = st.
 # successful run refreshes the data the tabs read.
 if run_now:
     _execute_pipeline(
-        borough=Borough(borough_choice),
+        location=location_choice,
         limit=limit_choice,
         celebrate_first_run=True,
     )
@@ -390,7 +392,7 @@ with tab_home:
         welcome_cols[2].markdown(tr("welcome.step3"))
         if st.button(tr("welcome.cta"), type="primary", use_container_width=False):
             _execute_pipeline(
-                borough=Borough.MANHATTAN,
+                location=get_location_registry().names()[0],
                 limit=50,
                 celebrate_first_run=True,
             )

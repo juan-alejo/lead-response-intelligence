@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from src.models import (
-    Borough,
     Prospect,
     Response,
     ResponseChannel,
@@ -21,7 +20,7 @@ def _make_prospect(pid: str = "p1") -> Prospect:
         place_id=pid,
         business_name=f"Biz {pid}",
         vertical="law_firm",
-        borough=Borough.MANHATTAN,
+        location="manhattan",
         website="https://biz.example.com",
     )
 
