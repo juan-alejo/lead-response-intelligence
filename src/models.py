@@ -107,3 +107,62 @@ class Response(BaseModel):
     sender_phone: str | None = None
     sender_email: EmailStr | None = None
     content_snippet: str = ""
+
+
+# ---------------------------------------------------------------------------
+# Phase 2: automated form submission
+# ---------------------------------------------------------------------------
+
+
+class SubmissionAttemptStatus(StrEnum):
+    """Lifecycle of one automated submission attempt.
+
+    A queued attempt starts `PENDING`, flips to `SUBMITTING` while a worker
+    owns it, and ends in one of three terminal states. `NEEDS_MANUAL` is the
+    graceful-degradation bucket — the submitter tried, couldn't finish (e.g.
+    CAPTCHA, auth wall), and bounced the job back to the human queue that
+    Phase 1 already supports.
+    """
+
+    PENDING = "pending"
+    SUBMITTING = "submitting"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    NEEDS_MANUAL = "needs_manual"
+
+
+TERMINAL_ATTEMPT_STATUSES = frozenset(
+    {
+        SubmissionAttemptStatus.COMPLETED,
+        SubmissionAttemptStatus.FAILED,
+        SubmissionAttemptStatus.NEEDS_MANUAL,
+    }
+)
+
+
+class SubmissionAttempt(BaseModel):
+    """One run of the auto-submitter against a queued `Submission`.
+
+    Multiple attempts per submission are allowed (a FAILED attempt can be
+    retried manually from the dashboard) — they stack in creation order, and
+    the "latest attempt" is what the UI reports as the current status of the
+    underlying submission.
+    """
+
+    attempt_id: str  # uuid
+    submission_id: str
+    status: SubmissionAttemptStatus = SubmissionAttemptStatus.PENDING
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    duration_ms: int | None = None
+    form_url: str | None = None
+    confirmation_text: str = ""  # "Thanks — we'll be in touch" from the site
+    screenshot_path: str | None = None  # Post-submit screenshot path, when real mode
+    error_message: str = ""
+    logs: list[str] = Field(default_factory=list)
+    # `attempt_number` lets the dashboard show "Attempt 2 of N" without a
+    # subquery. Maintained by whichever code inserts the attempt.
+    attempt_number: int = 1
+
+    def is_terminal(self) -> bool:
+        return self.status in TERMINAL_ATTEMPT_STATUSES

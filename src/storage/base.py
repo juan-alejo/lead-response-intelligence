@@ -10,7 +10,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import datetime
 
-from ..models import Prospect, Response, Submission
+from ..models import Prospect, Response, Submission, SubmissionAttempt
 
 
 class Storage(ABC):
@@ -39,3 +39,14 @@ class Storage(ABC):
 
     @abstractmethod
     def all_responses(self) -> list[Response]: ...
+
+    # --- Submission attempts (Phase 2) ---
+
+    @abstractmethod
+    def upsert_attempts(self, attempts: list[SubmissionAttempt]) -> int: ...
+
+    @abstractmethod
+    def all_attempts(self) -> list[SubmissionAttempt]: ...
+
+    @abstractmethod
+    def attempts_for_submission(self, submission_id: str) -> list[SubmissionAttempt]: ...

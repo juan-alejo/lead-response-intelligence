@@ -14,7 +14,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from ..models import Prospect, Response, Submission
+from ..models import Prospect, Response, Submission, SubmissionAttempt
 from .base import Storage
 
 _SCHEMA = """
@@ -52,6 +52,27 @@ CREATE TABLE IF NOT EXISTS responses (
     content_snippet         TEXT NOT NULL DEFAULT '',
     FOREIGN KEY (matched_submission_id) REFERENCES submissions(submission_id)
 );
+
+CREATE TABLE IF NOT EXISTS submission_attempts (
+    attempt_id              TEXT PRIMARY KEY,
+    submission_id           TEXT NOT NULL,
+    status                  TEXT NOT NULL,
+    started_at              TEXT,
+    completed_at            TEXT,
+    duration_ms             INTEGER,
+    form_url                TEXT,
+    confirmation_text       TEXT NOT NULL DEFAULT '',
+    screenshot_path         TEXT,
+    error_message           TEXT NOT NULL DEFAULT '',
+    logs                    TEXT NOT NULL DEFAULT '[]',  -- JSON list[str]
+    attempt_number          INTEGER NOT NULL DEFAULT 1,
+    FOREIGN KEY (submission_id) REFERENCES submissions(submission_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_attempts_submission
+    ON submission_attempts(submission_id);
+CREATE INDEX IF NOT EXISTS idx_attempts_status
+    ON submission_attempts(status);
 """
 
 
@@ -119,6 +140,14 @@ class SQLiteStore(Storage):
                 "SELECT place_id, discovered_at FROM prospects"
             ).fetchall()
         return {r["place_id"]: datetime.fromisoformat(r["discovered_at"]) for r in rows}
+
+    def prospect_website(self, place_id: str) -> str | None:
+        """Used by the Phase 2 submitter to resolve a form URL from a place id."""
+        with self._conn() as c:
+            row = c.execute(
+                "SELECT website FROM prospects WHERE place_id = ?", (place_id,)
+            ).fetchone()
+        return row["website"] if row else None
 
     # --- Submissions ---
 
@@ -222,3 +251,91 @@ class SQLiteStore(Storage):
             )
             for r in rows
         ]
+
+    # --- Submission attempts (Phase 2) ---
+
+    def upsert_attempts(self, attempts: list[SubmissionAttempt]) -> int:
+        if not attempts:
+            return 0
+        import json
+
+        with self._conn() as c:
+            c.executemany(
+                """
+                INSERT INTO submission_attempts (
+                    attempt_id, submission_id, status, started_at, completed_at,
+                    duration_ms, form_url, confirmation_text, screenshot_path,
+                    error_message, logs, attempt_number
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(attempt_id) DO UPDATE SET
+                    status=excluded.status,
+                    started_at=excluded.started_at,
+                    completed_at=excluded.completed_at,
+                    duration_ms=excluded.duration_ms,
+                    form_url=excluded.form_url,
+                    confirmation_text=excluded.confirmation_text,
+                    screenshot_path=excluded.screenshot_path,
+                    error_message=excluded.error_message,
+                    logs=excluded.logs,
+                    attempt_number=excluded.attempt_number
+                """,
+                [
+                    (
+                        a.attempt_id,
+                        a.submission_id,
+                        a.status.value,
+                        a.started_at.isoformat() if a.started_at else None,
+                        a.completed_at.isoformat() if a.completed_at else None,
+                        a.duration_ms,
+                        a.form_url,
+                        a.confirmation_text,
+                        a.screenshot_path,
+                        a.error_message,
+                        json.dumps(a.logs),
+                        a.attempt_number,
+                    )
+                    for a in attempts
+                ],
+            )
+        return len(attempts)
+
+    def all_attempts(self) -> list[SubmissionAttempt]:
+        with self._conn() as c:
+            rows = c.execute(
+                "SELECT * FROM submission_attempts ORDER BY attempt_number ASC"
+            ).fetchall()
+        return [_row_to_attempt(r) for r in rows]
+
+    def attempts_for_submission(self, submission_id: str) -> list[SubmissionAttempt]:
+        with self._conn() as c:
+            rows = c.execute(
+                "SELECT * FROM submission_attempts "
+                "WHERE submission_id = ? "
+                "ORDER BY attempt_number ASC",
+                (submission_id,),
+            ).fetchall()
+        return [_row_to_attempt(r) for r in rows]
+
+
+def _row_to_attempt(r) -> SubmissionAttempt:
+    import json
+
+    return SubmissionAttempt(
+        attempt_id=r["attempt_id"],
+        submission_id=r["submission_id"],
+        status=r["status"],
+        started_at=(
+            datetime.fromisoformat(r["started_at"]) if r["started_at"] else None
+        ),
+        completed_at=(
+            datetime.fromisoformat(r["completed_at"]) if r["completed_at"] else None
+        ),
+        duration_ms=r["duration_ms"],
+        form_url=r["form_url"],
+        confirmation_text=r["confirmation_text"] or "",
+        screenshot_path=r["screenshot_path"],
+        error_message=r["error_message"] or "",
+        logs=json.loads(r["logs"] or "[]"),
+        attempt_number=r["attempt_number"] or 1,
+    )

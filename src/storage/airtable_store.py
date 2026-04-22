@@ -35,6 +35,20 @@ Expected base schema:
       - sender_phone (Phone)
       - sender_email (Email)
       - content_snippet (Long text)
+
+    Table: submission_attempts (Phase 2 — automated form submission)
+      - attempt_id (Single line text, primary)
+      - submission_id (Single line text; links to submissions.submission_id)
+      - status (Single select: pending, submitting, completed, failed, needs_manual)
+      - started_at (Date)
+      - completed_at (Date)
+      - duration_ms (Number)
+      - form_url (URL)
+      - confirmation_text (Long text)
+      - screenshot_path (Single line text)
+      - error_message (Long text)
+      - logs (Long text; JSON-encoded list[str])
+      - attempt_number (Number)
 """
 
 from __future__ import annotations
@@ -43,7 +57,7 @@ from datetime import datetime
 
 from loguru import logger
 
-from ..models import Prospect, Response, Submission
+from ..models import Prospect, Response, Submission, SubmissionAttempt
 from .base import Storage
 
 
@@ -94,4 +108,13 @@ class AirtableStore(Storage):
         self._not_implemented()
 
     def all_responses(self) -> list[Response]:
+        self._not_implemented()
+
+    def upsert_attempts(self, attempts: list[SubmissionAttempt]) -> int:
+        self._not_implemented()
+
+    def all_attempts(self) -> list[SubmissionAttempt]:
+        self._not_implemented()
+
+    def attempts_for_submission(self, submission_id: str) -> list[SubmissionAttempt]:
         self._not_implemented()
