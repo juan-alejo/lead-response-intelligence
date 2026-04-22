@@ -50,6 +50,7 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+      /* ---------- Status pills (integration chips + setup status) ---------- */
       .pill {
         display: inline-block;
         padding: 3px 10px;
@@ -58,12 +59,73 @@ st.markdown(
         font-weight: 500;
         margin: 2px 2px;
         border: 1px solid transparent;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+      .pill:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.12);
       }
       .pill-real { background: #dcfce7; color: #14532d; border-color: #86efac; }
       .pill-mock { background: #fef3c7; color: #713f12; border-color: #fde047; }
       .pill-off  { background: #e5e7eb; color: #374151; border-color: #9ca3af; }
 
-      div[data-baseweb="tab-list"] button { font-size: 15px; }
+      /* ---------- Tabs look slightly larger and clearer ---------- */
+      div[data-baseweb="tab-list"] button {
+        font-size: 15px;
+        font-weight: 500;
+      }
+      div[data-baseweb="tab-list"] button[aria-selected="true"] {
+        font-weight: 600;
+      }
+
+      /* ---------- Metric cards: subtle surface, consistent padding ---------- */
+      div[data-testid="stMetric"] {
+        background: rgba(99, 102, 241, 0.04);
+        border: 1px solid rgba(99, 102, 241, 0.15);
+        border-radius: 10px;
+        padding: 12px 14px;
+      }
+      div[data-testid="stMetricLabel"] {
+        font-size: 13px;
+        font-weight: 500;
+        opacity: 0.9;
+      }
+      div[data-testid="stMetricValue"] {
+        font-size: 32px !important;
+        font-weight: 700;
+      }
+
+      /* ---------- Expanders: tighter vertical rhythm, rounded corners ---------- */
+      details[data-testid="stExpander"] {
+        border: 1px solid rgba(99, 102, 241, 0.15);
+        border-radius: 10px;
+        margin-bottom: 8px;
+      }
+      details[data-testid="stExpander"] summary {
+        padding: 8px 14px;
+        font-weight: 500;
+      }
+
+      /* ---------- Buttons: slightly rounder, smooth hover ---------- */
+      div[data-testid="stButton"] > button {
+        border-radius: 8px;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+      div[data-testid="stButton"] > button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(99, 102, 241, 0.25);
+      }
+
+      /* ---------- Sidebar: soft divider between sections ---------- */
+      section[data-testid="stSidebar"] hr {
+        margin: 10px 0;
+        opacity: 0.25;
+      }
+
+      /* ---------- Smaller caption next to "última búsqueda" ---------- */
+      div[data-testid="stCaptionContainer"] {
+        opacity: 0.85;
+      }
     </style>
     """,
     unsafe_allow_html=True,
