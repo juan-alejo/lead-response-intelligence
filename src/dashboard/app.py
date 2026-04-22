@@ -485,13 +485,22 @@ with tab_outreach:
         never = int((df["elapsed_human"] == "never responded").sum())
         st.markdown(tr("outreach.summary", total=total, never=never))
 
-        vertical_options = sorted(df["vertical"].unique().tolist())
-        vertical_filter = st.multiselect(
-            tr("outreach.filter"),
-            options=vertical_options,
-            default=vertical_options,
-        )
+        filter_col1, filter_col2 = st.columns([3, 2])
+        with filter_col1:
+            vertical_options = sorted(df["vertical"].unique().tolist())
+            vertical_filter = st.multiselect(
+                tr("outreach.filter"),
+                options=vertical_options,
+                default=vertical_options,
+            )
+        with filter_col2:
+            st.write("")
+            st.write("")
+            only_never = st.toggle(tr("outreach.only_never"), value=False)
+
         filtered = df[df["vertical"].isin(vertical_filter)] if vertical_filter else df
+        if only_never:
+            filtered = filtered[filtered["elapsed_human"] == "never responded"]
 
         st.dataframe(
             filtered,
@@ -557,6 +566,13 @@ with tab_stats:
         st.altair_chart(chart, use_container_width=True)
 
         st.dataframe(df, use_container_width=True, hide_index=True)
+        st.download_button(
+            "⬇ CSV",
+            data=df.to_csv(index=False).encode("utf-8"),
+            file_name="vertical_stats.csv",
+            mime="text/csv",
+            use_container_width=False,
+        )
 
 # ---------- Tab: Competitor distribution ----------
 
@@ -590,6 +606,13 @@ with tab_competitors:
         st.altair_chart(chart, use_container_width=True)
 
         st.dataframe(df, use_container_width=True, hide_index=True)
+        st.download_button(
+            "⬇ CSV",
+            data=df.to_csv(index=False).encode("utf-8"),
+            file_name="competitor_distribution.csv",
+            mime="text/csv",
+            use_container_width=False,
+        )
 
 # ---------- Tab: Raw data ----------
 

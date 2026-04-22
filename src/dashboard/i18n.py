@@ -181,6 +181,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
             "Los que responden en menos de 2 minutos se filtran automáticamente."
         ),
         "outreach.filter": "Filtrar por tipo de negocio",
+        "outreach.only_never": "Solo los que nunca respondieron",
         "outreach.download": "⬇ Descargar CSV filtrado",
         "outreach.col.business": "Negocio",
         "outreach.col.vertical": "Tipo",
@@ -503,6 +504,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
             "automatically."
         ),
         "outreach.filter": "Filter by business type",
+        "outreach.only_never": "Only show never-responders",
         "outreach.download": "⬇ Download filtered CSV",
         "outreach.col.business": "Business",
         "outreach.col.vertical": "Type",
