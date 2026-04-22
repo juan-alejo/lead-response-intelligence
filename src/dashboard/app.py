@@ -9,6 +9,10 @@ buy the tool. Every number should come with context, every control
 should telegraph what it does before you click, and the status of every
 integration should be visible without digging into a tab.
 
+All user-visible strings go through `i18n.tr()` so the whole UI flips
+language with a single dropdown. Default is Spanish — the primary market
+is LatAm clients.
+
 Keep this file the thin presentation layer — computation that matters
 to the business lives in the pipeline / reporting modules.
 """
@@ -26,6 +30,7 @@ import pandas as pd  # noqa: E402
 import streamlit as st  # noqa: E402
 
 from src.config import get_settings  # noqa: E402
+from src.dashboard.i18n import LANGUAGES, get_lang, set_lang, tr  # noqa: E402
 from src.dashboard.settings_tab import render_settings_tab  # noqa: E402
 from src.models import Borough  # noqa: E402
 from src.pipeline import run_all_verticals  # noqa: E402
@@ -44,7 +49,6 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-      /* Integration status pills shown under the hero */
       .pill {
         display: inline-block;
         padding: 4px 12px;
@@ -58,7 +62,6 @@ st.markdown(
       .pill-mock { background: #fef3c7; color: #713f12; border-color: #fde047; }
       .pill-off  { background: #e5e7eb; color: #374151; border-color: #9ca3af; }
 
-      /* Subtle surface for the "Run pipeline" card */
       .run-card {
         background: linear-gradient(135deg, rgba(99,102,241,0.07), rgba(14,165,233,0.07));
         padding: 18px 22px;
@@ -67,7 +70,6 @@ st.markdown(
         margin-bottom: 8px;
       }
 
-      /* Tighter tab list */
       div[data-baseweb="tab-list"] button { font-size: 15px; }
     </style>
     """,
@@ -89,51 +91,65 @@ def _load_report(path: Path) -> pd.DataFrame:
 settings = get_settings()
 store = _load_store(settings.sqlite_path)
 
-# ------------------------------------------------------------ Hero
+# ------------------------------------------------------------ Hero + language
 
-hero_col_title, hero_col_action = st.columns([5, 2])
+hero_col_title, hero_col_lang, hero_col_gh = st.columns([5, 1.2, 1.2])
+
 with hero_col_title:
-    st.markdown("# 📡 Lead Response Intelligence")
-    st.caption(
-        "Pipeline that discovers prospects, classifies their inbound-contact "
-        "mechanism, watches for responses across SMS / WhatsApp / email / "
-        "voice, and produces a prioritized outreach list every Monday."
-    )
+    st.markdown(f"# {tr('app.title')}")
+    st.caption(tr("app.subtitle"))
 
-with hero_col_action:
+with hero_col_lang:
+    st.write("")
+    st.write("")
+    current_lang = get_lang()
+    chosen = st.selectbox(
+        tr("app.language"),
+        options=list(LANGUAGES.keys()),
+        index=list(LANGUAGES.keys()).index(current_lang),
+        format_func=lambda k: LANGUAGES[k],
+        key="language_selector",
+        label_visibility="collapsed",
+    )
+    if chosen != current_lang:
+        set_lang(chosen)
+        st.rerun()
+
+with hero_col_gh:
     st.write("")
     st.write("")
     st.link_button(
-        "📖 GitHub repo",
+        tr("app.github_button"),
         "https://github.com/juan-alejo/lead-response-intelligence",
         use_container_width=True,
     )
 
-# ------------------------------------------------------------ Integration status row
+# ------------------------------------------------------------ Integration pills row
 
-def _mode_pill(label: str, mode: str) -> str:
-    """Render an integration as a colored pill so the operator can skim the
-    status of the entire stack in one glance."""
+
+def _mode_pill(label_key: str, mode: str) -> str:
     css = {"real": "pill-real", "mock": "pill-mock", "disabled": "pill-off"}[mode]
     icon = {"real": "🌐", "mock": "🧪", "disabled": "⏸"}[mode]
-    return f'<span class="pill {css}">{icon} {label}: {mode}</span>'
+    label = tr(label_key)
+    mode_label = tr(f"pills.mode.{mode}")
+    return f'<span class="pill {css}">{icon} {label}: {mode_label}</span>'
 
 
 pills = [
-    _mode_pill("Places", settings.places_mode),
-    _mode_pill("Claude", settings.claude_mode),
-    _mode_pill("Twilio SMS", settings.twilio_mode),
-    _mode_pill("WhatsApp", settings.whatsapp_mode),
-    _mode_pill("Gmail", settings.gmail_mode),
+    _mode_pill("pills.label.places", settings.places_mode),
+    _mode_pill("pills.label.claude", settings.claude_mode),
+    _mode_pill("pills.label.twilio", settings.twilio_mode),
+    _mode_pill("pills.label.whatsapp", settings.whatsapp_mode),
+    _mode_pill("pills.label.gmail", settings.gmail_mode),
 ]
 storage_icon = "🗂" if settings.storage_backend == "sqlite" else "☁"
 st.markdown(
-    f"**Integrations:** {' '.join(pills)} &nbsp;&nbsp; "
-    f"**Storage:** {storage_icon} {settings.storage_backend}",
+    f"{tr('pills.header')} {' '.join(pills)} &nbsp;&nbsp; "
+    f"{tr('pills.storage')} {storage_icon} {settings.storage_backend}",
     unsafe_allow_html=True,
 )
 
-# ------------------------------------------------------------ Summary metrics
+# ------------------------------------------------------------ Metrics row
 
 prospects_recent = store.recent_place_ids()
 submissions = store.all_submissions()
@@ -142,67 +158,41 @@ matched = [r for r in responses if r.matched_submission_id is not None]
 match_rate = (len(matched) / len(responses)) if responses else 0.0
 
 m1, m2, m3, m4 = st.columns(4)
-m1.metric(
-    "Prospects tracked",
-    len(prospects_recent),
-    help="Businesses discovered and persisted in the last 90 days.",
-)
-m2.metric(
-    "Submissions queued",
-    len(submissions),
-    help="Test leads ready for the operator to submit manually (Phase 1).",
-)
-m3.metric(
-    "Responses captured",
-    len(responses),
-    help="All inbound messages across every enabled channel.",
-)
+m1.metric(tr("metrics.prospects"), len(prospects_recent), help=tr("metrics.prospects_help"))
+m2.metric(tr("metrics.submissions"), len(submissions), help=tr("metrics.submissions_help"))
+m3.metric(tr("metrics.responses"), len(responses), help=tr("metrics.responses_help"))
 m4.metric(
-    "Match rate",
+    tr("metrics.match_rate"),
     f"{match_rate:.0%}" if responses else "—",
-    help=(
-        "Fraction of inbound responses that were successfully attributed to "
-        "an originating submission. Target ≥95% on well-formed data."
-    ),
+    help=tr("metrics.match_rate_help"),
 )
 
 # ------------------------------------------------------------ Run pipeline card
 
-st.markdown(
-    '<div class="run-card">',
-    unsafe_allow_html=True,
-)
-st.markdown("### ▶ Run weekly pipeline")
-st.caption(
-    "In production this runs via cron every Monday at 6 AM ET. The button "
-    "below is the manual trigger — useful after editing verticals or when "
-    "you want to show a client a live run."
-)
+st.markdown('<div class="run-card">', unsafe_allow_html=True)
+st.markdown(tr("run.title"))
+st.caption(tr("run.caption"))
 
 run_col1, run_col2, run_col3 = st.columns([2, 2, 1])
 borough_choice = run_col1.selectbox(
-    "Borough",
+    tr("run.borough"),
     options=[b.value for b in Borough],
     index=0,
     format_func=lambda v: v.replace("_", " ").title(),
     key="borough_choice",
 )
 limit_choice = run_col2.slider(
-    "Max prospects per vertical", min_value=10, max_value=400, value=50, step=10
+    tr("run.limit"), min_value=10, max_value=400, value=50, step=10
 )
 run_col3.write("")
 run_col3.write("")
-run_now = run_col3.button("🚀 Run now", type="primary", use_container_width=True)
+run_now = run_col3.button(tr("run.button"), type="primary", use_container_width=True)
 
 _vertical_count = len(get_registry().all())
-st.caption(
-    f"Will run **{_vertical_count} vertical(s)** currently configured "
-    "(edit in the Settings tab below)."
-)
+st.caption(tr("run.verticals_info", count=_vertical_count))
 
 if run_now:
-    with st.status("Running full pipeline…", expanded=True) as status:
-        status.update(label="Ingesting prospects from every vertical…")
+    with st.status(tr("run.status_running"), expanded=True) as status:
         result = run_all_verticals(
             settings,
             borough=Borough(borough_choice),
@@ -210,14 +200,15 @@ if run_now:
             fetch_pages=False,
         )
         status.update(
-            label=(
-                f"Done — ingested {result.ingested}, "
-                f"matched {result.responses_matched}/{result.responses_pulled} "
-                "responses."
+            label=tr(
+                "run.status_done",
+                ingested=result.ingested,
+                matched=result.responses_matched,
+                pulled=result.responses_pulled,
             ),
             state="complete",
         )
-    st.success("✅ Reports refreshed. See tabs below.")
+    st.success(tr("run.success"))
     st.rerun()
 
 st.markdown("</div>", unsafe_allow_html=True)
@@ -226,11 +217,11 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 tab_outreach, tab_stats, tab_competitors, tab_data, tab_settings = st.tabs(
     [
-        "🎯 Outreach priority",
-        "📊 Vertical stats",
-        "🕵 Competitor distribution",
-        "🗂 Raw data",
-        "⚙ Settings",
+        tr("tab.outreach"),
+        tr("tab.stats"),
+        tr("tab.competitors"),
+        tr("tab.data"),
+        tr("tab.settings"),
     ]
 )
 
@@ -239,21 +230,15 @@ tab_outreach, tab_stats, tab_competitors, tab_data, tab_settings = st.tabs(
 with tab_outreach:
     df = _load_report(settings.report_output_dir / "outreach_priority.csv")
     if df.empty:
-        st.info(
-            "📭 No outreach priority report yet — hit **Run now** above to generate one."
-        )
+        st.info(tr("outreach.empty"))
     else:
         total = len(df)
-        never = (df["elapsed_human"] == "never responded").sum()
-        st.markdown(
-            f"**{total} prospects** queued for outreach — "
-            f"**{never}** never responded (highest-priority cohort). "
-            "Sub-2-minute responders are filtered out automatically."
-        )
+        never = int((df["elapsed_human"] == "never responded").sum())
+        st.markdown(tr("outreach.summary", total=total, never=never))
 
         vertical_options = sorted(df["vertical"].unique().tolist())
         vertical_filter = st.multiselect(
-            "Filter by vertical",
+            tr("outreach.filter"),
             options=vertical_options,
             default=vertical_options,
         )
@@ -265,21 +250,21 @@ with tab_outreach:
             hide_index=True,
             column_config={
                 "elapsed_seconds": st.column_config.NumberColumn(
-                    "Elapsed (sec)",
+                    tr("outreach.col.elapsed_sec"),
                     format="%d",
-                    help="Null means never responded.",
+                    help=tr("outreach.col.elapsed_sec_help"),
                 ),
-                "elapsed_human": st.column_config.TextColumn("Elapsed"),
-                "prospect_email": st.column_config.TextColumn("Email"),
-                "prospect_phone": st.column_config.TextColumn("Phone"),
-                "business_name": st.column_config.TextColumn("Business"),
-                "vertical": st.column_config.TextColumn("Vertical"),
-                "submission_method": st.column_config.TextColumn("Method"),
+                "elapsed_human": st.column_config.TextColumn(tr("outreach.col.elapsed_human")),
+                "prospect_email": st.column_config.TextColumn(tr("outreach.col.email")),
+                "prospect_phone": st.column_config.TextColumn(tr("outreach.col.phone")),
+                "business_name": st.column_config.TextColumn(tr("outreach.col.business")),
+                "vertical": st.column_config.TextColumn(tr("outreach.col.vertical")),
+                "submission_method": st.column_config.TextColumn(tr("outreach.col.method")),
             },
         )
 
         st.download_button(
-            "⬇ Download filtered CSV",
+            tr("outreach.download"),
             data=filtered.to_csv(index=False).encode("utf-8"),
             file_name="outreach_priority_filtered.csv",
             mime="text/csv",
@@ -291,13 +276,9 @@ with tab_outreach:
 with tab_stats:
     df = _load_report(settings.report_output_dir / "vertical_stats.csv")
     if df.empty:
-        st.info("📭 No vertical stats yet — run the pipeline to generate them.")
+        st.info(tr("stats.empty"))
     else:
-        st.caption(
-            "Response behaviour per vertical. Bar chart shows average response "
-            "time in seconds — lower = faster — so shorter bars mean less "
-            "opportunity for the sales team."
-        )
+        st.caption(tr("stats.caption"))
 
         chart_df = df.copy()
         chart_df["avg_response_seconds"] = pd.to_numeric(
@@ -312,15 +293,9 @@ with tab_stats:
 with tab_competitors:
     df = _load_report(settings.report_output_dir / "competitor_distribution.csv")
     if df.empty:
-        st.info(
-            "📭 No competitor distribution yet — run the pipeline to generate it."
-        )
+        st.info(tr("competitors.empty"))
     else:
-        st.caption(
-            "Chat / booking tools detected on prospect websites. A cluster of "
-            "one tool in one vertical is a pitch signal: **integrate** with it, "
-            "don't replace it."
-        )
+        st.caption(tr("competitors.caption"))
 
         pivoted = df.pivot(
             index="vertical", columns="competitor_tool", values="count"
@@ -331,19 +306,15 @@ with tab_competitors:
 # ---------- Tab 4: Raw data ----------
 
 with tab_data:
-    st.caption(
-        "Direct views of the underlying SQLite tables. Useful for debugging "
-        "the matcher on a specific prospect, and for spot-checking what the "
-        "pipeline stored."
-    )
+    st.caption(tr("data.caption"))
 
     data_tab = st.radio(
-        "Table",
-        options=["Submissions", "Responses"],
+        tr("data.radio"),
+        options=[tr("data.option.submissions"), tr("data.option.responses")],
         horizontal=True,
     )
 
-    if data_tab == "Submissions":
+    if data_tab == tr("data.option.submissions"):
         rows = [
             {
                 "submission_id": s.submission_id[:8] + "…",
@@ -357,11 +328,9 @@ with tab_data:
             for s in submissions
         ]
         if rows:
-            st.dataframe(
-                pd.DataFrame(rows), use_container_width=True, hide_index=True
-            )
+            st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
         else:
-            st.info("No submissions yet.")
+            st.info(tr("data.empty.submissions"))
     else:
         rows = [
             {
@@ -379,11 +348,9 @@ with tab_data:
             for r in responses
         ]
         if rows:
-            st.dataframe(
-                pd.DataFrame(rows), use_container_width=True, hide_index=True
-            )
+            st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
         else:
-            st.info("No responses yet.")
+            st.info(tr("data.empty.responses"))
 
 # ---------- Tab 5: Settings ----------
 
@@ -391,7 +358,4 @@ with tab_settings:
     render_settings_tab(env_path=_REPO_ROOT / ".env")
 
 st.divider()
-st.caption(
-    "Pipeline source: "
-    "[github.com/juan-alejo/lead-response-intelligence](https://github.com/juan-alejo/lead-response-intelligence)"
-)
+st.caption(tr("footer.source"))

@@ -23,10 +23,33 @@ from pathlib import Path
 import streamlit as st
 
 from ..verticals import Vertical, get_registry
+from .i18n import tr
 
 # --------------------------------------------------------------- Help blurbs
+#
+# Kept as bilingual dicts so the help expanders flip with the language
+# selector. Keys match `get_lang()` output.
 
-_HELP_ANTHROPIC = """\
+_HELP_ANTHROPIC = {
+    "es": """\
+**Qué hace:** clasifica qué tipo de formulario de contacto tiene cada
+sitio web (formulario normal, chat tipo Intercom, agenda tipo Calendly,
+o ninguno). Las reglas regex resuelven el 70% gratis; Claude solo entra
+cuando el sitio es raro.
+
+**Cómo sacar una API key:**
+
+1. Andá a [console.anthropic.com](https://console.anthropic.com/) y logueate (o creá cuenta gratis).
+2. Perfil → **API Keys** → **Create Key**. Copiá el valor `sk-ant-...`.
+
+**Costo:** $5 USD de crédito gratis al registrarse. Después ~$1-2 USD/semana
+para el volumen típico (~200 negocios por semana).
+
+**Si lo apagás:** el sistema usa solo las reglas regex, sin IA. Pierde
+~15% de precisión en sitios raros. Sirve para arrancar gratis o para
+clientes que no pueden abrir cuenta en Anthropic.
+""",
+    "en": """\
 **What it does:** classifies the type of contact form on each prospect's
 website (contact form, chat widget, booking widget, or none). The
 heuristic regex classifier handles 70% of sites for free; Claude handles
@@ -37,15 +60,36 @@ the ambiguous 30%.
 1. Go to [console.anthropic.com](https://console.anthropic.com/) and sign in.
 2. Profile → **API Keys** → **Create Key**. Copy the `sk-ant-...` value.
 
-**Cost:** $5 free credits on signup, then ~$1-2 per week at the pipeline's
-scale (~200 prospects/week).
+**Cost:** $5 free credits on signup, then ~$1-2 per week at typical scale
+(~200 prospects/week).
 
 **If you disable this:** the pipeline falls back to regex-only classification.
-Accuracy drops ~15% on custom-built sites, but it's fine for early testing
-and for clients who can't get an Anthropic account approved.
-"""
+Accuracy drops ~15% on custom-built sites, but it's fine for early testing.
+""",
+}
 
-_HELP_GOOGLE_PLACES = """\
+_HELP_GOOGLE_PLACES = {
+    "es": """\
+**Qué hace:** descubre negocios para testear. Le pregunta a Google Places
+cosas tipo "estudios de abogados en Palermo, Buenos Aires" y te trae
+nombre, web, teléfono de los primeros N resultados.
+
+**Cómo sacar una API key:**
+
+1. [console.cloud.google.com](https://console.cloud.google.com/) → creá un proyecto.
+2. APIs & Services → Library → habilitá **"Places API"**.
+3. Credentials → Create credentials → **API Key**. Copiá el `AIza...`.
+
+**Costo:** Google da **$200 USD/mes de crédito gratuito** — te alcanza
+para ~10.000 búsquedas. Más que suficiente para casi cualquier cliente.
+
+**Ojo:** Google te pide tarjeta de crédito en archivo aunque uses el free tier.
+No te cobra si no pasás los $200 mensuales.
+
+**Si lo apagás:** hay que cargar los negocios vía CSV manualmente (ver tab
+"Datos detallados"). El resto del sistema anda normal.
+""",
+    "en": """\
 **What it does:** discovers prospect businesses to test. Searches Google
 Places for (e.g.) "law firm in Manhattan" and returns names, websites,
 phones for the top N matches.
@@ -63,9 +107,30 @@ searches. Enough for almost any client.
 
 **If you disable this:** prospects have to be uploaded via CSV (see the
 "Raw data" tab). The rest of the pipeline works unchanged.
-"""
+""",
+}
 
-_HELP_TWILIO_SMS = """\
+_HELP_TWILIO_SMS = {
+    "es": """\
+**Qué hace:** recibe respuestas de SMS + llamadas en un número de
+teléfono de prueba que vos controlás.
+
+**Dónde se usa:** principalmente **Estados Unidos, Canadá y Europa**,
+donde los negocios responden por SMS o llamada cuando llenás un
+formulario en su web.
+
+**Cómo configurar:**
+1. Registrate en [twilio.com/try-twilio](https://www.twilio.com/try-twilio) (trial gratis ~$15 de crédito).
+2. Dashboard → Account SID + Auth Token (arriba a la derecha).
+3. Phone Numbers → Buy a Number (~$1 USD/mes por un número norteamericano).
+
+**Costo:** $1/mes por el número, ~$0.01 USD por SMS recibido.
+
+**Si lo apagás:** el sistema no recolecta SMS ni llamadas. Útil si tus
+clientes targetean mercados donde se responde por email o WhatsApp
+(como LatAm).
+""",
+    "en": """\
 **What it does:** receives SMS + voicemail responses from prospects on a
 dedicated test phone number you own.
 
@@ -73,19 +138,44 @@ dedicated test phone number you own.
 via SMS or phone when you fill out a form on their website.
 
 **How to set up:**
-1. Sign up at [twilio.com/try-twilio](https://www.twilio.com/try-twilio)
-   (free trial ~$15 credit).
+1. Sign up at [twilio.com/try-twilio](https://www.twilio.com/try-twilio) (free trial ~$15 credit).
 2. Dashboard → Account SID + Auth Token (top right).
 3. Phone Numbers → Buy a Number (~$1 / month for a US number).
 
 **Cost:** $1/month for the number, ~$0.01 per inbound SMS.
 
-**If you disable this:** the pipeline simply doesn't collect SMS or voice
-responses. Useful if the prospect market communicates via email or
-WhatsApp instead.
-"""
+**If you disable this:** the pipeline doesn't collect SMS or voice
+responses. Useful if your market communicates via email or WhatsApp.
+""",
+}
 
-_HELP_WHATSAPP = """\
+_HELP_WHATSAPP = {
+    "es": """\
+**Qué hace:** recibe respuestas de WhatsApp Business de los negocios.
+Usa la API de WhatsApp de Twilio por detrás, **comparte las credenciales
+con la sección SMS/llamadas** — no tenés que abrir otra cuenta.
+
+**Dónde se usa:** esencial para **Argentina, Brasil, México, India,
+sudeste asiático, España** — en general, todo mercado fuera de Estados
+Unidos donde los negocios responden por WhatsApp en vez de SMS.
+
+> **Para clientes argentinos:** esto es lo que necesitás. Las empresas
+> acá responden por WhatsApp; SMS casi no se usa. Activá este canal y
+> apagá el de SMS/llamadas para ahorrarte el costo del número gringo.
+
+**Cómo configurar:**
+1. Misma cuenta de Twilio que SMS (usás el mismo Account SID + Auth Token).
+2. Twilio Console → **Messaging → Senders → WhatsApp senders**.
+3. Activás el **Twilio Sandbox for WhatsApp** (gratis, ideal para desarrollo) o
+   registrás un número real de WhatsApp Business (~$5-15 USD/mes).
+4. Pegás el número sandbox o business arriba.
+
+**Costo:** free tier sirve para demos. Número real desde ~$5 USD/mes +
+~$0.005 USD por mensaje recibido.
+
+**Si lo apagás:** no se recolectan respuestas de WhatsApp.
+""",
+    "en": """\
 **What it does:** receives WhatsApp Business replies from prospects. Uses
 Twilio's WhatsApp API under the hood, so it **shares credentials with
 the SMS/voice section** — no extra account to manage.
@@ -94,13 +184,8 @@ the SMS/voice section** — no extra account to manage.
 Southeast Asia, Spain**, and most markets outside the US where
 businesses reply via WhatsApp, not SMS.
 
-> **Para clientes en Argentina / LatAm:** esto es lo que necesitás. Las
-> empresas acá responden por WhatsApp — SMS casi no se usa. Activá este
-> canal y desactivá el de SMS/voz para ahorrarte el costo del número
-> norteamericano.
-
 **How to set up:**
-1. Same Twilio account as SMS (reuse the Account SID + Auth Token above).
+1. Same Twilio account as SMS (reuse the Account SID + Auth Token).
 2. Twilio Console → **Messaging → Senders → WhatsApp senders**.
 3. Either enable the **Twilio Sandbox for WhatsApp** (free, for dev) or
    register a real WhatsApp Business number (~$5-15/month).
@@ -110,9 +195,26 @@ businesses reply via WhatsApp, not SMS.
 ~$0.005 per message received.
 
 **If you disable this:** no WhatsApp responses are collected.
-"""
+""",
+}
 
-_HELP_GMAIL = """\
+_HELP_GMAIL = {
+    "es": """\
+**Qué hace:** revisa una casilla de Gmail dedicada para leer las
+respuestas que mandan los negocios por email. Email es el canal más
+universal — todo formulario de contacto pide email.
+
+**Cómo configurar:**
+1. Creás un Gmail dedicado (ej: `respuestas+cliente@gmail.com`).
+2. [console.cloud.google.com](https://console.cloud.google.com/) → habilitás **Gmail API**.
+3. Creás OAuth 2.0 Client ID (Desktop app) → descargás `credentials.json`.
+4. Pegás el path del archivo arriba. El primer run abre una pantalla de
+   consentimiento OAuth; después guarda un token reutilizable.
+
+**Si lo apagás:** no se recolectan respuestas por email. En general es
+mala idea apagarlo — email es el canal más confiable.
+""",
+    "en": """\
 **What it does:** polls a dedicated Gmail inbox for replies to forms
 that you filled out. Email is the most universal response channel —
 every prospect's website form has an email field.
@@ -121,32 +223,52 @@ every prospect's website form has an email field.
 1. Create a dedicated Gmail address (e.g., `responses+clientname@gmail.com`).
 2. [console.cloud.google.com](https://console.cloud.google.com/) → enable **Gmail API**.
 3. Create OAuth 2.0 Client ID (Desktop app) → download `credentials.json`.
-4. Paste the file path above. First run triggers an OAuth consent
-   screen; a reusable token is saved afterwards.
+4. Paste the file path above. First run triggers an OAuth consent screen;
+   a reusable token is saved afterwards.
 
 **If you disable this:** no email responses are collected. Usually
 unadvisable — email is the most reliable channel.
-"""
+""",
+}
 
-_HELP_AIRTABLE = """\
+_HELP_AIRTABLE = {
+    "es": """\
+**Qué hace:** guarda negocios / contactos / respuestas en una base de
+Airtable así el equipo del cliente puede filtrar, armar views y
+trabajar directamente desde la UI de Airtable sin saber programar.
+
+**Cuándo usarlo:** cuando el cliente ya usa Airtable y querés que el
+equipo de ventas tenga vista compartida en vivo. Si no, quedate con
+SQLite — más simple, rápido, sin config.
+
+**Cómo configurar:**
+1. [airtable.com/create/tokens](https://airtable.com/create/tokens) → creás un personal access token con permisos read/write.
+2. Abrís tu base → la URL tiene `appXXXXXXX` — ese es el Base ID.
+3. Pegás token + Base ID arriba.
+4. El schema esperado está documentado en `src/storage/airtable_store.py`.
+
+**Si lo dejás en SQLite:** los datos quedan en un archivo `.sqlite` local.
+Perfecto para setups de un solo operador.
+""",
+    "en": """\
 **What it does:** persists prospects / submissions / responses in an
 Airtable base so non-technical users can query, filter, and build
 views directly in Airtable's UI.
 
 **When to use it:** when the client's sales team works in Airtable
 already and you want them to have a shared live view of the pipeline
-data. Otherwise stick with SQLite — it's simpler, faster, and zero-config.
+data. Otherwise stick with SQLite — it's simpler, faster, zero-config.
 
 **How to set up:**
-1. [airtable.com/create/tokens](https://airtable.com/create/tokens) →
-   create a personal access token with read/write scopes.
+1. [airtable.com/create/tokens](https://airtable.com/create/tokens) → create a personal access token with read/write scopes.
 2. Open your base → URL contains `appXXXXXXX` — that's the Base ID.
 3. Paste token + Base ID above.
 4. Base schema is documented in `src/storage/airtable_store.py`.
 
 **If you disable this (use SQLite):** pipeline data lives in a local
 `.sqlite` file only. Fine for single-operator setups.
-"""
+""",
+}
 
 # --------------------------------------------------------------- .env I/O
 
@@ -187,11 +309,10 @@ def _write_env(path: Path, values: dict[str, str]) -> None:
 # --------------------------------------------------------------- UI helpers
 
 _MODE_OPTIONS = ["mock", "real", "disabled"]
-_MODE_LABELS = {
-    "mock": "🧪 Mock (safe fixtures)",
-    "real": "🌐 Real (live API)",
-    "disabled": "⏸ Disabled (skip)",
-}
+
+
+def _mode_label(mode: str) -> str:
+    return tr(f"settings.mode_{mode}")
 
 
 def _mode_selector(
@@ -203,10 +324,17 @@ def _mode_selector(
         label,
         options=_MODE_OPTIONS,
         index=idx,
-        format_func=lambda v: _MODE_LABELS[v],
+        format_func=_mode_label,
         disabled=disabled,
         key=key,
     )
+
+
+def _lang_help(mapping: dict[str, str]) -> str:
+    """Pick the right language variant of a help blurb."""
+    from .i18n import get_lang
+
+    return mapping.get(get_lang()) or next(iter(mapping.values()))
 
 
 # --------------------------------------------------------------- Main render
@@ -245,22 +373,32 @@ def render_settings_tab(env_path: Path) -> None:
 
     col_status, col_progress = st.columns([3, 2])
     with col_status:
-        st.markdown("### 🏁 Setup status")
-        pill_html = []
-        for name, state in states.items():
-            if state == "ready":
-                pill_html.append(f'<span class="pill pill-real">✅ {name}</span>')
-            elif state == "mock":
-                pill_html.append(f'<span class="pill pill-mock">🧪 {name} (demo)</span>')
-            elif state == "disabled":
-                pill_html.append(f'<span class="pill pill-off">⏸ {name} (off)</span>')
-            else:
-                pill_html.append(f'<span class="pill pill-off">⚠ {name} — needs key</span>')
+        st.markdown(tr("settings.status_title"))
+        state_to_css = {
+            "ready": "pill-real",
+            "mock": "pill-mock",
+            "disabled": "pill-off",
+            "needs_creds": "pill-off",
+        }
+        state_to_key = {
+            "ready": "settings.status_ready",
+            "mock": "settings.status_mock",
+            "disabled": "settings.status_disabled",
+            "needs_creds": "settings.status_needs_key",
+        }
+        pill_html = [
+            f'<span class="pill {state_to_css[state]}">'
+            f"{tr(state_to_key[state], name=name)}</span>"
+            for name, state in states.items()
+        ]
         st.markdown(" ".join(pill_html), unsafe_allow_html=True)
 
     with col_progress:
         st.markdown("### ")
-        st.progress(ready / total, text=f"{ready}/{total} services configured")
+        st.progress(
+            ready / total,
+            text=tr("settings.status_progress", ready=ready, total=total),
+        )
 
     st.divider()
 
@@ -279,25 +417,20 @@ def render_settings_tab(env_path: Path) -> None:
 
     demo_col1, demo_col2 = st.columns([3, 1])
     with demo_col1:
-        st.markdown("### 🧪 Demo mode")
-        st.caption(
-            "One switch, everything becomes a safe sandbox — reads from bundled "
-            "fixtures, no API costs, no risk of hitting production services. "
-            "Turn this off when you're ready to wire up real integrations one "
-            "at a time below."
-        )
+        st.markdown(tr("settings.demo_title"))
+        st.caption(tr("settings.demo_caption"))
     with demo_col2:
         st.write("")
         demo = st.toggle(
-            "Demo mode",
+            tr("settings.demo_toggle"),
             value=current_demo,
-            help="ON = every integration uses fixtures. OFF = configure real APIs.",
+            help=tr("settings.demo_toggle_help"),
             key="demo_mode_toggle",
             label_visibility="visible",
         )
 
     if demo != current_demo and st.button(
-        f"✔ Apply: switch everything to {'mock' if demo else 'real'}",
+        tr("settings.demo_apply", mode="mock" if demo else "real"),
         key="apply_demo",
         type="primary",
     ):
@@ -310,33 +443,22 @@ def render_settings_tab(env_path: Path) -> None:
             "GMAIL_MODE": target,
         }
         _write_env(env_path, updates)
-        st.success(
-            f"✅ All channels switched to **{target}** mode. "
-            "Reloading the dashboard…"
-        )
+        st.success(tr("settings.demo_success", mode=target))
         st.rerun()
 
     if demo:
-        st.info(
-            "🧪 **Demo mode is ON** — the fields below are locked to fixture "
-            "values so nothing leaks to a live API. Turn demo mode OFF above "
-            "to edit real credentials."
-        )
+        st.info(tr("settings.demo_on_warning"))
 
     st.divider()
 
     # ---------------------------- API keys & per-channel configuration
 
-    st.markdown("### 🔌 Integrations")
-    st.caption(
-        "One block per external service. Each can be **mock** (safe fixture), "
-        "**real** (live API), or **disabled** (skipped entirely). "
-        "Demo mode forces everything to mock until you turn it off."
-    )
+    st.markdown(tr("settings.integrations_title"))
+    st.caption(tr("settings.integrations_caption"))
 
     with st.form("integrations_form"):
         # ── Claude (AI classification) ─────────────────────────────────
-        st.markdown("#### 🤖 Claude AI — form classification")
+        st.markdown(tr("settings.claude_title"))
         col1, col2 = st.columns([3, 1])
         anthropic_key = col1.text_input(
             "Anthropic API key",
@@ -348,11 +470,11 @@ def render_settings_tab(env_path: Path) -> None:
         claude_mode = _mode_selector(
             "Mode", env.get("CLAUDE_MODE", "mock"), disabled=demo, key="claude_mode_sel"
         )
-        with st.expander("❓ What is this & how do I set it up?"):
-            st.markdown(_HELP_ANTHROPIC)
+        with st.expander(tr("settings.help_expander")):
+            st.markdown(_lang_help(_HELP_ANTHROPIC))
 
         # ── Google Places (prospect discovery) ─────────────────────────
-        st.markdown("#### 🗺 Google Places — prospect discovery")
+        st.markdown(tr("settings.places_title"))
         col1, col2 = st.columns([3, 1])
         places_key = col1.text_input(
             "Google Places API key",
@@ -364,16 +486,12 @@ def render_settings_tab(env_path: Path) -> None:
         places_mode = _mode_selector(
             "Mode", env.get("PLACES_MODE", "mock"), disabled=demo, key="places_mode_sel"
         )
-        with st.expander("❓ What is this & how do I set it up?"):
-            st.markdown(_HELP_GOOGLE_PLACES)
+        with st.expander(tr("settings.help_expander")):
+            st.markdown(_lang_help(_HELP_GOOGLE_PLACES))
 
         # ── Twilio SMS / Voice ─────────────────────────────────────────
-        st.markdown("#### 📱 Twilio — SMS & Voice responses")
-        st.caption(
-            "Mainly relevant in **US / Canada / Europe**. For Argentina and "
-            "most of LatAm you'll want **WhatsApp** below instead — set this "
-            "channel to `disabled`."
-        )
+        st.markdown(tr("settings.twilio_title"))
+        st.caption(tr("settings.twilio_caption"))
         col1, col2 = st.columns([3, 1])
         twilio_sid = col1.text_input(
             "Twilio Account SID",
@@ -397,21 +515,17 @@ def render_settings_tab(env_path: Path) -> None:
             placeholder="+15551234567",
             disabled=demo,
         )
-        with st.expander("❓ What is this & how do I set it up?"):
-            st.markdown(_HELP_TWILIO_SMS)
+        with st.expander(tr("settings.help_expander")):
+            st.markdown(_lang_help(_HELP_TWILIO_SMS))
 
         # ── WhatsApp (Twilio Business API) ─────────────────────────────
-        st.markdown("#### 💬 WhatsApp — messaging responses (LatAm, Spain, Asia)")
-        st.caption(
-            "Uses Twilio's WhatsApp Business API — **shares credentials** "
-            "with the SMS/voice block above. For **Argentina / Mexico / Brasil / "
-            "España / India** this is the main response channel."
-        )
+        st.markdown(tr("settings.whatsapp_title"))
+        st.caption(tr("settings.whatsapp_caption"))
         col1, col2 = st.columns([3, 1])
         whatsapp_number = col1.text_input(
             "Twilio WhatsApp sender number (E.164)",
             value=env.get("TWILIO_WHATSAPP_NUMBER", ""),
-            placeholder="whatsapp:+14155238886 (Twilio sandbox) or +54...",
+            placeholder="whatsapp:+14155238886 (Twilio sandbox) o +54...",
             disabled=demo,
         )
         whatsapp_mode = _mode_selector(
@@ -420,11 +534,11 @@ def render_settings_tab(env_path: Path) -> None:
             disabled=demo,
             key="whatsapp_mode_sel",
         )
-        with st.expander("❓ What is this & how do I set it up?"):
-            st.markdown(_HELP_WHATSAPP)
+        with st.expander(tr("settings.help_expander")):
+            st.markdown(_lang_help(_HELP_WHATSAPP))
 
         # ── Gmail ──────────────────────────────────────────────────────
-        st.markdown("#### 📧 Gmail — email responses")
+        st.markdown(tr("settings.gmail_title"))
         col1, col2 = st.columns([3, 1])
         gmail_creds = col1.text_input(
             "Gmail credentials.json path",
@@ -441,11 +555,11 @@ def render_settings_tab(env_path: Path) -> None:
             placeholder="C:/path/to/token.json",
             disabled=demo,
         )
-        with st.expander("❓ What is this & how do I set it up?"):
-            st.markdown(_HELP_GMAIL)
+        with st.expander(tr("settings.help_expander")):
+            st.markdown(_lang_help(_HELP_GMAIL))
 
         # ── Airtable ────────────────────────────────────────────────
-        st.markdown("#### 🗃 Storage backend — SQLite or Airtable")
+        st.markdown(tr("settings.storage_title"))
         col1, col2 = st.columns([3, 1])
         airtable_key = col1.text_input(
             "Airtable Personal Access Token",
@@ -468,13 +582,13 @@ def render_settings_tab(env_path: Path) -> None:
             placeholder="app...",
             disabled=demo,
         )
-        with st.expander("❓ What is this & how do I set it up?"):
-            st.markdown(_HELP_AIRTABLE)
+        with st.expander(tr("settings.help_expander")):
+            st.markdown(_lang_help(_HELP_AIRTABLE))
 
         # ── Save ───────────────────────────────────────────────────────
         st.divider()
         submitted = st.form_submit_button(
-            "💾 Save integrations", type="primary", disabled=demo
+            tr("settings.save_integrations"), type="primary", disabled=demo
         )
         if submitted:
             updates = {
@@ -496,19 +610,13 @@ def render_settings_tab(env_path: Path) -> None:
                 "STORAGE_BACKEND": storage_backend,
             }
             _write_env(env_path, updates)
-            st.success(
-                f"Saved to `{env_path}`. Next pipeline run uses the new values."
-            )
+            st.success(tr("settings.saved_to_env", path=env_path))
 
     # ---------------------------- Verticals section
 
     st.divider()
-    st.markdown("### 🎯 Verticals & search queries")
-    st.caption(
-        "One row per vertical. `name` is the stable id (snake_case, used by "
-        "the CLI and storage). `query` is the search text sent to Google "
-        "Places — keep it short and specific."
-    )
+    st.markdown(tr("settings.verticals_title"))
+    st.caption(tr("settings.verticals_caption"))
 
     registry = get_registry()
     rows = [
@@ -522,19 +630,19 @@ def render_settings_tab(env_path: Path) -> None:
         use_container_width=True,
         column_config={
             "name": st.column_config.TextColumn(
-                "Name (snake_case, unique)", required=True
+                tr("settings.verticals_col_name"), required=True
             ),
             "display_name": st.column_config.TextColumn(
-                "Display name", required=True
+                tr("settings.verticals_col_display"), required=True
             ),
             "query": st.column_config.TextColumn(
-                "Google Places query", required=True
+                tr("settings.verticals_col_query"), required=True
             ),
         },
         key="verticals_editor",
     )
 
-    if st.button("💾 Save verticals", type="primary"):
+    if st.button(tr("settings.verticals_save"), type="primary"):
         seen: set[str] = set()
         cleaned: list[Vertical] = []
         for row in edited:
@@ -542,28 +650,20 @@ def render_settings_tab(env_path: Path) -> None:
             display = (row.get("display_name") or "").strip()
             query = (row.get("query") or "").strip()
             if not (name and display and query):
-                st.error(
-                    "All three fields are required. Empty rows were skipped."
-                )
+                st.error(tr("settings.verticals_error_required"))
                 continue
             if not re.match(r"^[a-z][a-z0-9_]*$", name):
-                st.error(
-                    f"Invalid name {name!r} — use lowercase letters, digits, "
-                    "underscores only. Row skipped."
-                )
+                st.error(tr("settings.verticals_error_name", name=repr(name)))
                 continue
             if name in seen:
-                st.error(f"Duplicate name {name!r} — row skipped.")
+                st.error(tr("settings.verticals_error_dup", name=repr(name)))
                 continue
             seen.add(name)
             cleaned.append(Vertical(name=name, display_name=display, query=query))
 
         if cleaned:
             registry.save(cleaned)
-            st.success(
-                f"Saved {len(cleaned)} verticals. The pipeline will pick them "
-                "up on the next run."
-            )
+            st.success(tr("settings.verticals_saved", count=len(cleaned)))
             st.rerun()
         else:
-            st.warning("Nothing saved — fix the errors above and retry.")
+            st.warning(tr("settings.verticals_warning"))
