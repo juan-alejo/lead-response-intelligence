@@ -165,6 +165,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "tab.stats": "📊 Estadísticas",
         "tab.competitors": "🕵 Herramientas que usan",
         "tab.data": "🗂 Datos detallados",
+        "tab.phase2": "🤖 Envío automático",
         "tab.settings": "⚙ Configuración",
 
         # --- Outreach tab ---
@@ -368,6 +369,90 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings.locations_col_suffix": "Sufijo para Google (ej: 'in Buenos Aires, Argentina')",
         "settings.locations_saved": "✅ Guardadas {count} ubicaciones.",
 
+        # --- Phase 2 — automated form submission ---
+        "phase2.title": "### 🤖 Envío automático de formularios (Phase 2)",
+        "phase2.caption": (
+            "Automatizamos el paso manual de Phase 1 — el bot llena los "
+            "formularios de contacto por vos y guarda una evidencia auditable "
+            "de cada envío."
+        ),
+        "phase2.disabled_banner": (
+            "🧪 **Phase 2 está disponible pero desactivada.** Activala desde "
+            "el archivo `.env` (`PHASE_2_ENABLED=true`) o contactame para una "
+            "cotización de la implementación con Playwright real."
+        ),
+        "phase2.teaser_what_title": "Qué hace",
+        "phase2.teaser_what_body": (
+            "- Llena formularios web en modo headless (Playwright / Chromium)\n"
+            "- Detecta CAPTCHAs y deriva esos casos a tu cola manual\n"
+            "- Maneja chat widgets (Intercom, Drift) y booking widgets "
+            "(Calendly, Acuity) vía handlers dedicados\n"
+            "- Guarda screenshot + texto de confirmación como evidencia\n"
+            "- Reintenta transitorios (timeouts, 502s) con backoff exponencial"
+        ),
+        "phase2.teaser_cost_title": "Cuánto sale",
+        "phase2.teaser_cost_body": (
+            "- **Setup base:** USD 800-1200 (implementación + configuración)\n"
+            "- **Retainer opcional:** USD 150-250/mes (cuando los sitios "
+            "cambian layout, hay que actualizar selectores)\n"
+            "- Incluye docs/PHASE_2_SPEC.md — scope, arquitectura, SLA, "
+            "entregables, qué NO incluye."
+        ),
+        "phase2.enable_hint": (
+            "👉 Para probar en modo demo: seteá `{flag}` en `.env` y reiniciá "
+            "el dashboard. El spec completo está en [`{spec_path}`]({spec_path})."
+        ),
+        "phase2.metric_pending": "Pendientes",
+        "phase2.metric_completed": "Enviados OK",
+        "phase2.metric_needs_manual": "Requieren humano",
+        "phase2.metric_failed": "Fallaron",
+        "phase2.run_title": "▶ Correr el bot sobre la cola pendiente",
+        "phase2.run_caption": (
+            "Ejecuta el submitter (mock en modo demo, Playwright en prod) "
+            "sobre los próximos N envíos pendientes. Los que ya tienen un "
+            "intento terminal se saltean."
+        ),
+        "phase2.run_limit": "Máximo por lote",
+        "phase2.run_limit_help": (
+            "Empezá bajo (5-10) para ver el comportamiento. En prod típico "
+            "se usa 50-100."
+        ),
+        "phase2.run_button": "🚀 Enviar lote ahora",
+        "phase2.run_status_running": "Enviando formularios…",
+        "phase2.run_status_done": (
+            "Listo — {attempted} intentados, {completed} OK, {manual} "
+            "requieren humano, {failed} fallaron."
+        ),
+        "phase2.run_status_error": "❌ Falló el lote: {error}",
+        "phase2.run_success": "✅ Lote completado. Revisá el detalle abajo.",
+        "phase2.no_attempts": (
+            "Todavía no se ejecutó ningún intento. Tocá **Enviar lote ahora** arriba."
+        ),
+        "phase2.no_attempts_filtered": "Ningún intento matchea los filtros actuales.",
+        "phase2.attempts_title": "Intentos",
+        "phase2.filter_status": "Filtrar por estado",
+        "phase2.status_pending": "pendiente",
+        "phase2.status_submitting": "enviando",
+        "phase2.status_completed": "OK",
+        "phase2.status_failed": "falló",
+        "phase2.status_needs_manual": "requiere humano",
+        "phase2.col_status": "Estado",
+        "phase2.col_business": "Negocio",
+        "phase2.col_vertical": "Tipo",
+        "phase2.col_method": "Método",
+        "phase2.col_attempts": "Intentos",
+        "phase2.col_duration_ms": "Duración",
+        "phase2.col_completed_at": "Completado",
+        "phase2.col_started_at": "Empezó",
+        "phase2.download_csv": "⬇ Descargar CSV",
+        "phase2.drilldown_title": "🔎 Detalle por envío",
+        "phase2.drilldown_caption": (
+            "Elegí un envío para ver los logs y la evidencia (confirmación "
+            "del sitio, screenshot, errores)."
+        ),
+        "phase2.drilldown_select": "Envío a inspeccionar",
+        "phase2.attempt_header": "Intento {n} · {icon} {status}",
+
         # --- Footer ---
         "footer.source": "Código fuente: [github.com/juan-alejo/lead-response-intelligence](https://github.com/juan-alejo/lead-response-intelligence)",
     },
@@ -503,6 +588,7 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "tab.stats": "📊 Stats",
         "tab.competitors": "🕵 Tools they use",
         "tab.data": "🗂 Raw data",
+        "tab.phase2": "🤖 Auto-submit",
         "tab.settings": "⚙ Settings",
 
         # --- Outreach tab ---
@@ -700,6 +786,90 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings.locations_col_display": "Display name",
         "settings.locations_col_suffix": "Google suffix (e.g. 'in Buenos Aires, Argentina')",
         "settings.locations_saved": "✅ Saved {count} locations.",
+
+        # --- Phase 2 — automated form submission ---
+        "phase2.title": "### 🤖 Automated form submission (Phase 2)",
+        "phase2.caption": (
+            "We automate the one manual step in Phase 1 — the bot fills "
+            "contact forms for you and keeps an auditable record of every "
+            "submission."
+        ),
+        "phase2.disabled_banner": (
+            "🧪 **Phase 2 is available but currently disabled.** Flip "
+            "`PHASE_2_ENABLED=true` in `.env` to try the demo submitter, or "
+            "reach out for a quote on the full Playwright implementation."
+        ),
+        "phase2.teaser_what_title": "What it does",
+        "phase2.teaser_what_body": (
+            "- Fills web forms in headless mode (Playwright / Chromium)\n"
+            "- Detects CAPTCHAs and bounces those cases to the human queue\n"
+            "- Handles chat widgets (Intercom, Drift) and booking widgets "
+            "(Calendly, Acuity) via dedicated handlers\n"
+            "- Captures a post-submit screenshot + confirmation text as "
+            "audit evidence\n"
+            "- Retries transient errors (timeouts, 502s) with exponential backoff"
+        ),
+        "phase2.teaser_cost_title": "What it costs",
+        "phase2.teaser_cost_body": (
+            "- **Setup:** USD 800-1,200 (implementation + configuration)\n"
+            "- **Optional retainer:** USD 150-250/month (sites change "
+            "layouts, selectors need maintenance)\n"
+            "- Includes docs/PHASE_2_SPEC.md — scope, architecture, SLAs, "
+            "deliverables, out-of-scope."
+        ),
+        "phase2.enable_hint": (
+            "👉 To try the demo submitter: set `{flag}` in `.env` and restart "
+            "the dashboard. Full spec at [`{spec_path}`]({spec_path})."
+        ),
+        "phase2.metric_pending": "Pending",
+        "phase2.metric_completed": "Submitted OK",
+        "phase2.metric_needs_manual": "Needs human",
+        "phase2.metric_failed": "Failed",
+        "phase2.run_title": "▶ Run the bot on the pending queue",
+        "phase2.run_caption": (
+            "Runs the submitter (mock in demo, Playwright in production) "
+            "over the next N pending submissions. Anything already in a "
+            "terminal state is skipped."
+        ),
+        "phase2.run_limit": "Max per batch",
+        "phase2.run_limit_help": (
+            "Start small (5-10) to watch behavior. Typical prod uses 50-100."
+        ),
+        "phase2.run_button": "🚀 Submit batch now",
+        "phase2.run_status_running": "Submitting forms…",
+        "phase2.run_status_done": (
+            "Done — {attempted} attempted, {completed} OK, {manual} need "
+            "human, {failed} failed."
+        ),
+        "phase2.run_status_error": "❌ Batch failed: {error}",
+        "phase2.run_success": "✅ Batch complete. See the detail below.",
+        "phase2.no_attempts": (
+            "No attempts yet. Hit **Submit batch now** above."
+        ),
+        "phase2.no_attempts_filtered": "No attempts match the current filters.",
+        "phase2.attempts_title": "Attempts",
+        "phase2.filter_status": "Filter by status",
+        "phase2.status_pending": "pending",
+        "phase2.status_submitting": "submitting",
+        "phase2.status_completed": "OK",
+        "phase2.status_failed": "failed",
+        "phase2.status_needs_manual": "needs human",
+        "phase2.col_status": "Status",
+        "phase2.col_business": "Business",
+        "phase2.col_vertical": "Type",
+        "phase2.col_method": "Method",
+        "phase2.col_attempts": "Attempts",
+        "phase2.col_duration_ms": "Duration",
+        "phase2.col_completed_at": "Completed",
+        "phase2.col_started_at": "Started",
+        "phase2.download_csv": "⬇ Download CSV",
+        "phase2.drilldown_title": "🔎 Per-submission detail",
+        "phase2.drilldown_caption": (
+            "Pick a submission to see its logs and audit evidence (site "
+            "confirmation, screenshot, errors)."
+        ),
+        "phase2.drilldown_select": "Submission to inspect",
+        "phase2.attempt_header": "Attempt {n} · {icon} {status}",
 
         # --- Footer ---
         "footer.source": "Source: [github.com/juan-alejo/lead-response-intelligence](https://github.com/juan-alejo/lead-response-intelligence)",

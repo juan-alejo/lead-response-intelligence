@@ -36,6 +36,7 @@ import streamlit as st  # noqa: E402
 from src.config import get_settings  # noqa: E402
 from src.dashboard.auth import require_auth  # noqa: E402
 from src.dashboard.i18n import LANGUAGES, get_lang, set_lang, tr  # noqa: E402
+from src.dashboard.phase2_tab import render_phase2_tab  # noqa: E402
 from src.dashboard.settings_tab import render_settings_tab  # noqa: E402
 from src.locations import get_location_registry  # noqa: E402
 from src.pipeline import run_all_verticals  # noqa: E402
@@ -347,13 +348,22 @@ with st.sidebar:
 # MAIN — tabs at the top, Inicio tab holds hero + metrics
 # ============================================================================
 
-tab_home, tab_outreach, tab_stats, tab_competitors, tab_data, tab_settings = st.tabs(
+(
+    tab_home,
+    tab_outreach,
+    tab_stats,
+    tab_competitors,
+    tab_data,
+    tab_phase2,
+    tab_settings,
+) = st.tabs(
     [
         tr("tab.home"),
         tr("tab.outreach"),
         tr("tab.stats"),
         tr("tab.competitors"),
         tr("tab.data"),
+        tr("tab.phase2"),
         tr("tab.settings"),
     ]
 )
@@ -664,6 +674,11 @@ with tab_data:
             st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
         else:
             st.info(tr("data.empty.responses"))
+
+# ---------- Tab: Phase 2 — automated form submission ----------
+
+with tab_phase2:
+    render_phase2_tab(settings=settings, store=store)
 
 # ---------- Tab: Settings ----------
 
