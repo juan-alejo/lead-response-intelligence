@@ -4,17 +4,18 @@ Launch with:
 
     streamlit run src/dashboard/app.py
 
-UI philosophy: this is the panel a non-technical operator sees when they
-buy the tool. Every number should come with context, every control
-should telegraph what it does before you click, and the status of every
-integration should be visible without digging into a tab.
+UX rules (keep these — they're why the dashboard is readable):
 
-All user-visible strings go through `i18n.tr()` so the whole UI flips
-language with a single dropdown. Default is Spanish — the primary market
-is LatAm clients.
+1. The main area shows only what the operator reads every day:
+   title → metrics → tabs. Nothing else.
+2. Integration status, language, GitHub, and run controls live in the
+   sidebar so they're available without taking screen real estate.
+3. The 'Run now' button is a single primary CTA in the sidebar. The
+   options (borough, limit) default to sensible values; advanced users
+   tweak them inside the same panel.
 
-Keep this file the thin presentation layer — computation that matters
-to the business lives in the pipeline / reporting modules.
+All user-visible strings flow through `i18n.tr()`. Default language is
+Spanish — the primary market is LatAm — with English as the alternate.
 """
 
 from __future__ import annotations
@@ -44,31 +45,23 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# ------------------------------------------------------------ tiny CSS polish
+# ------------------------------------------------------------ minimal CSS
 
 st.markdown(
     """
     <style>
       .pill {
         display: inline-block;
-        padding: 4px 12px;
+        padding: 3px 10px;
         border-radius: 999px;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 500;
-        margin: 2px 4px 2px 0;
+        margin: 2px 2px;
         border: 1px solid transparent;
       }
       .pill-real { background: #dcfce7; color: #14532d; border-color: #86efac; }
       .pill-mock { background: #fef3c7; color: #713f12; border-color: #fde047; }
       .pill-off  { background: #e5e7eb; color: #374151; border-color: #9ca3af; }
-
-      .run-card {
-        background: linear-gradient(135deg, rgba(99,102,241,0.07), rgba(14,165,233,0.07));
-        padding: 18px 22px;
-        border-radius: 12px;
-        border: 1px solid rgba(99,102,241,0.25);
-        margin-bottom: 8px;
-      }
 
       div[data-baseweb="tab-list"] button { font-size: 15px; }
     </style>
@@ -91,17 +84,12 @@ def _load_report(path: Path) -> pd.DataFrame:
 settings = get_settings()
 store = _load_store(settings.sqlite_path)
 
-# ------------------------------------------------------------ Hero + language
+# ============================================================================
+# SIDEBAR — every control that doesn't need to be front-and-center lives here.
+# ============================================================================
 
-hero_col_title, hero_col_lang, hero_col_gh = st.columns([5, 1.2, 1.2])
-
-with hero_col_title:
-    st.markdown(f"# {tr('app.title')}")
-    st.caption(tr("app.subtitle"))
-
-with hero_col_lang:
-    st.write("")
-    st.write("")
+with st.sidebar:
+    # --- Language ---
     current_lang = get_lang()
     chosen = st.selectbox(
         tr("app.language"),
@@ -109,47 +97,71 @@ with hero_col_lang:
         index=list(LANGUAGES.keys()).index(current_lang),
         format_func=lambda k: LANGUAGES[k],
         key="language_selector",
-        label_visibility="collapsed",
     )
     if chosen != current_lang:
         set_lang(chosen)
         st.rerun()
 
-with hero_col_gh:
-    st.write("")
-    st.write("")
+    st.divider()
+
+    # --- Run pipeline (primary action) ---
+    st.markdown(f"#### {tr('run.title').replace('### ', '').replace('▶ ', '▶ ')}")
+    borough_choice = st.selectbox(
+        tr("run.borough"),
+        options=[b.value for b in Borough],
+        index=0,
+        format_func=lambda v: v.replace("_", " ").title(),
+        key="borough_choice",
+    )
+    limit_choice = st.slider(
+        tr("run.limit"), min_value=10, max_value=400, value=50, step=10
+    )
+    _vertical_count = len(get_registry().all())
+    st.caption(tr("run.verticals_info", count=_vertical_count))
+    run_now = st.button(tr("run.button"), type="primary", use_container_width=True)
+
+    st.divider()
+
+    # --- Integration status (compact) ---
+    def _pill(label_key: str, mode: str) -> str:
+        css = {"real": "pill-real", "mock": "pill-mock", "disabled": "pill-off"}[mode]
+        icon = {"real": "🌐", "mock": "🧪", "disabled": "⏸"}[mode]
+        return (
+            f'<span class="pill {css}">{icon} {tr(label_key)}: '
+            f'{tr(f"pills.mode.{mode}")}</span>'
+        )
+
+    st.markdown(f"**{tr('pills.header').replace('**', '')}**")
+    pills_md = " ".join(
+        [
+            _pill("pills.label.places", settings.places_mode),
+            _pill("pills.label.claude", settings.claude_mode),
+            _pill("pills.label.twilio", settings.twilio_mode),
+            _pill("pills.label.whatsapp", settings.whatsapp_mode),
+            _pill("pills.label.gmail", settings.gmail_mode),
+        ]
+    )
+    st.markdown(pills_md, unsafe_allow_html=True)
+    storage_icon = "🗂" if settings.storage_backend == "sqlite" else "☁"
+    st.caption(
+        f"{tr('pills.storage').replace('**', '')} {storage_icon} {settings.storage_backend}"
+    )
+
+    st.divider()
     st.link_button(
         tr("app.github_button"),
         "https://github.com/juan-alejo/lead-response-intelligence",
         use_container_width=True,
     )
 
-# ------------------------------------------------------------ Integration pills row
+# ============================================================================
+# MAIN — header (compact) → metrics → tabs. No other noise.
+# ============================================================================
 
+st.markdown(f"# {tr('app.title')}")
+st.caption(tr("app.subtitle"))
 
-def _mode_pill(label_key: str, mode: str) -> str:
-    css = {"real": "pill-real", "mock": "pill-mock", "disabled": "pill-off"}[mode]
-    icon = {"real": "🌐", "mock": "🧪", "disabled": "⏸"}[mode]
-    label = tr(label_key)
-    mode_label = tr(f"pills.mode.{mode}")
-    return f'<span class="pill {css}">{icon} {label}: {mode_label}</span>'
-
-
-pills = [
-    _mode_pill("pills.label.places", settings.places_mode),
-    _mode_pill("pills.label.claude", settings.claude_mode),
-    _mode_pill("pills.label.twilio", settings.twilio_mode),
-    _mode_pill("pills.label.whatsapp", settings.whatsapp_mode),
-    _mode_pill("pills.label.gmail", settings.gmail_mode),
-]
-storage_icon = "🗂" if settings.storage_backend == "sqlite" else "☁"
-st.markdown(
-    f"{tr('pills.header')} {' '.join(pills)} &nbsp;&nbsp; "
-    f"{tr('pills.storage')} {storage_icon} {settings.storage_backend}",
-    unsafe_allow_html=True,
-)
-
-# ------------------------------------------------------------ Metrics row
+# --- Metrics ---
 
 prospects_recent = store.recent_place_ids()
 submissions = store.all_submissions()
@@ -167,29 +179,7 @@ m4.metric(
     help=tr("metrics.match_rate_help"),
 )
 
-# ------------------------------------------------------------ Run pipeline card
-
-st.markdown('<div class="run-card">', unsafe_allow_html=True)
-st.markdown(tr("run.title"))
-st.caption(tr("run.caption"))
-
-run_col1, run_col2, run_col3 = st.columns([2, 2, 1])
-borough_choice = run_col1.selectbox(
-    tr("run.borough"),
-    options=[b.value for b in Borough],
-    index=0,
-    format_func=lambda v: v.replace("_", " ").title(),
-    key="borough_choice",
-)
-limit_choice = run_col2.slider(
-    tr("run.limit"), min_value=10, max_value=400, value=50, step=10
-)
-run_col3.write("")
-run_col3.write("")
-run_now = run_col3.button(tr("run.button"), type="primary", use_container_width=True)
-
-_vertical_count = len(get_registry().all())
-st.caption(tr("run.verticals_info", count=_vertical_count))
+# --- Run pipeline trigger (fires from sidebar button) ---
 
 if run_now:
     with st.status(tr("run.status_running"), expanded=True) as status:
@@ -211,9 +201,7 @@ if run_now:
     st.success(tr("run.success"))
     st.rerun()
 
-st.markdown("</div>", unsafe_allow_html=True)
-
-# ------------------------------------------------------------ Tabs
+# --- Tabs ---
 
 tab_outreach, tab_stats, tab_competitors, tab_data, tab_settings = st.tabs(
     [
