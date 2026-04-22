@@ -119,6 +119,40 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         # --- Home tab ---
         "home.navigation_hint": "👉 Usá las tabs de arriba para ver la **Lista prioritaria**, **Estadísticas**, **Herramientas detectadas** o ajustar la **Configuración**.",
 
+        # --- Home tab: insights cards ---
+        "home.insight_title": "💡 Recomendación del día",
+        "home.insight_worst_responder": (
+            "El peor respondedor es **{name}** ({vertical}) — "
+            "tardó **{elapsed}** en responder. Llamalo primero."
+        ),
+        "home.insight_never_responded": (
+            "Hay **{count} negocio(s)** que nunca respondieron — "
+            "ésos son tus mejores prospectos. Empezá por ahí."
+        ),
+        "home.insight_good_match_rate": (
+            "📈 Tu tasa de identificación es del **{rate:.0%}** — excelente. "
+            "Los datos están bien cargados."
+        ),
+        "home.insight_low_match_rate": (
+            "⚠ Tu tasa de identificación es del **{rate:.0%}** — revisá "
+            "que los teléfonos y emails de los prospects coincidan con "
+            "las respuestas (pueden venir con formato distinto)."
+        ),
+        "home.action_title": "🎯 Próxima acción recomendada",
+        "home.action_no_data": (
+            "📡 Todavía no corriste ninguna búsqueda. Tocá **Buscar ahora** "
+            "en el panel lateral para generar tu primera lista."
+        ),
+        "home.action_demo_mode": (
+            "🧪 Estás en **modo demo** — los datos son de ejemplo. Andá a "
+            "la tab **Configuración** y apagá el modo demo para conectar "
+            "tus APIs reales."
+        ),
+        "home.action_ready_to_work": (
+            "✅ Tenés **{count} clientes potenciales** listos. Abrí la tab "
+            "**Lista prioritaria** y empezá a contactarlos."
+        ),
+
         # --- Chart labels ---
         "stats.y_label": "Segundos promedio de respuesta",
         "competitors.y_label": "Cantidad de negocios",
@@ -406,6 +440,40 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
 
         # --- Home tab ---
         "home.navigation_hint": "👉 Use the tabs above to see the **Priority list**, **Stats**, **Detected tools**, or adjust **Settings**.",
+
+        # --- Home tab: insights cards ---
+        "home.insight_title": "💡 Today's recommendation",
+        "home.insight_worst_responder": (
+            "Slowest responder is **{name}** ({vertical}) — took "
+            "**{elapsed}** to reply. Call them first."
+        ),
+        "home.insight_never_responded": (
+            "**{count} business(es)** never responded — those are your "
+            "best prospects. Start there."
+        ),
+        "home.insight_good_match_rate": (
+            "📈 Your attribution rate is **{rate:.0%}** — excellent. "
+            "Data is well-formed."
+        ),
+        "home.insight_low_match_rate": (
+            "⚠ Your attribution rate is **{rate:.0%}** — check that "
+            "prospect phones/emails match incoming responses (they may "
+            "be coming from different formats)."
+        ),
+        "home.action_title": "🎯 Next recommended action",
+        "home.action_no_data": (
+            "📡 No search run yet. Hit **Search now** in the side panel "
+            "to generate your first priority list."
+        ),
+        "home.action_demo_mode": (
+            "🧪 You're in **demo mode** — sample data only. Go to the "
+            "**Settings** tab and turn off demo mode to connect your real "
+            "APIs."
+        ),
+        "home.action_ready_to_work": (
+            "✅ You have **{count} prospects** ready. Open the **Priority "
+            "list** tab and start contacting them."
+        ),
 
         # --- Chart labels ---
         "stats.y_label": "Average response seconds",

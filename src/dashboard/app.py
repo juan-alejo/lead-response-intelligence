@@ -411,6 +411,64 @@ with tab_home:
         help=tr("metrics.match_rate_help"),
     )
 
+    # --- Insights + action cards (only when there's actual data) ---
+
+    outreach_df = _load_report(settings.report_output_dir / "outreach_priority.csv")
+    if not outreach_df.empty or responses:
+        st.write("")  # small vertical spacer
+        insight_col, action_col = st.columns(2)
+
+        # Insight card ──
+        with insight_col:
+            st.markdown(f"##### {tr('home.insight_title')}")
+            insights: list[str] = []
+            if not outreach_df.empty:
+                never_count = int(
+                    (outreach_df["elapsed_human"] == "never responded").sum()
+                )
+                if never_count > 0:
+                    insights.append(
+                        tr("home.insight_never_responded", count=never_count)
+                    )
+                # Pick the slowest responder (highest elapsed_seconds, non-null).
+                slow_df = outreach_df.dropna(subset=["elapsed_seconds"])
+                if not slow_df.empty:
+                    worst = slow_df.loc[slow_df["elapsed_seconds"].idxmax()]
+                    insights.append(
+                        tr(
+                            "home.insight_worst_responder",
+                            name=worst["business_name"],
+                            vertical=worst["vertical"],
+                            elapsed=worst["elapsed_human"],
+                        )
+                    )
+            if responses:
+                if match_rate >= 0.9:
+                    insights.append(
+                        tr("home.insight_good_match_rate", rate=match_rate)
+                    )
+                elif match_rate < 0.6 and match_rate > 0:
+                    insights.append(
+                        tr("home.insight_low_match_rate", rate=match_rate)
+                    )
+            for line in insights[:2]:  # keep the card compact
+                st.markdown(f"- {line}")
+
+        # Action card ──
+        with action_col:
+            st.markdown(f"##### {tr('home.action_title')}")
+            in_demo = all(
+                getattr(settings, f"{m}_mode") == "mock"
+                for m in ("claude", "places", "twilio", "whatsapp", "gmail")
+            )
+            if not _runs:
+                st.info(tr("home.action_no_data"))
+            elif in_demo:
+                st.warning(tr("home.action_demo_mode"))
+            else:
+                total = len(outreach_df) if not outreach_df.empty else 0
+                st.success(tr("home.action_ready_to_work", count=total))
+
     # Quick navigation hint.
     st.caption(tr("home.navigation_hint"))
 
