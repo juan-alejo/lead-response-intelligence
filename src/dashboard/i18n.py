@@ -446,6 +446,12 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings.locations_col_display": "Nombre para mostrar",
         "settings.locations_col_suffix": "Sufijo para Google (ej: 'in Buenos Aires, Argentina')",
         "settings.locations_saved": "✅ Guardadas {count} ubicaciones.",
+        "settings.editor_delete_hint": (
+            "💡 Para **borrar una fila**: seleccionala haciendo click en el "
+            "espacio vacío a la izquierda del número de fila (se resalta en "
+            "azul) y apretá **Delete** o **Backspace** en el teclado. "
+            "Podés seleccionar varias con Shift+click."
+        ),
 
         # --- Phase 2 — automated form submission ---
         "phase2.title": "### 🤖 Envío automático de formularios (Phase 2)",
@@ -941,6 +947,11 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings.locations_col_display": "Display name",
         "settings.locations_col_suffix": "Google suffix (e.g. 'in Buenos Aires, Argentina')",
         "settings.locations_saved": "✅ Saved {count} locations.",
+        "settings.editor_delete_hint": (
+            "💡 To **delete a row**: click the blank cell to the left of the "
+            "row number (it highlights blue) and press **Delete** or "
+            "**Backspace**. Hold Shift+click to select multiple rows."
+        ),
 
         # --- Phase 2 — automated form submission ---
         "phase2.title": "### 🤖 Automated form submission (Phase 2)",

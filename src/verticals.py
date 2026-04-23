@@ -86,11 +86,17 @@ class VerticalRegistry:
 
 
 # Fallback set used when the YAML is missing (first-run / CI).
+#
+# Since the dashboard's default UI language is Spanish (LatAm is the
+# primary market), we ship Spanish defaults by default. An operator
+# targeting the US market can apply the "US Local Services" pack from
+# Settings to switch to English verticals in one click.
 _BUILTIN_DEFAULTS: tuple[Vertical, ...] = (
-    Vertical("law_firm", "Law Firm", "law firm"),
-    Vertical("home_services", "Home Services", "home services contractor"),
-    Vertical("med_spa", "Med Spa", "med spa"),
-    Vertical("general", "General", "small business"),
+    Vertical("abogados", "Abogados / Estudios jurídicos", "estudio jurídico"),
+    Vertical("dentistas", "Dentistas / Odontólogos", "odontólogo"),
+    Vertical("inmobiliarias", "Inmobiliarias", "inmobiliaria"),
+    Vertical("contadores", "Contadores públicos", "contador público"),
+    Vertical("peluquerias", "Peluquerías", "peluquería"),
 )
 
 

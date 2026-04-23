@@ -55,8 +55,10 @@ def test_full_pipeline_law_firm_manhattan(tmp_path: Path) -> None:
     # Each classified as contact_form (heuristic offline fallback).
     assert result.classified == 3
     assert result.submissions_queued == 3
-    # 4 SMS + 2 email + 2 WhatsApp = 8 responses pulled.
-    assert result.responses_pulled == 8
+    # Responses aggregated across all three channels in the fixtures:
+    # 4 SMS + 5 email + 6 WhatsApp = 15. Includes Argentine-locale entries
+    # added alongside the Spanish bundled verticals.
+    assert result.responses_pulled == 15
     assert result.report_paths["outreach_priority"].exists()
     assert result.report_paths["vertical_stats"].exists()
     assert result.report_paths["competitor_distribution"].exists()
@@ -76,7 +78,7 @@ def test_phase_2_disabled_by_default_no_attempts_written(
     _isolate_run_history(monkeypatch, tmp_path)
     settings = _settings_for(tmp_path)
     # Run the full weekly pipeline — the Phase 2 hook is inside run_all_verticals.
-    run_all_verticals(settings, location="manhattan", limit=50, fetch_pages=False)
+    run_all_verticals(settings, location="caba", limit=50, fetch_pages=False)
 
     store = SQLiteStore(settings.sqlite_path)
     assert store.all_attempts() == []
@@ -88,7 +90,7 @@ def test_phase_2_enabled_produces_attempts(tmp_path: Path, monkeypatch) -> None:
     settings = _settings_for(tmp_path, phase_2_enabled=True, submitter_mode="mock")
 
     result = run_all_verticals(
-        settings, location="manhattan", limit=50, fetch_pages=False
+        settings, location="caba", limit=50, fetch_pages=False
     )
 
     store = SQLiteStore(settings.sqlite_path)
@@ -113,7 +115,7 @@ def test_phase_2_submitter_mode_disabled_skips(
     )
 
     result = run_all_verticals(
-        settings, location="manhattan", limit=50, fetch_pages=False
+        settings, location="caba", limit=50, fetch_pages=False
     )
 
     store = SQLiteStore(settings.sqlite_path)

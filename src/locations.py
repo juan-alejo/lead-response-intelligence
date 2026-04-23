@@ -91,29 +91,41 @@ class LocationRegistry:
 
 # Fallback defaults — curated so the YAML being missing still produces
 # a credible demo set covering both hemispheres.
+#
+# The `query_suffix` uses the preposition matching the country's primary
+# language:
+#   - Spanish-speaking locales: "en" (e.g. "en Córdoba, Argentina")
+#   - Portuguese (Brazil):       "em" (e.g. "em São Paulo, Brasil")
+#   - English-speaking:          "in" (e.g. "in Manhattan, New York")
+#
+# Country names also match the local language ("España" not "Spain",
+# "Brasil" not "Brazil", "México" not "Mexico") — Google Places handles
+# accented characters fine and the UI looks consistent with the
+# Spanish-first vertical packs.
 _BUILTIN_DEFAULTS: tuple[Location, ...] = (
-    # --- NYC (original defaults) ---
+    # --- Argentina (LatAm-first default market) ---
+    Location("caba", "CABA (Ciudad de Buenos Aires)", "en Ciudad Autónoma de Buenos Aires, Argentina"),
+    Location("gba_norte", "GBA Norte", "en Gran Buenos Aires Norte, Argentina"),
+    Location("cordoba_ar", "Córdoba, Argentina", "en Córdoba, Argentina"),
+    Location("rosario", "Rosario, Argentina", "en Rosario, Santa Fe, Argentina"),
+    Location("mendoza", "Mendoza, Argentina", "en Mendoza, Argentina"),
+    Location("argentina_all", "Toda Argentina", "en Argentina"),
+    # --- Resto de LatAm ---
+    Location("cdmx", "CDMX (Ciudad de México)", "en Ciudad de México, México"),
+    Location("mexico_all", "Todo México", "en México"),
+    Location("santiago_cl", "Santiago de Chile", "en Santiago, Chile"),
+    # --- Brasil (Portuguese prepositions) ---
+    Location("sao_paulo", "São Paulo, Brasil", "em São Paulo, Brasil"),
+    Location("brasil_all", "Todo Brasil", "em Brasil"),
+    # --- España ---
+    Location("madrid", "Madrid, España", "en Madrid, España"),
+    Location("barcelona", "Barcelona, España", "en Barcelona, España"),
+    # --- US / NYC presets (for English operators) ---
     Location("manhattan", "Manhattan, NY", "in Manhattan, New York"),
     Location("brooklyn", "Brooklyn, NY", "in Brooklyn, New York"),
     Location("queens", "Queens, NY", "in Queens, New York"),
     Location("bronx", "Bronx, NY", "in the Bronx, New York"),
     Location("staten_island", "Staten Island, NY", "in Staten Island, New York"),
-    # --- Argentina ---
-    Location("caba", "CABA (Ciudad de Buenos Aires)", "in Ciudad Autónoma de Buenos Aires, Argentina"),
-    Location("gba_norte", "GBA Norte", "in Gran Buenos Aires Norte, Argentina"),
-    Location("cordoba_ar", "Córdoba, Argentina", "in Córdoba, Argentina"),
-    Location("rosario", "Rosario, Argentina", "in Rosario, Santa Fe, Argentina"),
-    Location("mendoza", "Mendoza, Argentina", "in Mendoza, Argentina"),
-    Location("argentina_all", "Toda Argentina", "in Argentina"),
-    # --- LatAm presets ---
-    Location("cdmx", "CDMX (Ciudad de México)", "in Ciudad de México, Mexico"),
-    Location("sao_paulo", "São Paulo, Brasil", "in São Paulo, Brazil"),
-    Location("santiago_cl", "Santiago de Chile", "in Santiago, Chile"),
-    # --- Europa ---
-    Location("madrid", "Madrid, España", "in Madrid, Spain"),
-    Location("barcelona", "Barcelona, España", "in Barcelona, Spain"),
-    # --- Country-level ---
-    Location("mexico_all", "Todo México", "in Mexico"),
     Location("usa_all", "All United States", "in the United States"),
 )
 

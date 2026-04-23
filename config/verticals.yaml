@@ -1,16 +1,51 @@
+# Editable desde el tab "⚙ Configuración" del dashboard.
+#
+# Cada tipo de negocio tiene:
+# - name: id interno (snake_case, minúsculas, sin espacios — lo usa
+#   storage + CLI, no se muestra al usuario final).
+# - display_name: lo que ve el operador en las tablas / filtros.
+# - query: el texto que le mandamos a Google Places. DEBE ser un término
+#   que Google reconoce bien en el idioma / país del mercado objetivo.
+#   "small business" / "pyme" NO funcionan bien — Google Places es
+#   taxonómica, no full-text. Usá nombres específicos: "odontólogo",
+#   "estudio jurídico", "law firm", "escritório de advocacia".
+#
+# Los defaults que ship'eamos son en español LatAm (el mercado primario
+# del producto). Para otros mercados aplicá un pack desde Settings:
+#   - 🇺🇸 US Local Services
+#   - 🇧🇷 Brasil — Serviços locais
+#   - 🌎 LatAm — Servicios profesionales (multi-país)
+#
+# Agregá / editá / quitá libremente. El dashboard auto-guarda cada cambio.
+
 verticals:
-- name: law_firm
-  display_name: Law Firm
-  query: law firm
-- name: home_services
-  display_name: Home Services
-  query: home services contractor
-- name: med_spa
-  display_name: Med Spa
-  query: med spa
-- name: dentist
-  display_name: Dentist
-  query: dentist
-- name: general
-  display_name: General
-  query: small business
+  - name: abogados
+    display_name: Abogados / Estudios jurídicos
+    query: estudio jurídico
+  - name: dentistas
+    display_name: Dentistas / Odontólogos
+    query: odontólogo
+  - name: clinicas_medicas
+    display_name: Clínicas médicas
+    query: clínica médica
+  - name: contadores
+    display_name: Contadores públicos
+    query: contador público
+  - name: arquitectos
+    display_name: Arquitectos / Estudios de arquitectura
+    query: estudio de arquitectura
+  - name: inmobiliarias
+    display_name: Inmobiliarias
+    query: inmobiliaria
+  - name: peluquerias
+    display_name: Peluquerías
+    query: peluquería
+  - name: esteticas
+    display_name: Centros de estética
+    query: centro de estética
+  - name: veterinarias
+    display_name: Veterinarias
+    query: veterinaria
+  - name: gimnasios
+    display_name: Gimnasios
+    query: gimnasio

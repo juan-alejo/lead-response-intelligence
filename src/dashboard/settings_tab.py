@@ -827,9 +827,14 @@ def render_settings_tab(env_path: Path) -> None:
         },
         key="verticals_editor",
     )
+    st.caption(tr("settings.editor_delete_hint"))
 
     # Auto-save verticals on each rerun (data_editor returns current state).
     # We compare against the last saved snapshot to avoid spurious writes.
+    # Note: we save even when every row is deleted (count == 0) — otherwise
+    # the signature stays dirty forever and every rerun re-fires a save with
+    # the same content. Persisting an empty list is intentional; an operator
+    # who wipes the table means "I don't want any verticals configured".
     last_saved = st.session_state.get("_verticals_last_saved")
     current_signature = tuple(
         (r.get("name", ""), r.get("display_name", ""), r.get("query", ""))
@@ -837,10 +842,11 @@ def render_settings_tab(env_path: Path) -> None:
     )
     if last_saved != current_signature:
         count, errors = _save_verticals(edited)
-        if not errors and count > 0:
+        if not errors:
             st.session_state["_verticals_last_saved"] = current_signature
-            st.toast(tr("settings.verticals_saved", count=count), icon="✅")
-        elif errors:
+            if count > 0:
+                st.toast(tr("settings.verticals_saved", count=count), icon="✅")
+        else:
             for err in errors[:3]:  # cap at 3 to avoid spam
                 st.warning(err)
 
@@ -1131,7 +1137,9 @@ def _render_locations_editor() -> None:
         },
         key="locations_editor",
     )
+    st.caption(tr("settings.editor_delete_hint"))
 
+    # Same save-on-empty logic as the verticals editor (see comment above).
     last_saved = st.session_state.get("_locations_last_saved")
     signature = tuple(
         (r.get("name", ""), r.get("display_name", ""), r.get("query_suffix", ""))
@@ -1139,10 +1147,11 @@ def _render_locations_editor() -> None:
     )
     if last_saved != signature:
         count, errors = _save_locations(edited)
-        if not errors and count > 0:
+        if not errors:
             st.session_state["_locations_last_saved"] = signature
-            st.toast(tr("settings.locations_saved", count=count), icon="✅")
-        elif errors:
+            if count > 0:
+                st.toast(tr("settings.locations_saved", count=count), icon="✅")
+        else:
             for err in errors[:3]:
                 st.warning(err)
 

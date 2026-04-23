@@ -12,5 +12,33 @@
     "received_at": "2026-04-21T16:45:00",
     "sender_phone": "+12125550301",
     "content_snippet": "Hi! Want to book a consultation? Here's our calendar."
+  },
+  {
+    "response_id": "wa_ar_001",
+    "channel": "whatsapp",
+    "received_at": "2026-04-21T14:45:00",
+    "sender_phone": "+541148500101",
+    "content_snippet": "Buenas tardes, recibimos tu consulta. Un socio del estudio te responde en el día."
+  },
+  {
+    "response_id": "wa_ar_002",
+    "channel": "whatsapp",
+    "received_at": "2026-04-21T15:12:00",
+    "sender_phone": "+541148500201",
+    "content_snippet": "Hola! Confirmamos tu turno para la semana que viene. Cualquier duda, por acá."
+  },
+  {
+    "response_id": "wa_ar_003",
+    "channel": "whatsapp",
+    "received_at": "2026-04-22T09:30:00",
+    "sender_phone": "+541148500301",
+    "content_snippet": "Buen día! Te mandamos las opciones de propiedades que matchean con tu búsqueda."
+  },
+  {
+    "response_id": "wa_ar_004",
+    "channel": "whatsapp",
+    "received_at": "2026-04-21T18:20:00",
+    "sender_phone": "+541148500901",
+    "content_snippet": "Hola! Te esperamos cuando quieras, arrancá con una clase de prueba gratis."
   }
 ]

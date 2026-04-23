@@ -10,5 +10,23 @@
     "received_at": "2026-04-24T11:05:00",
     "sender_email": "hello@auroramedspa.example.com",
     "content_snippet": "Hi! We'd love to schedule a consultation. Here is a booking link..."
+  },
+  {
+    "response_id": "email_ar_001",
+    "received_at": "2026-04-21T17:20:00",
+    "sender_email": "contacto@gimenez-abogados.example.com.ar",
+    "content_snippet": "Estimado, recibimos su consulta. Un abogado del estudio le escribe en las próximas 24 hs."
+  },
+  {
+    "response_id": "email_ar_002",
+    "received_at": "2026-04-22T10:15:00",
+    "sender_email": "info@martinezcastro.example.com.ar",
+    "content_snippet": "Gracias por escribirnos. Le enviamos los honorarios por la consulta inicial."
+  },
+  {
+    "response_id": "email_ar_003",
+    "received_at": "2026-04-22T15:40:00",
+    "sender_email": "info@fitpalermo.example.com.ar",
+    "content_snippet": "Hola! Te paso los planes mensuales. Si querés arrancás con una clase de prueba."
   }
 ]

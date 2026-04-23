@@ -97,5 +97,160 @@
     "website": "https://bkcontour.example.com",
     "phone": "+17185550303",
     "email": null
+  },
+
+  {
+    "place_id": "place_ar_abog_001",
+    "business_name": "Estudio Giménez & Asociados",
+    "vertical": "abogados",
+    "location": "caba",
+    "website": "https://gimenez-abogados.example.com.ar",
+    "phone": "+541148500101",
+    "email": "contacto@gimenez-abogados.example.com.ar"
+  },
+  {
+    "place_id": "place_ar_abog_002",
+    "business_name": "Martínez Castro Abogados",
+    "vertical": "abogados",
+    "location": "caba",
+    "website": "https://martinezcastro.example.com.ar",
+    "phone": "+541148500102",
+    "email": "info@martinezcastro.example.com.ar"
+  },
+  {
+    "place_id": "place_ar_abog_003",
+    "business_name": "Estudio Jurídico Palermo",
+    "vertical": "abogados",
+    "location": "caba",
+    "website": "https://palermo-legal.example.com.ar",
+    "phone": "+541148500103",
+    "email": null
+  },
+  {
+    "place_id": "place_ar_dent_001",
+    "business_name": "Consultorio Odontológico Dr. Ruiz",
+    "vertical": "dentistas",
+    "location": "caba",
+    "website": "https://odonto-ruiz.example.com.ar",
+    "phone": "+541148500201",
+    "email": "turnos@odonto-ruiz.example.com.ar"
+  },
+  {
+    "place_id": "place_ar_dent_002",
+    "business_name": "Dental Studio Recoleta",
+    "vertical": "dentistas",
+    "location": "caba",
+    "website": "https://dentalrecoleta.example.com.ar",
+    "phone": "+541148500202",
+    "email": null
+  },
+  {
+    "place_id": "place_ar_inmo_001",
+    "business_name": "Inmobiliaria Del Plata",
+    "vertical": "inmobiliarias",
+    "location": "caba",
+    "website": "https://inmobiliariadelplata.example.com.ar",
+    "phone": "+541148500301",
+    "email": "ventas@inmobiliariadelplata.example.com.ar"
+  },
+  {
+    "place_id": "place_ar_inmo_002",
+    "business_name": "Palermo Propiedades",
+    "vertical": "inmobiliarias",
+    "location": "caba",
+    "website": "https://palermoprop.example.com.ar",
+    "phone": "+541148500302",
+    "email": null
+  },
+  {
+    "place_id": "place_ar_cont_001",
+    "business_name": "Estudio Contable Fernández",
+    "vertical": "contadores",
+    "location": "caba",
+    "website": "https://fernandez-contable.example.com.ar",
+    "phone": "+541148500401",
+    "email": "estudio@fernandez-contable.example.com.ar"
+  },
+  {
+    "place_id": "place_ar_pelu_001",
+    "business_name": "Peluquería Estilo Único",
+    "vertical": "peluquerias",
+    "location": "caba",
+    "website": "https://estilounico.example.com.ar",
+    "phone": "+541148500501",
+    "email": null
+  },
+  {
+    "place_id": "place_ar_arq_001",
+    "business_name": "Estudio de Arquitectura Soler",
+    "vertical": "arquitectos",
+    "location": "caba",
+    "website": "https://soler-arq.example.com.ar",
+    "phone": "+541148500601",
+    "email": "consultas@soler-arq.example.com.ar"
+  },
+  {
+    "place_id": "place_ar_clin_001",
+    "business_name": "Clínica Médica San Telmo",
+    "vertical": "clinicas_medicas",
+    "location": "caba",
+    "website": "https://clinicasantelmo.example.com.ar",
+    "phone": "+541148500701",
+    "email": "turnos@clinicasantelmo.example.com.ar"
+  },
+  {
+    "place_id": "place_ar_vet_001",
+    "business_name": "Veterinaria Belgrano",
+    "vertical": "veterinarias",
+    "location": "caba",
+    "website": "https://vetbelgrano.example.com.ar",
+    "phone": "+541148500801",
+    "email": null
+  },
+  {
+    "place_id": "place_ar_gim_001",
+    "business_name": "Gimnasio Fit Palermo",
+    "vertical": "gimnasios",
+    "location": "caba",
+    "website": "https://fitpalermo.example.com.ar",
+    "phone": "+541148500901",
+    "email": "info@fitpalermo.example.com.ar"
+  },
+  {
+    "place_id": "place_ar_este_001",
+    "business_name": "Centro de Estética Luna",
+    "vertical": "esteticas",
+    "location": "caba",
+    "website": "https://esteticaluna.example.com.ar",
+    "phone": "+541148501001",
+    "email": null
+  },
+
+  {
+    "place_id": "place_ar_cba_abog_001",
+    "business_name": "Estudio Jurídico Córdoba Centro",
+    "vertical": "abogados",
+    "location": "cordoba_ar",
+    "website": "https://estudiocbacentro.example.com.ar",
+    "phone": "+543514500101",
+    "email": "contacto@estudiocbacentro.example.com.ar"
+  },
+  {
+    "place_id": "place_ar_cba_dent_001",
+    "business_name": "Odontología Nueva Córdoba",
+    "vertical": "dentistas",
+    "location": "cordoba_ar",
+    "website": "https://odontonuevacba.example.com.ar",
+    "phone": "+543514500201",
+    "email": null
+  },
+  {
+    "place_id": "place_ar_cba_inmo_001",
+    "business_name": "Inmobiliaria Cerro de las Rosas",
+    "vertical": "inmobiliarias",
+    "location": "cordoba_ar",
+    "website": "https://cerrorosas-prop.example.com.ar",
+    "phone": "+543514500301",
+    "email": "info@cerrorosas-prop.example.com.ar"
   }
 ]

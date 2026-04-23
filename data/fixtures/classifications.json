@@ -42,5 +42,75 @@
   "place_spa_003": {
     "form_type": "chat_widget",
     "competitor_tools": ["drift", "calendly"]
+  },
+
+  "place_ar_abog_001": {
+    "form_type": "contact_form",
+    "competitor_tools": []
+  },
+  "place_ar_abog_002": {
+    "form_type": "chat_widget",
+    "competitor_tools": ["intercom"]
+  },
+  "place_ar_abog_003": {
+    "form_type": "contact_form",
+    "competitor_tools": []
+  },
+  "place_ar_dent_001": {
+    "form_type": "booking_widget",
+    "competitor_tools": ["calendly"]
+  },
+  "place_ar_dent_002": {
+    "form_type": "contact_form",
+    "competitor_tools": []
+  },
+  "place_ar_inmo_001": {
+    "form_type": "contact_form",
+    "competitor_tools": []
+  },
+  "place_ar_inmo_002": {
+    "form_type": "chat_widget",
+    "competitor_tools": ["drift"]
+  },
+  "place_ar_cont_001": {
+    "form_type": "contact_form",
+    "competitor_tools": []
+  },
+  "place_ar_pelu_001": {
+    "form_type": "booking_widget",
+    "competitor_tools": ["calendly"]
+  },
+  "place_ar_arq_001": {
+    "form_type": "contact_form",
+    "competitor_tools": []
+  },
+  "place_ar_clin_001": {
+    "form_type": "booking_widget",
+    "competitor_tools": ["acuity"]
+  },
+  "place_ar_vet_001": {
+    "form_type": "contact_form",
+    "competitor_tools": []
+  },
+  "place_ar_gim_001": {
+    "form_type": "chat_widget",
+    "competitor_tools": ["intercom"]
+  },
+  "place_ar_este_001": {
+    "form_type": "booking_widget",
+    "competitor_tools": ["calendly"]
+  },
+
+  "place_ar_cba_abog_001": {
+    "form_type": "contact_form",
+    "competitor_tools": []
+  },
+  "place_ar_cba_dent_001": {
+    "form_type": "booking_widget",
+    "competitor_tools": []
+  },
+  "place_ar_cba_inmo_001": {
+    "form_type": "contact_form",
+    "competitor_tools": []
   }
 }
