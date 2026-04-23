@@ -695,6 +695,10 @@ def _save_verticals(new_rows: list[dict]) -> tuple[int, list[str]]:
 def render_settings_tab(env_path: Path) -> None:
     env = _read_env(env_path)
 
+    # ---------------------------- Tutorial (top of page)
+
+    _render_tutorial()
+
     # ---------------------------- Setup status panel
 
     services = [
@@ -859,6 +863,62 @@ def render_settings_tab(env_path: Path) -> None:
 
     st.divider()
     _render_quick_actions(env_path)
+
+
+# --------------------------------------------------------------- Tutorial
+
+
+def _render_tutorial() -> None:
+    """Top-of-Settings onboarding tutorial — writen for non-technical operators.
+
+    Design goals:
+    - Always available (non-technical users come back to it often).
+    - Expanded by default the first time each session; user can collapse.
+    - Plain-language numbered steps, each one finishes a useful sub-task.
+    - Uses Streamlit's native markdown so the content stays themeable.
+
+    If the operator dismisses it, we remember that for the current session
+    only — next session it opens again, which is the correct default for
+    a product people might teach others to use.
+    """
+    dismissed = st.session_state.get("_tutorial_dismissed", False)
+
+    with st.expander(tr("settings.tutorial_title"), expanded=not dismissed):
+        st.markdown(tr("settings.tutorial_intro"))
+
+        st.markdown("---")
+
+        # Step 1 — demo
+        st.markdown(tr("settings.tutorial_step1_title"))
+        st.markdown(tr("settings.tutorial_step1_body"))
+
+        # Step 2 — read the tabs
+        st.markdown(tr("settings.tutorial_step2_title"))
+        st.markdown(tr("settings.tutorial_step2_body"))
+
+        # Step 3 — customize market
+        st.markdown(tr("settings.tutorial_step3_title"))
+        st.markdown(tr("settings.tutorial_step3_body"))
+
+        # Step 4 — demo vs real mode
+        st.markdown(tr("settings.tutorial_step4_title"))
+        st.markdown(tr("settings.tutorial_step4_body"))
+
+        # Step 5 — weekly workflow
+        st.markdown(tr("settings.tutorial_step5_title"))
+        st.markdown(tr("settings.tutorial_step5_body"))
+
+        st.markdown("---")
+        st.markdown(tr("settings.tutorial_footer"))
+
+        if not dismissed:
+            col_dismiss, _ = st.columns([1, 3])
+            if col_dismiss.button(
+                tr("settings.tutorial_dismiss"),
+                key="tutorial_dismiss_btn",
+            ):
+                st.session_state["_tutorial_dismissed"] = True
+                st.rerun()
 
 
 # --------------------------------------------------------------- Category generator

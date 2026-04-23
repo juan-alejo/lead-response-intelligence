@@ -296,6 +296,133 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings.test_connection": "🔌 Probar conexión",
         "settings.testing": "Probando…",
 
+        # --- Settings: tutorial (top of page) ---
+        "settings.tutorial_title": "📖 Tutorial — cómo usar ReachRate (5 minutos)",
+        "settings.tutorial_intro": (
+            "Bienvenido a **ReachRate**. Esta herramienta encuentra los "
+            "negocios que **más tardan en responder** a sus clientes "
+            "potenciales — ahí están tus mejores oportunidades de venta, "
+            "porque son los que más necesitan mejorar.\n\n"
+            "Cada semana te generamos una lista ordenada. Abajo te "
+            "explicamos paso a paso cómo usarla. Tomate el tiempo que "
+            "necesites — no te podés romper nada."
+        ),
+        "settings.tutorial_step1_title": "### 1️⃣ Probá primero sin gastar nada",
+        "settings.tutorial_step1_body": (
+            "ReachRate viene con **datos de ejemplo** — negocios "
+            "simulados, teléfonos inventados, respuestas ficticias. "
+            "Todo listo para que veas cómo funciona sin conectar nada.\n\n"
+            "**Qué hacer ahora mismo:**\n"
+            "1. Mirá el panel lateral izquierdo (si no lo ves, hacé click "
+            "en el ícono **›** arriba a la izquierda para abrirlo).\n"
+            "2. Elegí una **Ubicación** — probá con **CABA** si sos de "
+            "Argentina.\n"
+            "3. Tocá el botón azul **🚀 Buscar ahora**.\n"
+            "4. En unos segundos vas a ver que los contadores de arriba "
+            "se llenan y los tabs muestran información real.\n\n"
+            "✨ Eso es todo. Ya corriste tu primera búsqueda."
+        ),
+        "settings.tutorial_step2_title": "### 2️⃣ Mirá los tabs en orden",
+        "settings.tutorial_step2_body": (
+            "Arriba del panel tenés varios tabs. Cada uno te responde una "
+            "pregunta distinta:\n\n"
+            "- **🏠 Inicio** → *\"¿Cómo está mi mercado esta semana?\"* — "
+            "resumen rápido + recomendación del día.\n"
+            "- **🎯 Lista prioritaria** → *\"¿A quién llamo primero?\"* — "
+            "negocios ordenados: los que **nunca respondieron** arriba, "
+            "los que tardaron días en el medio, los rápidos abajo. **Los "
+            "de arriba son tu oro.**\n"
+            "- **📊 Estadísticas** → *\"¿Qué rubro entero responde "
+            "lento?\"* — útil para detectar nichos enteros con "
+            "oportunidad (ej: \"todas las inmobiliarias tardan 3 días "
+            "en promedio — ahí hay guita\").\n"
+            "- **🕵 Herramientas que usan** → *\"¿Qué chat o agenda ya "
+            "tienen instalado?\"* — te ayuda a calibrar el pitch "
+            "(integrarte con lo que ya usan vs reemplazarlo).\n"
+            "- **🗂 Datos detallados** → debug. Útil si un resultado "
+            "parece raro y querés ver los datos crudos.\n"
+            "- **🤖 Envío automático** → función avanzada. Lo explicamos "
+            "abajo en el punto 5."
+        ),
+        "settings.tutorial_step3_title": "### 3️⃣ Adaptá la herramienta a tu mercado",
+        "settings.tutorial_step3_body": (
+            "Los datos de ejemplo son argentinos. Si sos de otro país, "
+            "o te interesa otro rubro, podés cambiarlo en 2 minutos **sin "
+            "programar nada**. Scrolleá abajo en esta misma página y vas "
+            "a encontrar:\n\n"
+            "- **📦 Packs de categorías listos** — elegí tu mercado "
+            "(🇦🇷 Argentina, 🇺🇸 US, 🇧🇷 Brasil, 🌎 LatAm) y apretá "
+            "*Aplicar*. Reemplaza todos los tipos de negocio con queries "
+            "optimizadas en el idioma local.\n"
+            "- **🧠 Generar categorías con Claude** — si tu país o rubro "
+            "no tiene pack, escribí algo como *\"Colombia + servicios "
+            "profesionales\"* y Claude (una IA) te genera las "
+            "categorías automáticamente.\n"
+            "- **🧺 Modo agregado** — si vendés a **cualquier tipo** de "
+            "negocio y no te importa segmentar por rubro, prendé este "
+            "switch. El dashboard muestra todo junto sin filtros por "
+            "tipo.\n"
+            "- **🎯 Tipos de negocio a buscar** — la tabla editable. "
+            "Podés agregar/quitar rubros a mano. Para borrar una fila "
+            "hacé click a la izquierda del número de fila (se resalta "
+            "en azul) y apretá *Delete*.\n"
+            "- **📍 Ubicaciones que podés buscar** — ciudades, "
+            "provincias, o países enteros. Mismo sistema editable."
+        ),
+        "settings.tutorial_step4_title": "### 4️⃣ Cuando estés listo, conectá servicios reales",
+        "settings.tutorial_step4_body": (
+            "Arriba de esta página hay un switch **🧪 Modo demo**. "
+            "Mientras esté **prendido**, todo usa datos inventados — "
+            "ideal para probar y para mostrarle al cliente sin gastar.\n\n"
+            "Cuando lo **apagás**, se desbloquean las secciones de cada "
+            "servicio externo:\n\n"
+            "- **🗺 Google Places** — busca negocios reales en Google "
+            "Maps (Google te regala $200/mes, te alcanza).\n"
+            "- **🤖 Claude (IA)** — analiza los sitios web para detectar "
+            "qué tipo de contacto tienen ($5 USD gratis al registrarse).\n"
+            "- **📱 Twilio SMS** — recibe SMS y llamadas de prueba "
+            "(relevante en EE.UU. / Europa).\n"
+            "- **💬 WhatsApp** — el canal más importante para "
+            "LatAm. Comparte credenciales con Twilio.\n"
+            "- **📧 Gmail** — lee las respuestas por email.\n\n"
+            "Cada servicio tiene un expander **❓ ¿Qué es esto y cómo se "
+            "configura?** con los pasos detallados: dónde sacar la API "
+            "key, cuánto cuesta, y qué pasa si lo apagás.\n\n"
+            "**Consejo práctico**: no intentes conectar todo de una. "
+            "Arrancá con Google Places + Claude, que son los dos que "
+            "definen el producto. Los canales de respuesta (WhatsApp, "
+            "email, SMS) podés dejarlos para después."
+        ),
+        "settings.tutorial_step5_title": "### 5️⃣ Tu rutina semanal",
+        "settings.tutorial_step5_body": (
+            "Una vez configurado, tu flujo normal es este:\n\n"
+            "**Cada lunes a la mañana:**\n\n"
+            "1. Abrís el dashboard.\n"
+            "2. Mirás el tab **🎯 Lista prioritaria** — ahí están los "
+            "prospectos nuevos de la semana.\n"
+            "3. Descargás el **CSV** con los que te interesan (botón "
+            "**⬇ Descargar**).\n"
+            "4. Los cargás en tu CRM o planilla, y empezás a "
+            "contactarlos.\n\n"
+            "**Durante la semana:** tu equipo llena formularios en los "
+            "sitios de los prospectos (o si tenés **🤖 Envío automático** "
+            "activado, el bot lo hace solo). Las respuestas que vayan "
+            "llegando a tu WhatsApp / email se registran automáticamente.\n\n"
+            "**El lunes siguiente:** la lista se actualiza con quiénes "
+            "respondieron rápido (se filtran) y quiénes siguen lentos "
+            "(siguen ahí, siguen siendo oportunidad)."
+        ),
+        "settings.tutorial_footer": (
+            "💡 **¿Te perdiste?** Cada sección de esta página tiene un "
+            "expander **❓ ¿Qué es esto y cómo se configura?** con "
+            "instrucciones específicas. Empezá por lo más simple (modo "
+            "demo) y andá sumando de a poco.\n\n"
+            "🆘 **¿Problemas?** Contactá a la persona que te vendió el "
+            "sistema — el código está en "
+            "[github.com/juan-alejo/reachrate](https://github.com/juan-alejo/reachrate)."
+        ),
+        "settings.tutorial_dismiss": "✓ Entendido, colapsar este tutorial",
+
         # --- Settings: aggregated mode ---
         "settings.aggregated_title": "### 🧺 Modo agregado (sin segmentar por tipo)",
         "settings.aggregated_caption": (
@@ -798,6 +925,134 @@ _TRANSLATIONS: dict[str, dict[str, str]] = {
         "settings.autosave_hint": "Changes save automatically — no button needed.",
         "settings.test_connection": "🔌 Test connection",
         "settings.testing": "Testing…",
+
+        # --- Settings: tutorial (top of page) ---
+        "settings.tutorial_title": "📖 Tutorial — how to use ReachRate (5 minutes)",
+        "settings.tutorial_intro": (
+            "Welcome to **ReachRate**. This tool finds the businesses "
+            "that **take the longest to reply** to inbound contact — "
+            "those are your best sales opportunities, because they're "
+            "the ones most in need of a solution.\n\n"
+            "Every week we generate a prioritized list. Below we walk "
+            "you through it step by step. Take your time — you can't "
+            "break anything."
+        ),
+        "settings.tutorial_step1_title": "### 1️⃣ Try it first without spending a cent",
+        "settings.tutorial_step1_body": (
+            "ReachRate ships with **sample data** — fake businesses, "
+            "made-up phone numbers, simulated replies. Everything is "
+            "ready for you to see how it works without connecting "
+            "anything.\n\n"
+            "**What to do right now:**\n"
+            "1. Look at the left sidebar (if you can't see it, click "
+            "the **›** icon at the top left to open it).\n"
+            "2. Pick a **Location** — try **CABA** if you're in "
+            "Argentina, or **Manhattan** if you're in the US.\n"
+            "3. Click the blue **🚀 Search now** button.\n"
+            "4. In a few seconds you'll see the counters at the top "
+            "fill up and the tabs show real data.\n\n"
+            "✨ That's it. You just ran your first search."
+        ),
+        "settings.tutorial_step2_title": "### 2️⃣ Walk through the tabs in order",
+        "settings.tutorial_step2_body": (
+            "At the top of the dashboard you have several tabs. Each "
+            "answers a different question:\n\n"
+            "- **🏠 Home** → *\"How is my market this week?\"* — quick "
+            "summary + today's recommendation.\n"
+            "- **🎯 Priority list** → *\"Who do I call first?\"* — "
+            "businesses sorted: those who **never replied** at the top, "
+            "slow responders in the middle, fast ones at the bottom. "
+            "**The top rows are your gold.**\n"
+            "- **📊 Stats** → *\"Which whole vertical responds slow?\"* "
+            "— useful for spotting entire niches with opportunity (e.g. "
+            "\"every real estate agency averages 3 days — there's "
+            "money there\").\n"
+            "- **🕵 Tools they use** → *\"What chat or calendar tool "
+            "is already installed?\"* — helps you calibrate the pitch "
+            "(integrate vs replace).\n"
+            "- **🗂 Raw data** → debug. Useful when a result looks "
+            "weird and you want to see the underlying tables.\n"
+            "- **🤖 Auto-submit** → advanced feature. Covered in step 5 "
+            "below."
+        ),
+        "settings.tutorial_step3_title": "### 3️⃣ Adapt the tool to your market",
+        "settings.tutorial_step3_body": (
+            "The sample data is Argentine. If you're in a different "
+            "country or sector, you can change it in 2 minutes **without "
+            "writing any code**. Scroll down on this same page and "
+            "you'll find:\n\n"
+            "- **📦 Ready-made category packs** — pick your market "
+            "(🇦🇷 Argentina, 🇺🇸 US, 🇧🇷 Brazil, 🌎 LatAm) and hit "
+            "*Apply*. Replaces all business types with queries tuned "
+            "for the local language.\n"
+            "- **🧠 Generate categories with Claude** — if your country "
+            "or sector has no pack, type something like *\"Colombia + "
+            "professional services\"* and Claude (an AI) will generate "
+            "the categories automatically.\n"
+            "- **🧺 Aggregated mode** — if you sell to **any kind** of "
+            "business and don't care about per-type segmentation, turn "
+            "on this toggle. The dashboard flattens every vertical into "
+            "a single view.\n"
+            "- **🎯 Business types to search** — the editable table. "
+            "You can add/remove categories by hand. To delete a row, "
+            "click to the left of the row number (it highlights blue) "
+            "and hit *Delete*.\n"
+            "- **📍 Searchable locations** — cities, states, or whole "
+            "countries. Same editable system."
+        ),
+        "settings.tutorial_step4_title": "### 4️⃣ When you're ready, plug in real services",
+        "settings.tutorial_step4_body": (
+            "At the top of this page there's a **🧪 Demo mode** switch. "
+            "While it's **on**, everything uses fake data — perfect "
+            "for testing and for showing a client without spending.\n\n"
+            "When you **turn it off**, each external service unlocks:\n\n"
+            "- **🗺 Google Places** — finds real businesses on Google "
+            "Maps (Google gives you $200/month free — plenty).\n"
+            "- **🤖 Claude (AI)** — analyzes websites to detect the "
+            "type of contact method ($5 USD free on signup).\n"
+            "- **📱 Twilio SMS** — receives test SMS and calls "
+            "(relevant in US / Europe).\n"
+            "- **💬 WhatsApp** — the main channel for LatAm. Shares "
+            "credentials with Twilio.\n"
+            "- **📧 Gmail** — reads email replies.\n\n"
+            "Each service has an **❓ What is this and how do I set "
+            "it up?** expander with detailed steps: where to get the "
+            "API key, how much it costs, and what happens when you "
+            "turn it off.\n\n"
+            "**Practical tip**: don't try to connect everything at "
+            "once. Start with Google Places + Claude, which are the "
+            "two that define the product. Response channels (WhatsApp, "
+            "email, SMS) can wait."
+        ),
+        "settings.tutorial_step5_title": "### 5️⃣ Your weekly routine",
+        "settings.tutorial_step5_body": (
+            "Once configured, your normal flow is this:\n\n"
+            "**Every Monday morning:**\n\n"
+            "1. Open the dashboard.\n"
+            "2. Look at the **🎯 Priority list** tab — that's where the "
+            "week's new prospects are.\n"
+            "3. Download the **CSV** with the ones you care about "
+            "(**⬇ Download** button).\n"
+            "4. Load them into your CRM or spreadsheet, and start "
+            "contacting them.\n\n"
+            "**During the week:** your team fills contact forms on the "
+            "prospects' sites (or if **🤖 Auto-submit** is on, the bot "
+            "does it for you). Replies arriving at your WhatsApp / "
+            "email register automatically.\n\n"
+            "**Next Monday:** the list refreshes with who replied fast "
+            "(gets filtered out) and who's still slow (stays on top, "
+            "still opportunity)."
+        ),
+        "settings.tutorial_footer": (
+            "💡 **Lost?** Every section on this page has a **❓ What "
+            "is this and how do I set it up?** expander with specific "
+            "instructions. Start simple (demo mode) and add more as "
+            "you go.\n\n"
+            "🆘 **Stuck?** Contact the person who sold you the system "
+            "— the source code lives at "
+            "[github.com/juan-alejo/reachrate](https://github.com/juan-alejo/reachrate)."
+        ),
+        "settings.tutorial_dismiss": "✓ Got it, collapse this tutorial",
 
         # --- Settings: aggregated mode ---
         "settings.aggregated_title": "### 🧺 Aggregated mode (no type segmentation)",
