@@ -835,16 +835,20 @@ def render_settings_tab(env_path: Path) -> None:
 
     # Auto-save verticals on each rerun (data_editor returns current state).
     # We compare against the last saved snapshot to avoid spurious writes.
-    # Note: we save even when every row is deleted (count == 0) — otherwise
-    # the signature stays dirty forever and every rerun re-fires a save with
-    # the same content. Persisting an empty list is intentional; an operator
-    # who wipes the table means "I don't want any verticals configured".
+    # On the FIRST render we seed the baseline from the registry state (what
+    # came from disk) WITHOUT saving — otherwise a clean dashboard launch
+    # rewrites config/verticals.yaml and strips its comments via yaml.safe_dump.
+    # We save even when every row is deleted (count == 0) — otherwise the
+    # signature stays dirty forever. Persisting an empty list is intentional;
+    # an operator who wipes the table means "no verticals configured".
     last_saved = st.session_state.get("_verticals_last_saved")
     current_signature = tuple(
         (r.get("name", ""), r.get("display_name", ""), r.get("query", ""))
         for r in edited
     )
-    if last_saved != current_signature:
+    if last_saved is None:
+        st.session_state["_verticals_last_saved"] = current_signature
+    elif last_saved != current_signature:
         count, errors = _save_verticals(edited)
         if not errors:
             st.session_state["_verticals_last_saved"] = current_signature
@@ -1199,13 +1203,15 @@ def _render_locations_editor() -> None:
     )
     st.caption(tr("settings.editor_delete_hint"))
 
-    # Same save-on-empty logic as the verticals editor (see comment above).
+    # Same baseline-vs-save logic as the verticals editor (see comment above).
     last_saved = st.session_state.get("_locations_last_saved")
     signature = tuple(
         (r.get("name", ""), r.get("display_name", ""), r.get("query_suffix", ""))
         for r in edited
     )
-    if last_saved != signature:
+    if last_saved is None:
+        st.session_state["_locations_last_saved"] = signature
+    elif last_saved != signature:
         count, errors = _save_locations(edited)
         if not errors:
             st.session_state["_locations_last_saved"] = signature

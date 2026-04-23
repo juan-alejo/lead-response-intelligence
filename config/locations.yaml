@@ -1,61 +1,90 @@
+# Editable desde el tab "⚙ Configuración" del dashboard.
+#
+# Cada ubicación tiene:
+# - name: id interno (snake_case, único — lo usan storage + CLI).
+# - display_name: lo que ve el operador en los dropdowns.
+# - query_suffix: se concatena al final de la query a Google Places, después
+#   del tipo de negocio. Ej: query="estudio jurídico" + suffix="en Córdoba,
+#   Argentina" → "estudio jurídico en Córdoba, Argentina".
+#
+# IMPORTANTE — preposición por idioma:
+#   - Español:    "en" (ej: "en Córdoba, Argentina", "en Madrid, España")
+#   - Portugués:  "em" (ej: "em São Paulo, Brasil")
+#   - Inglés:     "in" (ej: "in Manhattan, New York")
+# Si tu vertical está en español, el sufijo también debería usar "en".
+# La query que queda mezclando idiomas funciona pero Google te devuelve
+# resultados con menos precisión.
+#
+# Agregá / quitá libremente. Funciona para cualquier ciudad / provincia /
+# país — el pipeline no asume ninguna geografía específica.
+
 locations:
-- name: caba
-  display_name: CABA (Ciudad de Buenos Aires)
-  query_suffix: "en Ciudad Aut\xF3noma de Buenos Aires, Argentina"
-- name: gba_norte
-  display_name: GBA Norte
-  query_suffix: en Gran Buenos Aires Norte, Argentina
-- name: cordoba_ar
-  display_name: "C\xF3rdoba, Argentina"
-  query_suffix: "en C\xF3rdoba, Argentina"
-- name: rosario
-  display_name: Rosario, Argentina
-  query_suffix: en Rosario, Santa Fe, Argentina
-- name: mendoza
-  display_name: Mendoza, Argentina
-  query_suffix: en Mendoza, Argentina
-- name: la_pampa
-  display_name: La Pampa, Argentina
-  query_suffix: en La Pampa, Argentina
-- name: argentina_all
-  display_name: Toda Argentina
-  query_suffix: en Argentina
-- name: cdmx
-  display_name: "CDMX (Ciudad de M\xE9xico)"
-  query_suffix: "en Ciudad de M\xE9xico, M\xE9xico"
-- name: mexico_all
-  display_name: "Todo M\xE9xico"
-  query_suffix: "en M\xE9xico"
-- name: santiago_cl
-  display_name: Santiago de Chile
-  query_suffix: en Santiago, Chile
-- name: sao_paulo
-  display_name: "S\xE3o Paulo, Brasil"
-  query_suffix: "em S\xE3o Paulo, Brasil"
-- name: brasil_all
-  display_name: Todo Brasil
-  query_suffix: em Brasil
-- name: madrid
-  display_name: "Madrid, Espa\xF1a"
-  query_suffix: "en Madrid, Espa\xF1a"
-- name: barcelona
-  display_name: "Barcelona, Espa\xF1a"
-  query_suffix: "en Barcelona, Espa\xF1a"
-- name: manhattan
-  display_name: Manhattan, NY
-  query_suffix: in Manhattan, New York
-- name: brooklyn
-  display_name: Brooklyn, NY
-  query_suffix: in Brooklyn, New York
-- name: queens
-  display_name: Queens, NY
-  query_suffix: in Queens, New York
-- name: bronx
-  display_name: Bronx, NY
-  query_suffix: in the Bronx, New York
-- name: staten_island
-  display_name: Staten Island, NY
-  query_suffix: in Staten Island, New York
-- name: usa_all
-  display_name: All United States
-  query_suffix: in the United States
+  # --- Argentina ---
+  - name: caba
+    display_name: CABA (Ciudad de Buenos Aires)
+    query_suffix: en Ciudad Autónoma de Buenos Aires, Argentina
+  - name: gba_norte
+    display_name: GBA Norte
+    query_suffix: en Gran Buenos Aires Norte, Argentina
+  - name: cordoba_ar
+    display_name: Córdoba, Argentina
+    query_suffix: en Córdoba, Argentina
+  - name: rosario
+    display_name: Rosario, Argentina
+    query_suffix: en Rosario, Santa Fe, Argentina
+  - name: mendoza
+    display_name: Mendoza, Argentina
+    query_suffix: en Mendoza, Argentina
+  - name: la_pampa
+    display_name: La Pampa, Argentina
+    query_suffix: en La Pampa, Argentina
+  - name: argentina_all
+    display_name: Toda Argentina
+    query_suffix: en Argentina
+
+  # --- Resto de LatAm ---
+  - name: cdmx
+    display_name: CDMX (Ciudad de México)
+    query_suffix: en Ciudad de México, México
+  - name: mexico_all
+    display_name: Todo México
+    query_suffix: en México
+  - name: santiago_cl
+    display_name: Santiago de Chile
+    query_suffix: en Santiago, Chile
+
+  # --- Brasil (preposición en portugués) ---
+  - name: sao_paulo
+    display_name: São Paulo, Brasil
+    query_suffix: em São Paulo, Brasil
+  - name: brasil_all
+    display_name: Todo Brasil
+    query_suffix: em Brasil
+
+  # --- España ---
+  - name: madrid
+    display_name: Madrid, España
+    query_suffix: en Madrid, España
+  - name: barcelona
+    display_name: Barcelona, España
+    query_suffix: en Barcelona, España
+
+  # --- US / NYC presets (para operadores en inglés) ---
+  - name: manhattan
+    display_name: Manhattan, NY
+    query_suffix: in Manhattan, New York
+  - name: brooklyn
+    display_name: Brooklyn, NY
+    query_suffix: in Brooklyn, New York
+  - name: queens
+    display_name: Queens, NY
+    query_suffix: in Queens, New York
+  - name: bronx
+    display_name: Bronx, NY
+    query_suffix: in the Bronx, New York
+  - name: staten_island
+    display_name: Staten Island, NY
+    query_suffix: in Staten Island, New York
+  - name: usa_all
+    display_name: All United States
+    query_suffix: in the United States
